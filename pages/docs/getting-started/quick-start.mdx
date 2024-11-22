@@ -1,0 +1,247 @@
+---
+title: Quick Start
+---
+
+## Quick Start
+
+TanStack Router를 사용하여 파일 기반 라우트 생성 및 코드 기반 라우트 설정으로 프로젝트를 시작하는 최소한의 방법을 소개합니다.
+
+## Using File-Based Route Generation
+
+파일 기반 라우트 생성(Vite 및 기타 지원되는 번들러를 통해)은 TanStack Router를 사용하는 가장 추천되는 방법으로, 최소한의 노력으로 최고의 경험, 성능 및 가독성을 제공합니다.
+
+### Scaffolding Your First TanStack Router Project
+
+```sh
+npm create @tanstack/router@latest
+# 또는
+pnpm create @tanstack/router
+# 또는
+yarn create @tanstack/router
+# 또는
+bun create @tanstack/router
+```
+
+프롬프트를 따라 프로젝트를 설정하세요.
+
+### Manual Setup
+
+#### Install the Vite Plugin and the Router Devtools
+
+Vite 플러그인과 Router Devtools를 설치합니다.
+
+```sh
+npm install -D @tanstack/router-plugin @tanstack/router-devtools
+# 또는
+pnpm add -D @tanstack/router-plugin @tanstack/router-devtools
+# 또는
+yarn add -D @tanstack/router-plugin @tanstack/router-devtools
+# 또는
+bun add -D @tanstack/router-plugin @tanstack/router-devtools
+```
+
+#### Configure the Vite Plugin
+
+```typescript
+// vite.config.ts
+import { defineConfig } from "vite";
+import viteReact from "@vitejs/plugin-react";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    TanStackRouterVite(),
+    viteReact(),
+    // ...,
+  ],
+});
+```
+
+> [!TIP]
+> Vite 또는 지원되는 번들러를 사용하지 않는 경우, [File-Based Routing](./guide/file-based-routing.md) 가이드를 참고하세요.
+
+다음 파일들을 생성하세요:
+
+- `src/routes/__root.tsx`
+- `src/routes/index.lazy.tsx`
+- `src/routes/about.lazy.tsx`
+- `src/main.tsx`
+
+> 🧠 `.lazy.tsx` 확장자를 가진 라우트 파일은 별도의 번들을 통해 지연 로드되며, 메인 번들 크기를 가능한 작게 유지합니다.
+
+#### `src/routes/__root.tsx`
+
+```typescript
+import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+
+export const Route = createRootRoute({
+  component: () => (
+    <>
+      <div className="p-2 flex gap-2">
+        <Link to="/" className="[&.active]:font-bold">
+          Home
+        </Link>{" "}
+        <Link to="/about" className="[&.active]:font-bold">
+          About
+        </Link>
+      </div>
+      <hr />
+      <Outlet />
+      <TanStackRouterDevtools />
+    </>
+  ),
+});
+```
+
+#### `src/routes/index.lazy.tsx`
+
+```typescript
+import { createLazyFileRoute } from "@tanstack/react-router";
+
+export const Route = createLazyFileRoute("/")({
+  component: Index,
+});
+
+function Index() {
+  return (
+    <div className="p-2">
+      <h3>Welcome Home!</h3>
+    </div>
+  );
+}
+```
+
+#### `src/routes/about.lazy.tsx`
+
+```typescript
+import { createLazyFileRoute } from "@tanstack/react-router";
+
+export const Route = createLazyFileRoute("/about")({
+  component: About,
+});
+
+function About() {
+  return <div className="p-2">Hello from About!</div>;
+}
+```
+
+#### `src/main.tsx`
+
+`@tanstack/router-plugin` 패키지를 사용하든 패키지 스크립트에서 `tsr watch`/`tsr generate` 명령어를 수동으로 실행하든, 다음 파일이 `src/routeTree.gen.ts`에 생성됩니다.
+
+생성된 라우트 트리를 가져와 새로운 라우터 인스턴스를 생성하세요:
+
+```typescript
+import React, { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+
+// 생성된 라우트 트리 가져오기
+import { routeTree } from "./routeTree.gen";
+
+// 새로운 라우터 인스턴스 생성
+const router = createRouter({ routeTree });
+
+// 타입 안정성을 위한 라우터 인스턴스 등록
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+// 애플리케이션 렌더링
+const rootElement = document.getElementById("root")!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>
+  );
+}
+```
+
+이 패턴을 사용할 경우, `index.html` 파일의 루트 `<div>`의 `id`를 `<div id='root'></div>`로 변경해야 합니다.
+
+## Using Code-Based Route Configuration
+
+> [!IMPORTANT]
+> 아래 예제는 코드를 사용하여 라우트를 설정하는 방법을 보여줍니다. 간단히 하기 위해 단일 파일로 작성되었으나, 코드 기반 생성은 많은 라우트와 라우터 인스턴스를 단일 파일에 선언할 수 있습니다. 하지만 애플리케이션이 성장함에 따라 더 나은 구성과 성능을 위해 라우트를 개별 파일로 분리하는 것을 추천합니다.
+
+```typescript
+import React, { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import {
+  Outlet,
+  RouterProvider,
+  Link,
+  createRouter,
+  createRoute,
+  createRootRoute,
+} from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+
+const rootRoute = createRootRoute({
+  component: () => (
+    <>
+      <div className="p-2 flex gap-2">
+        <Link to="/" className="[&.active]:font-bold">
+          Home
+        </Link>{" "}
+        <Link to="/about" className="[&.active]:font-bold">
+          About
+        </Link>
+      </div>
+      <hr />
+      <Outlet />
+      <TanStackRouterDevtools />
+    </>
+  ),
+});
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: function Index() {
+    return (
+      <div className="p-2">
+        <h3>Welcome Home!</h3>
+      </div>
+    );
+  },
+});
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/about",
+  component: function About() {
+    return <div className="p-2">Hello from About!</div>;
+  },
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, aboutRoute]);
+
+const router = createRouter({ routeTree });
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+const rootElement = document.getElementById("app")!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <RouterProvider router={router} />
+    </StrictMode>
+  );
+}
+```
+
+`createRootRoute`와 `createRoute`를 사용하여 라우트 트리를 구성하고, 새로운 라우터 인스턴스를 생성합니다. 그런 다음 애플리케이션 루트 요소를 렌더링합니다.
+
+이 예제를 간략히 보거나 이해하지 못했더라도 걱정하지 마세요. TanStack Router를 최대한 활용하기 위해 배워야 할 내용이 많이 있습니다! 계속 진행해 봅시다.
