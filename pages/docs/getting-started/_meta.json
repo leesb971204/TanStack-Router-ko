@@ -10,5 +10,8 @@
   },
   "devtools": {
     "title": "Devtools"
+  },
+  "comparison": {
+    "title": "Comparison"
   }
 }
