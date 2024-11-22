@@ -13,5 +13,8 @@
   },
   "comparison": {
     "title": "Comparison"
+  },
+  "migrate-from-react-router": {
+    "title": "Migrate from React Router"
   }
 }
