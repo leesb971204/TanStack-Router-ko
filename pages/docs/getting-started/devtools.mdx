@@ -1,0 +1,161 @@
+---
+title: Devtools
+---
+
+## Devtools
+
+> Link, 이 검을... 아니, Devtools를 가져가세요!... 당신의 여정에 도움이 될 것입니다!
+
+손을 공중에 휘두르고 환호하세요. TanStack Router는 전용 Devtools와 함께 제공됩니다! 🥳
+
+TanStack Router 여정을 시작하면 Devtools가 반드시 필요합니다. 이 도구는 TanStack Router의 내부 작동 방식을 시각화하는 데 도움을 주며, 문제가 생겼을 때 디버깅 시간을 대폭 줄일 수 있습니다!
+
+> 현재 Devtools는 **React에서만 지원**됩니다. Devtools를 플랫폼 독립적으로 만들고 싶으시다면, 저희에게 알려주세요!
+
+## Installation
+
+```sh
+npm install @tanstack/router-devtools --save
+```
+
+## Import the Devtools
+
+```js
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+```
+
+## Only importing and using Devtools in Development
+
+이 작업을 수행하려면 `React.lazy`와 원하는 환경 변수를 사용하여 선택적으로 더미 컴포넌트를 반환하면 됩니다:
+
+```tsx
+const TanStackRouterDevtools =
+  process.env.NODE_ENV === "production"
+    ? () => null // 프로덕션에서는 아무것도 렌더링하지 않음
+    : React.lazy(() =>
+        // 개발 환경에서 지연 로드
+        import("@tanstack/router-devtools").then((res) => ({
+          default: res.TanStackRouterDevtools,
+          // Embedded Mode의 경우
+          // default: res.TanStackRouterDevtoolsPanel
+        }))
+      );
+```
+
+그런 다음 `TanStackRouterDevtools` 컴포넌트를 `Suspense`로 감싸세요.
+
+```tsx
+<Suspense>
+  <TanStackRouterDevtools />
+</Suspense>
+```
+
+## Using inside of the `RouterProvider`
+
+Devtools를 가장 쉽게 사용하는 방법은 루트 라우트(또는 다른 라우트) 내에서 렌더링하는 것입니다. 이렇게 하면 Devtools가 라우터 인스턴스와 자동으로 연결됩니다.
+
+```tsx
+const rootRoute = createRootRoute({
+  component: () => (
+    <>
+      <Outlet />
+      <TanStackRouterDevtools />
+    </>
+  ),
+});
+
+const routeTree = rootRoute.addChildren([
+  // ... 다른 라우트들
+]);
+
+const router = createRouter({
+  routeTree,
+});
+
+function App() {
+  return <RouterProvider router={router} />;
+}
+```
+
+## Manually passing the Router Instance
+
+`RouterProvider` 내부에서 Devtools를 렌더링하는 방식이 마음에 들지 않는다면, Devtools의 `router` prop에 `Router` 컴포넌트에 전달한 것과 동일한 `router` 인스턴스를 전달할 수 있습니다. 이렇게 하면 Devtools를 페이지 어디에나 배치할 수 있습니다.
+
+```tsx
+function App() {
+  return (
+    <>
+      <RouterProvider router={router} />
+      <TanStackRouterDevtools router={router} />
+    </>
+  );
+}
+```
+
+## Floating Mode
+
+Floating Mode에서는 Devtools가 고정된 플로팅 요소로 애플리케이션에 추가되고, 화면 모서리에 토글 버튼이 나타나 Devtools를 표시하거나 숨길 수 있습니다. 이 토글 상태는 로컬 스토리지에 저장되어 새로고침 후에도 유지됩니다.
+
+React 애플리케이션에서 가능한 한 높은 위치에 다음 코드를 배치하세요. 페이지 루트에 가까울수록 더 잘 작동합니다.
+
+```js
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+
+function App() {
+  return (
+    <>
+      <Router />
+      <TanStackRouterDevtools initialIsOpen={false} />
+    </>
+  );
+}
+```
+
+### Options
+
+- `router: Router`
+  - 연결할 라우터 인스턴스
+- `initialIsOpen: Boolean`
+  - Devtools를 기본적으로 열리도록 설정하려면 `true`로 설정
+- `panelProps: PropsObject`
+  - 패널에 속성을 추가하는 데 사용. 예: `className`, `style` (기본 스타일 병합 및 재정의) 등
+- `closeButtonProps: PropsObject`
+  - 닫기 버튼에 속성을 추가하는 데 사용. 예: `className`, `style` (기본 스타일 병합 및 재정의), `onClick` (기본 핸들러 확장) 등
+- `toggleButtonProps: PropsObject`
+  - 토글 버튼에 속성을 추가하는 데 사용. 예: `className`, `style` (기본 스타일 병합 및 재정의), `onClick` (기본 핸들러 확장) 등
+- `position?: "top-left" | "top-right" | "bottom-left" | "bottom-right"`
+  - 기본값: `bottom-left`
+  - Devtools 패널을 열고 닫는 TanStack Router 로고의 위치
+- `shadowDOMTarget?: ShadowRoot`
+  - Devtools의 Shadow DOM 타겟 지정
+  - 기본적으로 Devtools 스타일은 메인 문서의 `<head>` 태그(라이트 DOM)에 적용됩니다. `shadowDOMTarget`이 제공되면 이 Shadow DOM 내에서 스타일이 적용됩니다.
+
+## Embedded Mode
+
+Embedded Mode에서는 Devtools를 애플리케이션의 일반 컴포넌트로 내장합니다. 그런 다음 원하는 대로 스타일링할 수 있습니다.
+
+```js
+import { TanStackRouterDevtoolsPanel } from "@tanstack/router-devtools";
+
+function App() {
+  return (
+    <>
+      <Router router={router} />
+      <TanStackRouterDevtoolsPanel
+        router={router}
+        style={styles}
+        className={className}
+      />
+    </>
+  );
+}
+```
+
+### Options
+
+Devtools를 스타일링하기 위해 다음 옵션을 사용할 수 있습니다.
+
+- `style: StyleObject`
+  - 인라인 스타일을 사용하여 컴포넌트를 스타일링하는 데 사용하는 표준 React 스타일 객체
+- `className: string`
+  - 클래스를 사용하여 컴포넌트를 스타일링하는 데 사용하는 표준 React className 속성
