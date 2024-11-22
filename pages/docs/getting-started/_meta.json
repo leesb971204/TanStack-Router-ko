@@ -16,5 +16,8 @@
   },
   "migrate-from-react-router": {
     "title": "Migrate from React Router"
+  },
+  "migrate-from-react-location": {
+    "title": "Migrate from React Location"
   }
 }

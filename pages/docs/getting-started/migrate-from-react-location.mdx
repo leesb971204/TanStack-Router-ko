@@ -1,0 +1,267 @@
+---
+title: Migration from React Location
+---
+
+React Location에서 마이그레이션을 시작하기 전에 TanStack Router가 사용하는 [Routing Concepts](./guide/routing-concepts.md)와 [Design Decisions](./decisions-on-dx.md)를 충분히 이해하는 것이 중요합니다.
+
+## Differences between React Location and TanStack Router
+
+React Location과 TanStack Router는 많은 디자인 결정과 개념을 공유하지만, 알아야 할 몇 가지 주요 차이점이 있습니다.
+
+- React Location은 *제네릭*을 사용하여 라우트의 타입을 추론하는 반면, TanStack Router는 *모듈 선언 병합*을 사용하여 타입을 추론합니다.
+- React Location에서 라우트 구성은 단일 배열의 라우트 정의를 사용하여 수행되지만, TanStack Router에서는 [루트 라우트](./guide/routing-concepts.md#the-root-route)를 시작으로 라우트 정의 트리를 사용하여 구성됩니다.
+- TanStack Router에서는 [파일 기반 라우팅](./guide/file-based-routing.md)이 라우트를 정의하는 권장 방법이며, React Location은 코드 기반 접근 방식으로 단일 파일에서만 라우트를 정의할 수 있습니다.
+  - TanStack Router도 라우트를 정의하는 [코드 기반 접근 방식](./guide/code-based-routing.md)을 지원하지만, 대부분의 사용 사례에서는 권장되지 않습니다. 자세한 이유는 [파일 기반 라우팅이 권장되는 이유](./decisions-on-dx.md#3-why-is-file-based-routing-the-preferred-way-to-define-routes)를 참고하세요.
+
+## Migration guide
+
+이 가이드에서는 [React Location Basic 예제](https://github.com/TanStack/router/tree/react-location/examples/basic)를 파일 기반 라우팅을 사용하여 TanStack Router로 마이그레이션하는 과정을 다룹니다. 목표는 원래 예제와 동일한 기능을 가지는 것입니다(스타일링 및 라우팅과 관련 없는 코드는 제외).
+
+> [!TIP]
+> 라우트를 정의하는 코드 기반 접근 방식을 사용하려면 [Code-based Routing](./guide/code-based-routing.md) 가이드를 참고하세요.
+
+### Step 1: Swap over to TanStack Router's dependencies
+
+먼저 TanStack Router의 의존성을 설치합니다.
+
+```sh
+npm install @tanstack/react-router @tanstack/router-devtools
+```
+
+React Location 의존성을 제거합니다.
+
+```sh
+npm uninstall @tanstack/react-location @tanstack/react-location-devtools
+```
+
+### Step 2: Use the file-based routing watcher
+
+프로젝트에서 Vite(또는 지원되는 번들러)를 사용하는 경우, TanStack Router 플러그인을 사용하여 라우트 파일의 변경 사항을 감지하고 라우트 구성을 자동으로 업데이트할 수 있습니다.
+
+Vite 플러그인 설치:
+
+```sh
+npm install -D @tanstack/router-plugin
+```
+
+그리고 `vite.config.js`에 추가:
+
+```js
+import { defineConfig } from "vite";
+import viteReact from "@vitejs/plugin-react";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+
+export default defineConfig({
+  // ...
+  plugins: [TanStackRouterVite(), viteReact()],
+});
+```
+
+Vite를 사용하지 않는 경우, 지원되는 다른 번들러를 사용하거나 `@tanstack/router-cli` 패키지를 사용하여 라우트 파일의 변경 사항을 감지하고 자동으로 업데이트할 수 있습니다. 자세한 내용은 [여기](./guide/file-based-routing.md#installation)를 참고하세요.
+
+### Step 3: Add the file-based configuration file to your project
+
+프로젝트 루트에 다음 내용을 포함하는 `tsr.config.json` 파일을 생성합니다.
+
+```json
+{
+  "routesDirectory": "./src/routes",
+  "generatedRouteTree": "./src/routeTree.gen.ts"
+}
+```
+
+`tsr.config.json` 파일의 전체 옵션 목록은 [여기](./guide/file-based-routing.md#options)에서 확인할 수 있습니다.
+
+### Step 4: Create the routes directory
+
+프로젝트의 `src` 디렉토리 안에 `routes` 디렉토리를 생성합니다.
+
+```sh
+mkdir src/routes
+```
+
+### Step 5: Create the root route file
+
+```tsx
+// src/routes/__root.tsx
+import { createRootRoute, Outlet, Link } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+
+export const Route = createRootRoute({
+  component: () => {
+    return (
+      <>
+        <div>
+          <Link to="/" activeOptions={{ exact: true }}>
+            Home
+          </Link>
+          <Link to="/posts">Posts</Link>
+        </div>
+        <hr />
+        <Outlet />
+        <TanStackRouterDevtools />
+      </>
+    );
+  },
+});
+```
+
+### Step 6: Create the index route file
+
+```tsx
+// src/routes/index.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/")({
+  component: Index,
+});
+```
+
+> 관련 컴포넌트 및 인덱스 라우트에 필요한 로직을 `src/index.tsx`에서 `src/routes/index.tsx`로 이동해야 합니다.
+
+### Step 7: Create the posts route file
+
+```tsx
+// src/routes/posts.tsx
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts")({
+  component: Posts,
+  loader: async () => {
+    const posts = await fetchPosts();
+    return {
+      posts,
+    };
+  },
+});
+
+function Posts() {
+  const { posts } = Route.useLoaderData();
+  return (
+    <div>
+      <nav>
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            to={`/posts/$postId`}
+            params={{ postId: post.id }}
+          >
+            {post.title}
+          </Link>
+        ))}
+      </nav>
+      <Outlet />
+    </div>
+  );
+}
+```
+
+> 관련 컴포넌트 및 게시물 라우트에 필요한 로직을 `src/index.tsx`에서 `src/routes/posts.tsx`로 이동해야 합니다.
+
+### Step 8: Create the posts index route file
+
+```tsx
+// src/routes/posts.index.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts/")({
+  component: PostsIndex,
+});
+```
+
+> 관련 컴포넌트 및 게시물 인덱스 라우트에 필요한 로직을 `src/index.tsx`에서 `src/routes/posts.index.tsx`로 이동해야 합니다.
+
+### Step 9: Create the posts id route file
+
+```tsx
+// src/routes/posts.$postId.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts/$postId")({
+  component: PostsId,
+  loader: async ({ params: { postId } }) => {
+    const post = await fetchPost(postId);
+    return {
+      post,
+    };
+  },
+});
+
+function PostsId() {
+  const { post } = Route.useLoaderData();
+  // ...
+}
+```
+
+> 관련 컴포넌트 및 게시물 ID 라우트에 필요한 로직을 `src/index.tsx`에서 `src/routes/posts.$postId.tsx`로 이동해야 합니다.
+
+### Step 10: Generate the route tree
+
+지원되는 번들러를 사용하는 경우, dev 스크립트를 실행하면 라우트 트리가 자동으로 생성됩니다.
+
+지원되지 않는 번들러를 사용하는 경우, 다음 명령어를 실행하여 라우트 트리를 생성할 수 있습니다.
+
+```sh
+npx tsr generate
+```
+
+### Step 11: Update the main entry file to render the Router
+
+라우트 트리를 생성한 후, `src/index.tsx` 파일을 업데이트하여 라우터 인스턴스를 생성하고 렌더링합니다.
+
+```tsx
+// src/index.tsx
+import React from "react";
+import ReactDOM from "react-dom";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+
+// 생성된 라우트 트리 가져오기
+import { routeTree } from "./routeTree.gen";
+
+// 새로운 라우터 인스턴스 생성
+const router = createRouter({ routeTree });
+
+// 타입 안정성을 위한 라우터 인스턴스 등록
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+const domElementId = "root"; // 루트 요소의 ID가 'root'라고 가정
+
+// 애플리케이션 렌더링
+const rootElement = document.getElementById(domElementId);
+if (!rootElement) {
+  throw new Error(`Element with id ${domElementId} not found`);
+}
+
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
+);
+```
+
+### Finished!
+
+이제 React Location에서 TanStack Router로 파일 기반 라우팅을 사용하여 애플리케이션 마이그레이션을 완료했습니다.
+
+React Location에는 애플리케이션에서 사용 중일 수 있는 몇 가지 추가 기능이 있습니다. 이러한 기능을 마이그레이션하는 데 도움이 되는 가이드는 다음과 같습니다:
+
+- [Search params](./guide/search-params.md)
+- [Data loading](./guide/data-loading.md)
+- [History types](./guide/history-types.md)
+- [Wildcard / Splat / Catch-all routes](./guide/routing-concepts.md#splat--catch-all-routes)
+- [Authenticated routes](./guide/authenticated-routes.md)
+
+TanStack Router에는 추가적으로 탐구할 만한 몇 가지 기능이 있습니다:
+
+- [Router Context](./guide/router-context.md)
+- [Preloading](./guide/preloading.md)
+- [Pathless / Layout Routes](./guide/routing-concepts.md#pathless--layout-routes)
+- [Route masking](./guide/route-masking.md)
+- [SSR](./guide/ssr.md)
+- ... and more!
+
+궁금한 점이나 문제가 발생한 경우, TanStack Discord에서 도움을 요청하실 수 있습니다.
