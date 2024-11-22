@@ -19,5 +19,8 @@
   },
   "migrate-from-react-location": {
     "title": "Migrate from React Location"
+  },
+  "decisions-on-dx": {
+    "title": "Decisions on DX"
   }
 }
