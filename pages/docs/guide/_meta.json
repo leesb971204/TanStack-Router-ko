@@ -7,5 +7,8 @@
   },
   "code-splitting": {
     "title": "Code Splitting"
+  },
+  "file-based-routing": {
+    "title": "File-based Routing"
   }
 }
