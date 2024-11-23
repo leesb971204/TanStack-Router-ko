@@ -4,5 +4,8 @@
   },
   "routing-concepts": {
     "title": "Routing Concepts"
+  },
+  "code-splitting": {
+    "title": "Code Splitting"
   }
 }
