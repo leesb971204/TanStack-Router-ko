@@ -1,0 +1,279 @@
+---
+title: Routing Concepts
+---
+
+## Routing Concepts
+
+TanStack Router는 강력한 라우팅 개념을 지원하여 복잡하고 동적인 라우팅 시스템을 손쉽게 구축할 수 있도록 합니다.
+
+- [The Root Route](./routing-concepts.md#the-root-route)
+- [Static Routes](./routing-concepts.md#static-routes)
+- [Index Routes](./routing-concepts.md#index-routes)
+- [Dynamic Route Segments](./routing-concepts.md#dynamic-route-segments)
+- [Splat / Catch-All Routes](./routing-concepts.md#splat--catch-all-routes)
+- [Pathless Routes](./routing-concepts.md#pathless-routes)
+- [Non-Nested Routes](./routing-concepts.md#non-nested-routes)
+- [Not-Found Routes](./routing-concepts.md#404--notfoundroutes)
+
+이 개념들은 각각 강력하며, 다음 섹션에서 하나씩 자세히 알아보겠습니다.
+
+## The Root Route
+
+루트 경로는 전체 트리에서 최상위 경로로, 모든 다른 경로를 자식으로 포함합니다.
+
+- 경로가 없습니다.
+- 항상 매칭됩니다.
+- `component`가 항상 렌더링됩니다.
+
+경로는 없지만, 루트 경로는 다른 경로와 동일한 기능을 사용할 수 있습니다. 예를 들어:
+
+- 컴포넌트
+- 로더
+- 검색 매개변수 검증
+- 기타 등등
+
+루트 경로를 생성하려면 `createRootRoute()` 생성자를 호출하고 이를 경로 파일의 `Route` 변수로 내보냅니다:
+
+```tsx
+import { createRootRoute } from "@tanstack/react-router";
+
+export const Route = createRootRoute();
+```
+
+> 🧠 `createRootRouteWithContext<TContext>()` 함수를 통해 루트 경로를 생성할 수도 있습니다. 이는 전체 라우터에 대한 의존성 주입을 타입 안전하게 처리하는 방법입니다. 자세한 내용은 [Context Section](./router-context.md)을 참조하세요.
+
+## Anatomy of a Route
+
+루트 경로 이외의 다른 모든 경로는 파일 기반 라우팅을 사용할 때 타입 안전성을 제공하는 `createFileRoute` 함수를 사용하여 구성됩니다:
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts")({
+  component: PostsComponent,
+});
+```
+
+### The `createFileRoute` Path Argument
+
+`createFileRoute` 함수는 파일 경로의 경로를 문자열로 인수로 받습니다.
+
+**❓❓❓ "경로 파일의 경로를 `createFileRoute`에 전달해야 하나요?"**
+
+그렇습니다! 하지만 걱정하지 마세요. 이 경로는 TanStack Router 플러그인이나 Router CLI를 통해 자동으로 작성되고 관리됩니다. 따라서 새 경로를 생성하거나 이동하거나 이름을 바꿀 때 경로가 자동으로 업데이트됩니다.
+
+> 🧠 이 경로명은 TanStack Router의 타입 안전성을 위한 중요한 요소입니다. 이 경로명이 없으면 TypeScript는 현재 파일을 알 방법이 없습니다! (TypeScript에 이 기능이 기본적으로 없다는 점은 아쉽습니다 🤷‍♂️)
+
+## Static Routes
+
+정적 경로는 특정 경로와 일치합니다. 예를 들어 `/about`, `/settings`, `/settings/notifications`는 모두 경로와 정확히 일치하는 정적 경로입니다.
+
+다음은 `/about` 경로의 예제입니다:
+
+```tsx
+// about.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/about")({
+  component: AboutComponent,
+});
+
+function AboutComponent() {
+  return <div>About</div>;
+}
+```
+
+정적 경로는 간단하며 경로와 정확히 일치하고 제공된 컴포넌트를 렌더링합니다.
+
+## Index Routes
+
+인덱스 경로는 **부모 경로가 정확히 매칭되고 자식 경로가 매칭되지 않을 때** 부모 경로를 타겟으로 설정합니다.
+
+다음은 `/posts` URL에 대한 인덱스 경로의 예입니다:
+
+```tsx
+// posts.index.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+// 슬래시로 끝나는 경로는 인덱스 경로를 타겟으로 설정합니다.
+export const Route = createFileRoute("/posts/")({
+  component: PostsIndexComponent,
+});
+
+function PostsIndexComponent() {
+  return <div>Please select a post!</div>;
+}
+```
+
+이 경로는 URL이 `/posts`일 때 정확히 매칭됩니다.
+
+## Dynamic Route Segments
+
+`$`로 시작하고 뒤에 라벨이 붙는 경로 세그먼트는 동적이며 URL의 해당 부분을 애플리케이션에서 사용할 수 있도록 `params` 객체에 포함됩니다. 예를 들어, `/posts/123` 경로명은 `/posts/$postId` 경로와 매칭되며, `params` 객체는 `{ postId: '123' }`가 됩니다.
+
+이러한 `params`는 경로의 구성 및 컴포넌트에서 사용할 수 있습니다. 다음은 `posts.$postId.tsx` 경로의 예입니다:
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts/$postId")({
+  loader: ({ params }) => fetchPost(params.postId),
+  component: PostComponent,
+});
+
+function PostComponent() {
+  const { postId } = Route.useParams();
+  return <div>Post ID: {postId}</div>;
+}
+```
+
+> 🧠 동적 세그먼트는 경로의 **각** 세그먼트에서 작동합니다. 예를 들어, `/posts/$postId/$revisionId` 경로를 가질 수 있으며, 각 `$` 세그먼트는 `params` 객체에 포함됩니다.
+
+## Splat / Catch-All Routes
+
+경로가 `$`로만 구성된 경우 "splat" 경로라고 하며, 이는 `$`에서 끝까지 URL 경로의 남은 모든 부분을 항상 캡처합니다. 캡처된 경로명은 `_splat` 속성에 있는 `params` 객체에서 사용할 수 있습니다.
+
+예를 들어, `files/$` 경로를 타겟으로 하는 경우 URL 경로명이 `/files/documents/hello-world`라면, `params` 객체에 `documents/hello-world`가 `_splat` 속성으로 포함됩니다:
+
+```js
+{
+  '_splat': 'documents/hello-world'
+}
+```
+
+> ⚠️ v1 라우터에서는 호환성을 위해 `*`로도 splat 경로를 나타낼 수 있으며, 이는 v2에서 제거될 예정입니다.
+
+> 🧠 왜 `$`를 사용할까요? Remix와 같은 도구 덕분에, `*`가 와일드카드를 나타내는 가장 일반적인 문자임에도 불구하고 파일명이나 CLI 도구와 잘 작동하지 않는다는 것을 알게 되었습니다. 따라서 `$`를 대신 사용하기로 결정했습니다.
+
+## Pathless Routes
+
+`_`로 시작하는 경로는 "pathless"로 간주되며, URL에서 매칭 경로를 요구하지 않고 추가적인 컴포넌트 및 로직으로 자식 경로를 감쌀 수 있습니다. Pathless 경로를 사용하여:
+
+- 레이아웃 컴포넌트로 자식 경로를 감쌉니다.
+- 자식 경로를 표시하기 전에 `loader` 요구사항을 강제합니다.
+- 검색 매개변수를 검증하고 제공하여 자식 경로로 전달합니다.
+- 에러 컴포넌트 또는 대기 요소를 자식 경로에 제공하는 폴백을 설정합니다.
+- 모든 자식 경로에 공유 컨텍스트를 제공합니다.
+
+> 🧠 `_` 접두어 뒤의 경로는 경로 ID로 사용되며, 특히 TypeScript를 사용할 때 타입 오류를 방지하고 자동 완성을 효과적으로 수행하기 위해 모든 경로는 고유해야 합니다.
+
+다음은 `_pathless.tsx`라는 경로의 예입니다:
+
+```
+routes/
+├── _pathless.tsx
+├── _pathless.a.tsx
+├── _pathless.b.tsx
+```
+
+위 구조에서 `_pathless.tsx`는 자식 경로 `_pathless.a.tsx`와 `_pathless.b.tsx`를 레이아웃 컴포넌트로 감싸는 pathless 경로입니다:
+
+```tsx
+import { Outlet, createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/_pathless")({
+  component: LayoutComponent,
+});
+
+function LayoutComponent() {
+  return (
+    <div>
+      <h1>Layout</h1>
+      <Outlet />
+    </div>
+  );
+}
+```
+
+다음 표는 URL에 따라 렌더링될 컴포넌트를 보여줍니다:
+
+| URL Path | Component     |
+| -------- | ------------- |
+| `/`      | `<Index>`     |
+| `/a`     | `<Layout><A>` |
+| `/b`     | `<Layout><B>` |
+
+## Non-Nested Routes
+
+비중첩 경로는 상위 파일 경로 세그먼트에 `_`를 추가하여 생성되며, 부모 경로에서 **분리**되어 자체 컴포넌트 트리를 렌더링합니다.
+
+다음은 평면 경로 트리의 예입니다:
+
+```
+routes/
+├── posts.tsx
+├── posts.$postId.tsx
+├── posts_.$postId.edit.tsx
+```
+
+다음 표는 URL에 따라 렌더링되는 컴포넌트를 보여줍니다:
+
+| URL Path          | Component                    |
+| ----------------- | ---------------------------- |
+| `/posts`          | `<Posts>`                    |
+| `/posts/123`      | `<Posts><Post postId="123">` |
+| `/posts/123/edit` | `<PostEditor postId="123">`  |
+
+- `posts.$postId.tsx` 경로는 일반적으로 `posts.tsx` 경로의 하위로 중첩되어 `<Posts><Post>`를 렌더링합니다.
+- `posts_.$postId.edit.tsx` 경로는 다른 `posts` 경로와 **공유되지 않으며**, 상위 수준의 경로로 간주되어 `<PostEditor>`를 렌더링합니다.
+
+## 404 / `NotFoundRoute`s
+
+404 / Not-Found 경로는 경로 트리의 명시적 일부는 아니지만 유용한 추상화입니다.
+
+기술적으로 모든 경로 분기 아래에 splat / catch-all 경로를 배치할 수 있지만, 이는 번거롭고 오류가 발생하기 쉽습니다. 대신, 특별한 `NotFoundRoute`를 생성하여 라우터의 `notFoundRoute` 옵션에 제공합니다.
+
+> ⚠️ `NotFoundRoute`를 경로 트리에 포함하지 마세요. 그렇게 하면 경로 트리의 모든 분기에서 제대로 작동하지 않습니다.
+
+`NotFoundRoute`는 다음과 같은 경우 렌더링됩니다:
+
+- URL의 초과 경로 세그먼트가 모든 가능한 경로 매칭을 초과할 때
+- 초과 경로 세그먼트를 캡처할 동적 세그먼트나 splat 경로가 없을 때
+- 부모 경로가 매칭되었을 때 렌더링할 인덱스 경로가 없을 때
+- 라우터에 `notFoundRoute`가 제공된 경우
+
+`NotFoundRoute`는 다음 특성을 갖습니다:
+
+- `path`가 없습니다.
+- `id`가 없습니다.
+- 경로 매개변수를 파싱하거나 검증할 수 없습니다.
+
+하지만 다음 기능은 여전히 사용할 수 있습니다:
+
+- `component`, `pendingComponent`, `errorComponent`를 렌더링합니다.
+- 검색 매개변수를 검증하고 받습니다.
+- `loader` 및 `beforeLoad` 훅을 구성합니다.
+- 루트 경로에서 데이터를 받거나 검색 매개변수를 사용할 수 있습니다.
+
+`NotFoundRoute`를 구성하는 방법은 [Route Matching - Not-Found Routes](./route-matching.md#not-found-routes) 가이드에서 다룹니다.
+
+## Pathless Route Group Directories
+
+Pathless 경로 그룹 디렉토리는 `()`을 사용하여 경로 파일을 경로와 무관하게 그룹화합니다. 이는 순전히 조직적인 용도로 사용되며 경로 트리나 컴포넌트 트리에 영향을 미치지 않습니다.
+
+```
+routes/
+├── index.tsx
+├── (app)/
+│   ├── dashboard.tsx
+│   ├── settings.tsx
+│   ├── users.tsx
+├── (auth)/
+│   ├── login.tsx
+│   ├── register.tsx
+```
+
+위 예에서 `app` 및 `auth` 디렉토리는 순전히 조직적인 용도로 사용되며 경로 트리나 컴포넌트 트리에 영향을 미치지 않습니다. 이는 관련 경로를 함께 그룹화하여 탐색 및 관리가 더 쉬워지도록 돕습니다.
+
+다음 표는 URL에 따라 렌더링되는 컴포넌트를 보여줍니다:
+
+| URL Path     | Component     |
+| ------------ | ------------- |
+| `/`          | `<Index>`     |
+| `/dashboard` | `<Dashboard>` |
+| `/settings`  | `<Settings>`  |
+| `/users`     | `<Users>`     |
+| `/login`     | `<Login>`     |
+| `/register`  | `<Register>`  |
+
+위에서 볼 수 있듯이, `app` 및 `auth` 디렉토리는 순전히 조직적인 용도로 사용되며 경로 트리나 컴포넌트 트리에 영향을 미치지 않습니다.
