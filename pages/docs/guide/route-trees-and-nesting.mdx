@@ -1,0 +1,71 @@
+---
+title: Route Trees & Nesting
+---
+
+## Route Trees & Nesting
+
+TanStack Router는 중첩된 경로 트리를 사용하여 URL과 렌더링할 올바른 컴포넌트 트리를 매칭합니다.
+
+경로 트리를 구축하기 위해 TanStack Router는 다음 두 가지를 지원합니다:
+
+- 파일 기반 라우팅
+- 코드 기반 라우팅
+
+두 방법 모두 동일한 핵심 기능과 특징을 지원하지만, **파일 기반 라우팅은 더 적은 코드로 동일하거나 더 나은 결과를 제공합니다.** 이러한 이유로, **파일 기반 라우팅이 권장되는 방법이며 대부분의 문서는 파일 기반 라우팅 관점에서 작성되었습니다.**
+
+코드 기반 라우팅에 대한 문서는 [Code-Based Routing](./code-based-routing.md) 가이드를 참고하세요.
+
+## Route Trees
+
+중첩 라우팅은 URL을 사용하여 중첩된 컴포넌트 트리를 렌더링할 수 있도록 하는 강력한 개념입니다. 예를 들어, `/blog/posts/123`라는 URL이 주어지면 다음과 같은 경로 계층 구조를 생성할 수 있습니다:
+
+```tsx
+├── blog
+│   ├── posts
+│   │   ├── $postId
+```
+
+그리고 다음과 같은 컴포넌트 트리를 렌더링할 수 있습니다:
+
+```tsx
+<Blog>
+  <Posts>
+    <Post postId="123" />
+  </Posts>
+</Blog>
+```
+
+이 개념을 확장하여 더 큰 사이트 구조를 파일 이름으로 나타내 보겠습니다:
+
+```
+/routes
+├── __root.tsx
+├── index.tsx
+├── about.tsx
+├── posts/
+│   ├── index.tsx
+│   ├── $postId.tsx
+├── posts.$postId.edit.tsx
+├── settings/
+│   ├── profile.tsx
+│   ├── notifications.tsx
+├── _layout/
+│   ├── layout-a.tsx
+├── ├── layout-b.tsx
+├── files/
+│   ├── $.tsx
+```
+
+위는 TanStack Router에서 사용할 수 있는 유효한 경로 트리 구성입니다! 파일 기반 라우팅에는 많은 강력한 기능과 규칙이 있으며, 이를 자세히 알아보겠습니다.
+
+## Route Tree Configuration
+
+경로 트리는 몇 가지 다른 방법으로 구성할 수 있습니다:
+
+- [평면 경로](./file-based-routing.md#flat-routes)
+- [디렉토리](./file-based-routing.md#directory-routes)
+- [평면 경로와 디렉토리 혼합](./file-based-routing.md#mixed-flat-and-directory-routes)
+- [가상 파일 경로](./virtual-file-routes.md)
+- [코드 기반 경로](./code-based-routing.md)
+
+각 경로 트리 유형에 대한 전체 문서를 반드시 확인하거나, 파일 기반 라우팅을 시작하려면 다음 섹션으로 진행하세요.
