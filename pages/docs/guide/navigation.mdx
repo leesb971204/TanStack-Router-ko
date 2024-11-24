@@ -1,0 +1,432 @@
+---
+title: Navigation
+---
+
+## Navigation
+
+## Everything is Relative
+
+앱 내의 모든 내비게이션은 **상대적**입니다. 명시적인 상대 경로 문법(`../../somewhere`)을 사용하지 않더라도 그렇습니다. 링크를 클릭하거나 명령형 내비게이션 호출을 할 때마다 항상 **출발** 경로와 **도착** 경로가 있습니다. 즉, 한 라우트에서 다른 라우트로 **이동**하고 있다는 뜻입니다.
+
+TanStack Router는 모든 내비게이션에서 이 상대 내비게이션 개념을 유지합니다. 따라서 API에서 항상 다음 두 가지 속성을 보게 됩니다:
+
+- `from` - 출발 라우트 ID
+- `to` - 도착 라우트 ID
+
+> ⚠️ `from` 라우트 ID가 제공되지 않으면, 라우터는 기본적으로 루트 `/` 라우트에서 시작하는 것으로 간주하고 절대 경로만 자동 완성합니다. 결국 어디에서 왔는지를 알아야 어디로 가는지 알 수 있겠죠 😉.
+
+## Shared Navigation API
+
+TanStack Router의 모든 내비게이션 및 라우트 매칭 API는 약간의 차이만 있을 뿐 동일한 핵심 인터페이스를 사용합니다. 이는 내비게이션과 라우트 매칭을 한 번 학습하면 라이브러리 전반에 걸쳐 동일한 문법과 개념을 사용할 수 있음을 의미합니다.
+
+### `ToOptions` Interface
+
+모든 내비게이션 및 라우트 매칭 API에서 사용되는 핵심 `ToOptions` 인터페이스는 다음과 같습니다:
+
+```ts
+type ToOptions<
+  TRouteTree extends AnyRoute = AnyRoute,
+  TFrom extends RoutePaths<TRouteTree> | string = string,
+  TTo extends string = ""
+> = {
+  from: string;
+  to: string;
+  params:
+    | Record<string, unknown>
+    | ((prevParams: Record<string, unknown>) => Record<string, unknown>);
+  search:
+    | Record<string, unknown>
+    | ((prevSearch: Record<string, unknown>) => Record<string, unknown>);
+  hash?: string | ((prevHash: string) => string);
+  state?:
+    | Record<string, any>
+    | ((prevState: Record<string, unknown>) => Record<string, unknown>);
+};
+```
+
+> 🧠 모든 라우트 객체는 `to` 속성을 가지고 있으며, 이를 모든 내비게이션 또는 라우트 매칭 API의 `to`로 사용할 수 있습니다. 가능한 경우, 이는 문자열 대신 타입 안전한 라우트 참조를 사용할 수 있게 해줍니다:
+
+```tsx
+function Comp() {
+  return <Link to={aboutRoute.to}>About</Link>;
+}
+```
+
+### `NavigateOptions` Interface
+
+이 인터페이스는 `ToOptions`를 확장한 것으로, 실제로 내비게이션을 수행하는 모든 API에서 사용됩니다:
+
+```ts
+export type NavigateOptions<
+  TRouteTree extends AnyRoute = AnyRoute,
+  TFrom extends RoutePaths<TRouteTree> | string = string,
+  TTo extends string = ""
+> = ToOptions<TRouteTree, TFrom, TTo> & {
+  replace?: boolean;
+};
+```
+
+### `LinkOptions` Interface
+
+실제 `<a>` 태그와 함께 사용되는 인터페이스로, `NavigateOptions`를 확장합니다:
+
+```ts
+export type LinkOptions<
+  TRouteTree extends AnyRoute = AnyRoute,
+  TFrom extends RoutePaths<TRouteTree> | string = string,
+  TTo extends string = ""
+> = NavigateOptions<TRouteTree, TFrom, TTo> & {
+  target?: HTMLAnchorElement["target"];
+  activeOptions?: {
+    exact?: boolean;
+    includeHash?: boolean;
+    includeSearch?: boolean;
+    explicitUndefined?: boolean;
+  };
+  preload?: false | "intent";
+  preloadDelay?: number;
+  disabled?: boolean;
+};
+```
+
+## Navigation API
+
+상대 내비게이션과 모든 인터페이스를 염두에 두고, 사용할 수 있는 다양한 내비게이션 API를 살펴보겠습니다:
+
+- `<Link>` 컴포넌트
+  - 유효한 `href`를 가진 실제 `<a>` 태그를 생성하며 클릭하거나 cmd/ctrl + 클릭으로 새 탭에서 열 수 있습니다.
+- `useNavigate()` 훅
+  - 가능하면 `Link` 컴포넌트를 내비게이션에 사용해야 하지만, 때로는 부작용의 결과로 명령형 내비게이션이 필요합니다. `useNavigate`는 즉시 클라이언트 측 내비게이션을 수행하는 함수를 반환합니다.
+- `<Navigate>` 컴포넌트
+  - 아무것도 렌더링하지 않고 즉시 클라이언트 측 내비게이션을 수행합니다.
+- `Router.navigate()` 메서드
+  - TanStack Router의 가장 강력한 내비게이션 API입니다. `useNavigate`와 유사하지만, 라우터에 접근할 수 있는 어디에서나 사용할 수 있습니다.
+
+⚠️ 이 API들은 서버 측 리디렉션을 대체하지 않습니다. 애플리케이션을 마운트하기 전에 한 라우트에서 다른 라우트로 사용자를 즉시 리디렉션해야 하는 경우, 클라이언트 측 내비게이션 대신 서버 측 리디렉션을 사용하세요.
+
+## `<Link>` Component
+
+`Link` 컴포넌트는 앱 내에서 가장 일반적인 내비게이션 방법입니다. 유효한 `href` 속성을 가진 `<a>` 태그를 렌더링하며, 클릭하거나 cmd/ctrl + 클릭으로 새 탭에서 열 수 있습니다. 또한 `target`과 같은 모든 표준 `<a>` 속성을 지원합니다.
+
+[`LinkOptions`](#linkoptions-interface) 인터페이스 외에도 `Link` 컴포넌트는 다음과 같은 props를 지원합니다:
+
+```tsx
+export type LinkProps<
+  TFrom extends RoutePaths<RegisteredRouter["routeTree"]> | string = string,
+  TTo extends string = ""
+> = LinkOptions<RegisteredRouter["routeTree"], TFrom, TTo> & {
+  activeProps?:
+    | React.AnchorHTMLAttributes<HTMLAnchorElement>
+    | (() => React.AnchorHTMLAttributes<HTMLAnchorElement>);
+  inactiveProps?:
+    | React.AnchorHTMLAttributes<HTMLAnchorElement>
+    | (() => React.AnchorHTMLAttributes<HTMLAnchorElement>);
+};
+```
+
+### Absolute Links
+
+정적인 링크를 생성해봅시다!
+
+```tsx
+import { Link } from "@tanstack/react-router";
+
+const link = <Link to="/about">About</Link>;
+```
+
+### Dynamic Links
+
+동적 링크는 동적 세그먼트를 포함하는 링크입니다. 예를 들어, 블로그 게시물로 가는 링크는 다음과 같을 수 있습니다:
+
+```tsx
+const link = (
+  <Link
+    to="/blog/post/$postId"
+    params={{
+      postId: "my-first-blog-post",
+    }}
+  >
+    Blog Post
+  </Link>
+);
+```
+
+### Relative Links
+
+기본적으로 모든 링크는 절대 경로입니다. 상대 경로 링크를 만들려면 `from` 경로를 제공해야 합니다:
+
+```tsx
+const link = (
+  <Link from="/blog/post/$postId" to="../categories">
+    Categories
+  </Link>
+);
+```
+
+`from` 경로로 `route.fullPath`를 제공하는 것이 일반적입니다. 이렇게 하면 애플리케이션 리팩토링 시 경로가 자동으로 업데이트됩니다.
+
+### Search Param Links
+
+검색 매개변수는 라우트에 추가적인 컨텍스트를 제공하는 데 유용합니다. 예를 들어, 검색 페이지에 검색어를 제공할 수 있습니다:
+
+```tsx
+const link = (
+  <Link
+    to="/search"
+    search={{
+      query: "tanstack",
+    }}
+  >
+    Search
+  </Link>
+);
+```
+
+검색 결과 페이지 번호를 업데이트하려는 경우도 자주 있습니다:
+
+```tsx
+const link = (
+  <Link
+    to="."
+    search={(prev) => ({
+      ...prev,
+      page: prev.page + 1,
+    })}
+  >
+    Next Page
+  </Link>
+);
+```
+
+### Hash Links
+
+해시 링크는 페이지의 특정 섹션으로 연결하는 데 유용합니다. 예를 들어, 블로그 게시물의 특정 섹션으로 링크하려면 다음과 같이 합니다:
+
+```tsx
+const link = (
+  <Link
+    to="/blog/post/$postId"
+    params={{
+      postId: "my-first-blog-post",
+    }}
+    hash="section-1"
+  >
+    Section 1
+  </Link>
+);
+```
+
+### Active & Inactive Props
+
+`Link` 컴포넌트는 `activeProps`와 `inactiveProps`라는 추가 props를 지원합니다. 이 props는 링크가 활성 상태 또는 비활성 상태일 때 추가 props를 반환하는 함수입니다. 예를 들어:
+
+```tsx
+const link = (
+  <Link
+    to="/blog/post/$postId"
+    params={{
+      postId: "my-first-blog-post",
+    }}
+    activeProps={{
+      style: {
+        fontWeight: "bold",
+      },
+    }}
+  >
+    Section 1
+  </Link>
+);
+```
+
+### The `data-status` attribute
+
+`Link` 컴포넌트는 활성 상태일 때 렌더링된 요소에 `data-status` 속성을 추가합니다. 이 속성은 링크가 활성 상태인지 여부를 나타냅니다. 이를 통해 props 대신 데이터 속성을 사용하여 스타일링할 수 있습니다.
+
+### Active Options
+
+`Link` 컴포넌트에는 링크가 활성 상태인지 확인하는 몇 가지 옵션이 포함된 `activeOptions` 속성이 있습니다:
+
+```tsx
+export interface ActiveOptions {
+  exact?: boolean;
+  includeHash?: boolean;
+  includeSearch?: boolean;
+  explicitUndefined?: boolean;
+}
+```
+
+기본적으로 결과 **pathname**이 현재 경로의 접두사인지 확인합니다. 검색 매개변수가 제공되면, 현재 위치의 매개변수와 **포함적으로** 일치하는지 확인합니다.
+
+```tsx
+const link = (
+  <Link to="/" activeOptions={{ exact: true }}>
+    Home
+  </Link>
+);
+```
+
+`exact` 옵션을 사용하여 정확히 일치하는 경우에만 활성 상태가 되도록 설정할 수 있습니다.
+
+### Passing `isActive` to children
+
+`Link` 컴포넌트는 children으로 함수를 받을 수 있어 `isActive` 속성을 자식 요소로 전달할 수 있습니다. 이를 활용하여 부모 링크가 활성 상태인지에 따라 자식 컴포넌트를 스타일링할 수 있습니다:
+
+```tsx
+const link = (
+  <Link to="/blog/post">
+    {({ isActive }) => {
+      return (
+        <>
+          <span>My Blog Post</span>
+          <icon className={isActive ? "active" : "inactive"} />
+        </>
+      );
+    }}
+  </Link>
+);
+```
+
+### Link Preloading
+
+`Link` 컴포넌트는 의도 기반(hover 또는 touchstart) 프리로딩을 자동으로 지원합니다. 이는 라우터 옵션에서 기본값으로 구성하거나, `Link` 컴포넌트에 `preload='intent'` 속성을 전달하여 활성화할 수 있습니다. 다음은 예제입니다:
+
+```tsx
+const link = (
+  <Link to="/blog/post/$postId" preload="intent">
+    Blog Post
+  </Link>
+);
+```
+
+프리로딩이 활성화된 경우, 비동기 라우트 의존성이 비교적 빠르다면 이 간단한 기술로 애플리케이션의 체감 성능을 크게 향상시킬 수 있습니다.
+
+### Link Preloading Timeout
+
+프리로딩에는 의도 기반 프리로딩을 트리거하기 위해 사용자가 링크 위에 머무르는 시간을 결정하는 구성 가능한 타임아웃이 포함됩니다. 기본 타임아웃은 50밀리초이며, 이를 변경하려면 `preloadTimeout` 속성을 `Link` 컴포넌트에 전달하면 됩니다:
+
+```tsx
+const link = (
+  <Link to="/blog/post/$postId" preload="intent" preloadTimeout={100}>
+    Blog Post
+  </Link>
+);
+```
+
+## `useNavigate`
+
+> ⚠️ `Link` 컴포넌트는 `href`, cmd/ctrl + 클릭 기능, 활성/비활성 상태 등 기본적인 내비게이션 기능을 내장하고 있기 때문에, 사용자와 상호작용할 수 있는 항목(예: 링크, 버튼)에는 `useNavigate` 대신 `Link` 컴포넌트를 사용하는 것이 좋습니다. 하지만 성공적인 비동기 작업 등의 부작용으로 인해 명령형 내비게이션이 필요한 경우 `useNavigate`가 필요합니다.
+
+`useNavigate` 훅은 호출하여 명령형으로 내비게이션을 수행할 수 있는 `navigate` 함수를 반환합니다. 이는 부작용이 있는 라우트로 이동할 때 유용합니다. 예를 들어:
+
+```tsx
+function Component() {
+  const navigate = useNavigate({ from: "/posts/$postId" });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const response = await fetch("/posts", {
+      method: "POST",
+      body: JSON.stringify({ title: "My First Post" }),
+    });
+
+    const { id: postId } = await response.json();
+
+    if (response.ok) {
+      navigate({ to: "/posts/$postId", params: { postId } });
+    }
+  };
+}
+```
+
+> 🧠 위 예제와 같이, 훅 호출 시 `from` 옵션을 전달하여 이동할 출발 라우트를 지정할 수 있습니다. 이를 결과적으로 반환된 `navigate` 함수에 매번 전달하는 것도 가능하지만, 오류를 줄이고 입력을 줄이기 위해 여기서 전달하는 것이 권장됩니다.
+
+### `navigate` Options
+
+`useNavigate`로 반환된 `navigate` 함수는 [`NavigateOptions` 인터페이스](#navigateoptions-interface)를 사용합니다.
+
+## `Navigate` Component
+
+때로는 컴포넌트가 마운트될 때 즉시 내비게이션해야 할 때가 있습니다. 이런 경우 `useNavigate`와 React의 `useEffect`를 사용하려는 충동이 생길 수 있지만, 이는 불필요합니다. 대신, `Navigate` 컴포넌트를 렌더링하여 동일한 결과를 얻을 수 있습니다:
+
+```tsx
+function Component() {
+  return <Navigate to="/posts/$postId" params={{ postId: "my-first-post" }} />;
+}
+```
+
+`Navigate` 컴포넌트는 컴포넌트가 마운트될 때 즉시 라우트로 내비게이션하는 방법으로 생각할 수 있습니다. 이는 클라이언트 전용 리디렉션을 처리하는 좋은 방법입니다. 하지만 서버에서 책임 있게 서버 인식 리디렉션을 처리하는 대체물이 절대 아닙니다.
+
+## `router.navigate`
+
+`router.navigate` 메서드는 `useNavigate`로 반환된 `navigate` 함수와 동일하며 [`NavigateOptions` 인터페이스](#navigateoptions-interface)를 사용합니다. `useNavigate` 훅과 달리, 이는 라우터 인스턴스에 접근할 수 있는 어디에서나 사용할 수 있어 애플리케이션 내의 어느 곳에서든 명령형으로 내비게이션하는 데 유용합니다.
+
+## `useMatchRoute` and `<MatchRoute>`
+
+`useMatchRoute` 훅과 `<MatchRoute>` 컴포넌트는 동일한 기능을 제공하지만, 훅은 조금 더 유연합니다. 두 가지 모두 표준 내비게이션 `ToOptions` 인터페이스를 옵션이나 props로 받아 현재 라우트가 매칭되었는지 `true/false`를 반환합니다. 또한 `pending` 옵션을 제공하며, 현재 라우트가 보류 중(예: 해당 라우트로 전환 중)일 경우 `true`를 반환합니다. 이는 사용자가 내비게이션하는 동안 낙관적 UI를 표시하는 데 매우 유용합니다.
+
+### `<MatchRoute>` Component
+
+컴포넌트 버전인 `<MatchRoute>`를 사용하여 라우트가 매칭될 때 특정 UI를 렌더링할 수 있습니다:
+
+```tsx
+function Component() {
+  return (
+    <div>
+      <Link to="/users">
+        Users
+        <MatchRoute to="/users" pending>
+          <Spinner />
+        </MatchRoute>
+      </Link>
+    </div>
+  );
+}
+```
+
+### Using `useMatchRoute` Hook
+
+`useMatchRoute` 훅은 프로그래밍 방식으로 호출하여 라우트가 매칭되었는지 확인할 수 있는 함수를 반환합니다:
+
+```tsx
+function Component() {
+  const matchRoute = useMatchRoute();
+
+  useEffect(() => {
+    if (matchRoute({ to: "/users", pending: true })) {
+      console.info("The /users route is matched and pending");
+    }
+  });
+
+  return (
+    <div>
+      <Link to="/users">Users</Link>
+    </div>
+  );
+}
+```
+
+### Function as Children for `<MatchRoute>`
+
+컴포넌트 버전 `<MatchRoute>`는 children으로 함수를 받아 라우트가 매칭되었을 때 특정 동작을 렌더링할 수 있습니다:
+
+```tsx
+function Component() {
+  return (
+    <div>
+      <Link to="/users">
+        Users
+        <MatchRoute to="/users" pending>
+          {(match) => {
+            return <Spinner show={match} />;
+          }}
+        </MatchRoute>
+      </Link>
+    </div>
+  );
+}
+```
+
+---
+
+와우! 내비게이션에 대해 정말 많은 내용을 다뤘습니다. 이제 여러분은 애플리케이션을 이동하는 데 대해 꽤 자신감을 가지셨을 것이라 생각합니다. 그럼 다음 단계로 넘어가 보겠습니다!

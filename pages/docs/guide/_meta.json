@@ -25,5 +25,8 @@
   },
   "outlets": {
     "title": "Outlets"
+  },
+  "navigation": {
+    "title": "Navigation"
   }
 }
