@@ -22,5 +22,8 @@
   },
   "route-matching": {
     "title": "Route Matching"
+  },
+  "outlets": {
+    "title": "Outlets"
   }
 }
