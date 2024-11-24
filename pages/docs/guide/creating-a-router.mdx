@@ -1,0 +1,108 @@
+---
+title: Creating a Router
+---
+
+## Creating a Router
+
+## The `Router` Class
+
+라우터를 사용하기 시작하려면 새로운 `Router` 인스턴스를 생성해야 합니다. 라우터 인스턴스는 TanStack Router의 핵심 두뇌 역할을 하며, 라우트 트리를 관리하고, 라우트를 매칭하며, 내비게이션과 라우트 전환을 조정합니다. 또한, 라우터 전역 설정을 구성하는 곳으로 사용됩니다.
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+const router = createRouter({
+  // ...
+});
+```
+
+## Route Tree
+
+`Router` 생성자가 `routeTree` 옵션을 요구하는 것을 금방 알아챌 수 있을 것입니다. 이 옵션은 라우터가 라우트를 매칭하고 컴포넌트를 렌더링하는 데 사용할 라우트 트리입니다.
+
+[파일 기반 라우팅](./route-trees.md) 또는 [코드 기반 라우팅](./code-based-routing.md)을 사용했는지에 관계없이, 생성된 라우트 트리를 `createRouter` 함수에 전달해야 합니다.
+
+### 파일 시스템 기반 라우트 트리
+
+권장되는 파일 기반 라우팅을 사용했다면, 생성된 라우트 트리 파일이 기본 위치인 `src/routeTree.gen.ts`에 생성되었을 가능성이 높습니다. 사용자 정의 위치를 사용했다면, 해당 위치에서 라우트 트리를 가져와야 합니다.
+
+```tsx
+import { routeTree } from "./routeTree.gen";
+```
+
+### 코드 기반 라우트 트리
+
+코드 기반 라우팅을 사용했다면, 루트 라우트의 `addChildren` 메서드를 사용하여 라우트 트리를 수동으로 생성했을 것입니다.
+
+```tsx
+const routeTree = rootRoute.addChildren([
+  // ...
+]);
+```
+
+## Router Type Safety
+
+> [!IMPORTANT]  
+> 이 섹션을 건너뛰지 마세요! ⚠️
+
+TanStack Router는 TypeScript에 대한 놀라운 지원을 제공합니다. 라이브러리에서 바로 가져온 단순한 임포트에 대해서도 작동합니다! 이를 가능하게 하려면, TypeScript의 [선언 병합(Declaration Merging)](https://www.typescriptlang.org/docs/handbook/declaration-merging.html) 기능을 사용하여 `@tanstack/react-router`의 `Register` 인터페이스를 확장해야 합니다. 이 과정에서 `router` 속성을 추가하고 `router` 인스턴스의 타입을 설정합니다.
+
+```tsx
+declare module "@tanstack/react-router" {
+  interface Register {
+    // 라우터의 타입을 추론하여 프로젝트 전체에 등록합니다.
+    router: typeof router;
+  }
+}
+```
+
+라우터를 등록하면 라우팅과 관련된 모든 항목에 대해 프로젝트 전체에서 타입 안전성을 제공받을 수 있습니다.
+
+## Not-Found Route
+
+이전 가이드에서 약속했듯이, 이제 `notFoundRoute` 옵션에 대해 다룹니다. 이 옵션은 다른 적합한 매칭이 발견되지 않을 때 렌더링할 라우트를 구성하는 데 사용됩니다. 404 페이지를 렌더링하거나 기본 경로로 리디렉션하는 데 유용합니다.
+
+### 파일 기반 라우팅
+
+파일 기반 라우팅을 사용했다면, 루트 라우트를 해당 위치에서 가져온 뒤 `notFoundRoute` 메서드를 사용하여 `NotFoundRoute` 인스턴스를 생성합니다.
+
+```tsx
+import { NotFoundRoute } from "@tanstack/react-router";
+import { Route as rootRoute } from "./routes/__root.tsx";
+
+const notFoundRoute = new NotFoundRoute({
+  getParentRoute: () => rootRoute,
+  component: () => "404 Not Found",
+});
+
+const router = createRouter({
+  routeTree,
+  notFoundRoute,
+});
+```
+
+### 코드 기반 라우팅
+
+코드 기반 라우팅을 사용했다면, 루트 라우트를 참조하여 `NotFoundRoute`를 생성한 뒤 이를 라우터의 `notFoundRoute` 옵션에 전달합니다.
+
+```tsx
+import { NotFoundRoute } from "@tanstack/react-router";
+
+const rootRoute = createRootRoute();
+
+// ...
+
+const notFoundRoute = new NotFoundRoute({
+  getParentRoute: () => rootRoute,
+  component: () => "404 Not Found",
+});
+
+const router = createRouter({
+  routeTree,
+  notFoundRoute,
+});
+```
+
+## Other Options
+
+`Router` 생성자에 전달할 수 있는 많은 다른 옵션이 있습니다. 전체 목록은 [API Reference](../api/router/RouterOptionsType.md)에서 확인할 수 있습니다.

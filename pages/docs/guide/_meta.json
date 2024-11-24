@@ -16,5 +16,8 @@
   },
   "code-based-routing": {
     "title": "Code-based Routing"
+  },
+  "creating-a-router": {
+    "title": "Creating a Router"
   }
 }
