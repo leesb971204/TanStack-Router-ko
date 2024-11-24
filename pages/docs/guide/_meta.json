@@ -10,5 +10,8 @@
   },
   "file-based-routing": {
     "title": "File-based Routing"
+  },
+  "virtual-file-routes": {
+    "title": "Virtual File Routes"
   }
 }
