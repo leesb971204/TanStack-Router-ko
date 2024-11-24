@@ -1,0 +1,249 @@
+---
+title: Code-Based Routing
+---
+
+## Code-Based Routing
+
+## ⚠️ Before You Start
+
+- [파일 기반 라우팅](./file-based-routing.md)을 사용 중인 경우, **이 가이드를 건너뛰십시오.**
+- TanStack Router를 처음 사용하는 경우, **파일 기반 라우팅이 TanStack Router를 구성하는 권장 방식**임을 유의하십시오. 어떤 방식을 사용할지 확신이 없다면 [파일 기반 라우팅](./file-based-routing.md) 가이드를 먼저 읽어보세요.
+- 코드 기반 라우팅을 계속 사용하려면, [파일 기반 라우팅](./file-based-routing.md) 가이드를 반드시 읽으십시오. 이 가이드에는 라우터의 핵심 개념이 포함되어 있으며, 여기서는 반복하지 않습니다.
+
+## Route Trees
+
+코드 기반 라우팅은 파일 기반 라우팅과 동일한 라우트 트리 개념을 사용하여 경로를 구성하고, 매칭하며, 매칭된 경로를 컴포넌트 트리로 구성합니다. 유일한 차이점은 경로를 파일 시스템 대신 코드로 구성한다는 것입니다.
+
+[Route Trees & Nesting](./route-trees.md#route-trees) 가이드에서 다룬 동일한 라우트 트리를 코드 기반 라우팅으로 변환해보겠습니다:
+
+### 파일 기반 버전
+
+```
+routes/
+├── __root.tsx
+├── index.tsx
+├── about.tsx
+├── posts/
+│   ├── index.tsx
+│   ├── $postId.tsx
+├── posts.$postId.edit.tsx
+├── settings/
+│   ├── profile.tsx
+│   ├── notifications.tsx
+├── _layout.tsx
+├── _layout/
+│   ├── layout-a.tsx
+├── ├── layout-b.tsx
+├── files/
+│   ├── $.tsx
+```
+
+### 요약된 코드 기반 버전
+
+```tsx
+import { createRootRoute, createRoute } from "@tanstack/react-router";
+
+const rootRoute = createRootRoute();
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+});
+
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "about",
+});
+
+const postsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "posts",
+});
+
+const postsIndexRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: "/",
+});
+
+const postRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: "$postId",
+});
+
+const postEditorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "posts/$postId/edit",
+});
+
+const settingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "settings",
+});
+
+const profileRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "profile",
+});
+
+const notificationsRoute = createRoute({
+  getParentRoute: () => settingsRoute,
+  path: "notifications",
+});
+
+const layoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "layout",
+});
+
+const layoutARoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "layout-a",
+});
+
+const layoutBRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "layout-b",
+});
+
+const filesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "files/$",
+});
+```
+
+## File-Based vs Code-Based Routing
+
+파일 기반 라우팅은 코드 기반 라우팅의 상위 집합입니다. 파일 시스템과 약간의 코드 생성 추상화를 사용하여 위의 구조를 자동으로 생성합니다.
+
+[파일 기반 라우팅](./file-based-routing.md) 가이드를 읽고 다음 주요 개념을 숙지했다고 가정합니다:
+
+- 루트 라우트
+- 정적 라우트
+- 인덱스 라우트
+- 동적 경로 세그먼트
+- Splat / Catch-All 라우트
+- 경로 없는 라우트
+- 비중첩 라우트
+- Not-Found 라우트
+
+이제 각 라우트 유형을 코드에서 생성하는 방법을 살펴보겠습니다.
+
+## The Root Route
+
+코드 기반 라우팅에서 루트 라우트를 생성하는 방법은 파일 기반 라우팅과 동일합니다. `createRootRoute()` 함수를 호출하면 됩니다.
+
+```tsx
+import { createRootRoute } from "@tanstack/react-router";
+
+const rootRoute = createRootRoute();
+```
+
+## Anatomy of a Route
+
+루트 라우트를 제외한 모든 라우트는 `createRoute` 함수를 사용하여 구성됩니다:
+
+```tsx
+const route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/posts",
+  component: PostsComponent,
+});
+```
+
+## Manually building the route tree
+
+코드에서 라우트 트리를 구성하려면 각 라우트를 부모 라우트의 `children` 배열에 추가하여 최종 라우트 트리를 구성해야 합니다. 파일 기반 라우팅처럼 자동으로 생성되지 않습니다.
+
+```tsx
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  aboutRoute,
+  postsRoute.addChildren([postsIndexRoute, postRoute]),
+  postEditorRoute,
+  settingsRoute.addChildren([profileRoute, notificationsRoute]),
+  layoutRoute.addChildren([layoutARoute, layoutBRoute]),
+  filesRoute,
+]);
+```
+
+## Static Routes
+
+정적 라우트를 생성하려면 `createRoute` 함수에 일반 `path` 문자열을 제공합니다:
+
+```tsx
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "about",
+});
+```
+
+## Index Routes
+
+코드 기반 라우팅에서 인덱스 라우트는 단일 슬래시 `/`를 사용하여 나타냅니다:
+
+```tsx
+const postsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "posts",
+});
+
+const postsIndexRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: "/",
+});
+```
+
+## Dynamic Route Segments
+
+코드 기반 라우팅에서 동적 경로 세그먼트는 경로의 세그먼트를 `$`로 접두사하여 나타냅니다:
+
+```tsx
+const postIdRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: "$postId",
+  loader: ({ params }) => fetchPost(params.postId),
+  component: PostComponent,
+});
+```
+
+## Splat / Catch-All Routes
+
+Splat/Catch-All 라우트는 경로 세그먼트에 `$`를 접두사로 추가하여 나타냅니다:
+
+```tsx
+const filesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "files",
+});
+
+const fileRoute = createRoute({
+  getParentRoute: () => filesRoute,
+  path: "$",
+});
+```
+
+## Pathless Routes
+
+경로가 없는 라우트는 `path` 대신 `id` 옵션을 사용하여 나타냅니다:
+
+```tsx
+const layoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "layout",
+});
+```
+
+## Non-Nested Routes
+
+비중첩 라우트를 생성하려면 올바른 경로와 중첩을 사용하여 라우트를 구성해야 합니다:
+
+```tsx
+const postEditorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "posts/$postId/edit",
+});
+```
+
+## 404 / `NotFoundRoute`s
+
+404 또는 `NotFoundRoute` 구성 방법은 [Not Found Errors](./not-found-errors.md) 가이드를 참조하세요.
