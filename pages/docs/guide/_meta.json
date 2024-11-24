@@ -28,5 +28,8 @@
   },
   "navigation": {
     "title": "Navigation"
+  },
+  "path-params": {
+    "title": "Path Params"
   }
 }

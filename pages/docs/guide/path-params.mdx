@@ -1,0 +1,130 @@
+---
+title: Path Params
+---
+
+## Path Params
+
+Path params는 단일 세그먼트(다음 `/`까지의 텍스트)를 매칭하고 이를 **명명된** 변수로 제공하기 위해 사용됩니다. Path params는 경로에서 `$` 문자로 시작하고 뒤에 변수명을 지정하여 정의됩니다. 다음은 유효한 path param 경로의 예입니다:
+
+- `$postId`
+- `$name`
+- `$teamId`
+- `about/$name`
+- `team/$teamId`
+- `blog/$postId`
+
+Path param 경로는 다음 `/`까지만 매칭되므로, 하위 경로를 생성하여 계층 구조를 계속 표현할 수 있습니다:
+
+다음은 path param을 사용하여 post ID를 매칭하는 post 경로 파일을 생성하는 예제입니다:
+
+- `posts.$postId.tsx`
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ params }) => {
+    return fetchPost(params.postId);
+  },
+});
+```
+
+## Path Params can be used by child routes
+
+Path param이 한번 파싱되면, 해당 param은 모든 하위 경로에서 사용할 수 있습니다. 따라서 `postRoute`의 하위 경로를 정의하면 URL에서 `postId` 변수를 하위 경로의 경로에서도 사용할 수 있습니다!
+
+## Path Params in Loaders
+
+Path params는 `params` 객체로 loader에 전달됩니다. 이 객체의 키는 path param의 이름이고, 값은 실제 URL 경로에서 파싱된 값입니다. 예를 들어 `/blog/123` URL을 방문하면, `params` 객체는 `{ postId: '123' }`가 됩니다:
+
+```tsx
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ params }) => {
+    return fetchPost(params.postId);
+  },
+});
+```
+
+`params` 객체는 `beforeLoad` 옵션에도 전달됩니다:
+
+```tsx
+export const Route = createFileRoute("/posts/$postId")({
+  beforeLoad: async ({ params }) => {
+    // params.postId로 무언가를 하세요
+  },
+});
+```
+
+## Path Params in Components
+
+`postRoute`에 컴포넌트를 추가하면, route의 `useParams` hook을 사용하여 URL에서 `postId` 변수를 접근할 수 있습니다:
+
+```tsx
+export const Route = createFileRoute("/posts/$postId")({
+  component: PostComponent,
+});
+
+function PostComponent() {
+  const { postId } = Route.useParams();
+  return <div>Post {postId}</div>;
+}
+```
+
+> 🧠 빠른 팁: 컴포넌트가 코드 분할되어 있다면, [getRouteApi 함수](./code-splitting.md#manually-accessing-route-apis-in-other-files-with-the-getrouteapi-helper)를 사용하여 `Route` 구성에서 `useParams()` hook을 가져오지 않고도 접근할 수 있습니다.
+
+## Path Params outside of Routes
+
+글로벌로 export된 `useParams` hook을 사용하여 앱 내의 어떤 컴포넌트에서도 파싱된 path param을 사용할 수 있습니다. 이때 `useParams`에 `strict: false` 옵션을 전달하여 모호한 위치에서도 param을 접근할 수 있음을 명시해야 합니다:
+
+```tsx
+function PostComponent() {
+  const { postId } = useParams({ strict: false });
+  return <div>Post {postId}</div>;
+}
+```
+
+## Navigating with Path Params
+
+Path params를 포함한 경로로 이동할 때, TypeScript는 params를 객체로 전달하거나, 객체를 반환하는 함수로 전달할 것을 요구합니다.
+
+객체 스타일의 예제는 다음과 같습니다:
+
+```tsx
+function Component() {
+  return (
+    <Link to="/blog/$postId" params={{ postId: "123" }}>
+      Post 123
+    </Link>
+  );
+}
+```
+
+다음은 함수 스타일의 예제입니다:
+
+```tsx
+function Component() {
+  return (
+    <Link to="/blog/$postId" params={(prev) => ({ ...prev, postId: "123" })}>
+      Post 123
+    </Link>
+  );
+}
+```
+
+함수 스타일은 다른 경로에 이미 URL에 존재하는 params를 유지해야 할 때 유용합니다. 함수 스타일은 현재 params를 인수로 받아, 필요한 대로 수정하고 최종 params 객체를 반환할 수 있습니다.
+
+## Allowed Characters
+
+기본적으로 path params는 `encodeURIComponent`로 인코딩됩니다. 다른 유효한 URI 문자(예: `@`, `+`)를 허용하려면 [RouterOptions](../api/router/RouterOptionsType.md#pathparamsallowedcharacters-property)에서 이를 지정할 수 있습니다.
+
+사용 예제:
+
+```tsx
+const router = createRouter({
+  ...
+  pathParamsAllowedCharacters: ['@']
+})
+```
+
+허용된 문자 목록:
+`;` `:` `@` `&` `=` `+` `$` `,`
