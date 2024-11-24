@@ -16,6 +16,11 @@ const config: DocsThemeConfig = {
       </small>
     </span>
   ),
+  head: (
+    <>
+      <link rel="icon" href="/favicon.ico" />
+    </>
+  ),
   project: {
     link: "https://github.com/leesb971204/TanStack-Router-ko",
   },
