@@ -31,5 +31,8 @@
   },
   "path-params": {
     "title": "Path Params"
+  },
+  "search-params": {
+    "title": "Search Params"
   }
 }
