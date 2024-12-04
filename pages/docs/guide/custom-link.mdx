@@ -1,0 +1,159 @@
+---
+title: Custom Link
+---
+
+## Custom Link
+
+반복적인 작업이 많은 상황에서 괜찮을 수는 있지만, 너무 자주 반복하는 경우 불편함을 느낄 수 있습니다. 때로는 추가적인 동작이나 스타일을 제공하는 횡단 관심사 컴포넌트를 만들고 싶을 수도 있습니다. 또는 TanStack Router의 타입 안정성과 결합하여 서드파티 라이브러리를 사용하는 것도 고려할 수 있습니다.
+
+## `createLink` for cross-cutting concerns
+
+`createLink`는 `Link`와 동일한 타입 파라미터를 가지는 커스텀 `Link` 컴포넌트를 생성합니다. 이를 통해 동일한 타입 안정성과 타입스크립트 성능을 제공하는 자체 컴포넌트를 생성할 수 있습니다.
+
+### Basic example
+
+기본적인 커스텀 링크 컴포넌트를 만들고 싶다면, 아래와 같이 작성할 수 있습니다:
+
+```tsx
+import * as React from "react";
+import { createLink, LinkComponent } from "@tanstack/react-router";
+
+interface BasicLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  // 앵커 요소에 전달할 추가적인 props를 여기에 추가하세요.
+}
+
+const BasicLinkComponent = React.forwardRef<HTMLAnchorElement, BasicLinkProps>(
+  (props, ref) => {
+    return (
+      <a ref={ref} {...props} className={"block px-3 py-2 text-blue-700"} />
+    );
+  }
+);
+
+const CreatedLinkComponent = createLink(BasicLinkComponent);
+
+export const CustomLink: LinkComponent<typeof BasicLinkComponent> = (props) => {
+  return <CreatedLinkComponent preload={"intent"} {...props} />;
+};
+
+<CustomLink to={"/dashboard/invoices/$invoiceId"} params={{ invoiceId: 0 }} />;
+```
+
+## `createLink` with third party libraries
+
+### React Aria Components example
+
+React Aria Components의
+[Link](https://react-spectrum.adobe.com/react-aria/Link.html) 컴포넌트는 표준 `onMouseEnter` 및 `onMouseLeave` 이벤트를 지원하지 않습니다.
+따라서 TanStack Router의 `preload (intent)` prop과 직접적으로 사용할 수 없습니다.
+
+이에 대한 설명은 다음 링크에서 확인할 수 있습니다:
+
+- [https://react-spectrum.adobe.com/react-aria/interactions.html](https://react-spectrum.adobe.com/react-aria/interactions.html)
+- [https://react-spectrum.adobe.com/blog/building-a-button-part-2.html](https://react-spectrum.adobe.com/blog/building-a-button-part-2.html)
+
+[React Aria Hooks](https://react-spectrum.adobe.com/react-aria/hooks.html)의 [useLink](https://react-spectrum.adobe.com/react-aria/useLink.html) 훅을 표준 앵커 요소와 함께 사용하여 이를 우회할 수 있습니다.
+
+```tsx
+import * as React from "react";
+import { createLink, LinkComponent } from "@tanstack/react-router";
+import {
+  mergeProps,
+  useFocusRing,
+  useHover,
+  useLink,
+  useObjectRef,
+} from "react-aria";
+import type { AriaLinkOptions } from "react-aria";
+
+interface RACLinkProps extends Omit<AriaLinkOptions, "href"> {
+  children?: React.ReactNode;
+}
+
+const RACLinkComponent = React.forwardRef<HTMLAnchorElement, RACLinkProps>(
+  (props, forwardedRef) => {
+    const ref = useObjectRef(forwardedRef);
+
+    const { isPressed, linkProps } = useLink(props, ref);
+    const { isHovered, hoverProps } = useHover(props);
+    const { isFocusVisible, isFocused, focusProps } = useFocusRing(props);
+
+    return (
+      <a
+        {...mergeProps(linkProps, hoverProps, focusProps, props)}
+        ref={ref}
+        data-hovered={isHovered || undefined}
+        data-pressed={isPressed || undefined}
+        data-focus-visible={isFocusVisible || undefined}
+        data-focused={isFocused || undefined}
+      />
+    );
+  }
+);
+
+const CreatedLinkComponent = createLink(RACLinkComponent);
+
+export const CustomLink: LinkComponent<typeof RACLinkComponent> = (props) => {
+  return <CreatedLinkComponent preload={"intent"} {...props} />;
+};
+```
+
+### Chakra UI example
+
+```tsx
+import * as React from "react";
+import { createLink, LinkComponent } from "@tanstack/react-router";
+import { Link } from "@chakra-ui/react";
+
+interface ChakraLinkProps
+  extends Omit<React.ComponentPropsWithoutRef<typeof Link>, "href"> {
+  // 링크에 전달할 추가적인 props를 여기에 추가하세요.
+}
+
+const ChakraLinkComponent = React.forwardRef<
+  HTMLAnchorElement,
+  ChakraLinkProps
+>((props, ref) => {
+  return <Link ref={ref} {...props} />;
+});
+
+const CreatedLinkComponent = createLink(ChakraLinkComponent);
+
+export const CustomLink: LinkComponent<typeof ChakraLinkComponent> = (
+  props
+) => {
+  return (
+    <CreatedLinkComponent
+      textDecoration={"underline"}
+      _hover={{ textDecoration: "none" }}
+      _focus={{ textDecoration: "none" }}
+      preload={"intent"}
+      {...props}
+    />
+  );
+};
+```
+
+### MUI example
+
+```tsx
+import * as React from "react";
+import { createLink, LinkComponent } from "@tanstack/react-router";
+import { Button, ButtonProps } from "@mui/material";
+
+interface MUILinkProps extends Omit<ButtonProps, "href"> {
+  // 버튼에 전달할 추가적인 props를 여기에 추가하세요.
+}
+
+const MUILinkComponent = React.forwardRef<HTMLAnchorElement, MUILinkProps>(
+  (props, ref) => {
+    return <Button component={"a"} ref={ref} {...props} />;
+  }
+);
+
+const CreatedLinkComponent = createLink(MUILinkComponent);
+
+export const CustomLink: LinkComponent<typeof MUILinkComponent> = (props) => {
+  return <CreatedLinkComponent preload={"intent"} {...props} />;
+};
+```
