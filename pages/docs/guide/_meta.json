@@ -37,5 +37,8 @@
   },
   "custom-link": {
     "title": "Custom Link"
+  },
+  "data-loading": {
+    "title": "Data Loading"
   }
 }
