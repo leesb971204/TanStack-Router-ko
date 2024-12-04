@@ -1,0 +1,100 @@
+---
+id: deferred-data-loading
+title: Deferred Data Loading
+---
+
+## Deferred Data Loading
+
+TanStack Router는 로더를 병렬로 실행하고 모든 로더가 완료될 때까지 기다린 후 다음 라우트를 렌더링하도록 설계되었습니다. 이는 대부분의 경우 훌륭하지만, 때로는 사용자에게 백그라운드에서 나머지 데이터가 로드되는 동안 무언가를 더 빨리 보여주고 싶을 수 있습니다.
+
+지연 데이터 로딩은 라우터가 다음 위치의 중요한 데이터/마크업을 렌더링하면서 느리거나 중요하지 않은 라우트 데이터를 백그라운드에서 해결하도록 하는 패턴입니다. 이 과정은 클라이언트와 서버(스트리밍을 통해)에서 모두 작동하며 애플리케이션의 체감 성능을 향상시키는 훌륭한 방법입니다.
+
+## Deferred Data Loading with `defer` and `Await`
+
+느리거나 중요하지 않은 데이터를 지연하려면, **대기하지 않거나 해결되지 않은** promise를 `defer` 함수로 감싸서 로더 응답 내 어디에서든 반환하세요:
+
+```tsx
+// src/routes/posts.$postId.tsx
+
+import * as React from "react";
+import { createFileRoute, defer } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async () => {
+    // 느린 데이터를 가져오지만 대기하지 않습니다.
+    const slowDataPromise = fetchSlowData();
+
+    // 빠르게 해결되는 데이터를 가져오고 대기합니다.
+    const fastData = await fetchFastData();
+
+    return {
+      fastData,
+      // 느린 promise를 `defer()`로 감쌉니다.
+      deferredSlowData: defer(slowDataPromise),
+    };
+  },
+});
+```
+
+대기 중인 promise가 모두 해결되면, 지연된 promise가 계속 해결되는 동안 다음 라우트가 렌더링을 시작합니다.
+
+컴포넌트에서 `Await` 컴포넌트를 사용하여 지연된 promise를 해결하고 사용할 수 있습니다:
+
+```tsx
+// src/routes/posts.$postId.tsx
+
+import * as React from "react";
+import { createFileRoute, Await } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts/$postId")({
+  // ...
+  component: PostIdComponent,
+});
+
+function PostIdComponent() {
+  const { deferredSlowData } = Route.useLoaderData();
+
+  return (
+    <Await promise={deferredSlowData} fallback={<div>Loading...</div>}>
+      {(data) => {
+        return <div>{data}</div>;
+      }}
+    </Await>
+  );
+}
+```
+
+> [!TIP]
+> 컴포넌트가 코드 스플릿되어 있는 경우, `Route` 구성을 가져오지 않고도 입력된 `useLoaderData()` 훅에 접근하기 위해 [getRouteApi function](./code-splitting.md#manually-accessing-route-apis-in-other-files-with-the-getrouteapi-helper)을 사용할 수 있습니다.
+
+`Await` 컴포넌트는 가장 가까운 서스펜스 경계를 트리거하여 promise를 해결한 다음, 해결된 데이터를 사용하여 컴포넌트의 `children`을 함수로 렌더링합니다.
+
+promise가 거부되면, `Await` 컴포넌트는 직렬화된 오류를 throw하며, 이는 가장 가까운 오류 경계에서 잡힐 수 있습니다.
+
+## Caching and Invalidation
+
+스트리밍된 promise는 관련된 로더 데이터와 동일한 라이프사이클을 따릅니다. 이들은 사전 로드도 가능합니다!
+
+## SSR & Streaming Deferred Data
+
+**스트리밍은 이를 지원하는 서버와 TanStack Router가 이를 올바르게 사용하도록 구성되어야 합니다.**
+
+서버 스트리밍을 설정하는 단계별 지침은 전체 [SSR Guide](/docs/guide/server-streaming)를 참조하세요.
+
+## SSR Streaming Lifecycle
+
+다음은 TanStack Router에서 지연 데이터 스트리밍이 작동하는 방식의 고수준 개요입니다:
+
+- 서버
+  - `defer()`로 감싼 promise가 라우트 로더에서 반환될 때 표시되고 추적됩니다.
+  - 모든 로더가 해결되고 지연된 promise가 직렬화되어 HTML에 포함됩니다.
+  - 라우트가 렌더링을 시작합니다.
+  - `<Await>` 컴포넌트로 렌더링된 지연된 promise는 서스펜스 경계를 트리거하여 해당 지점까지 HTML을 스트리밍하도록 서버를 허용합니다.
+- 클라이언트
+  - 클라이언트는 서버에서 초기 HTML을 수신합니다.
+  - `<Await>` 컴포넌트는 데이터를 서버에서 해결하기를 기다리면서 플레이스홀더 promise로 서스펜딩합니다.
+- 서버
+  - 지연된 promise가 해결되면, 해당 결과(또는 오류)가 직렬화되어 인라인 스크립트 태그를 통해 클라이언트로 스트리밍됩니다.
+  - 해결된 `<Await>` 컴포넌트와 서스펜스 경계가 해결되며, 결과 HTML이 탈수된 데이터와 함께 클라이언트로 스트리밍됩니다.
+- 클라이언트
+  - `<Await>` 내의 플레이스홀더 promise가 스트리밍된 데이터/오류 응답으로 해결되며, 결과를 렌더링하거나 오류를 가장 가까운 오류 경계로 throw합니다.

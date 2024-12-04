@@ -40,5 +40,8 @@
   },
   "data-loading": {
     "title": "Data Loading"
+  },
+  "deferred-data-loading": {
+    "title": "Deferred Data Loading"
   }
 }
