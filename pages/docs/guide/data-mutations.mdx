@@ -1,0 +1,124 @@
+---
+title: Data Mutations
+---
+
+## Data Mutations
+
+TanStack Router는 데이터를 저장하거나 캐시하지 않기 때문에, 데이터 변이에 있어서 URL의 부수적인 효과를 반영하는 것을 제외하면 역할이 거의 없습니다. 그렇지만, 유용할 수 있는 변이 관련 기능과 이를 구현하는 라이브러리를 다음과 같이 정리했습니다.
+
+다음과 같은 기능을 지원하는 변이 유틸리티를 찾아서 사용하세요:
+
+- 제출 상태 처리 및 캐싱
+- 로컬 및 글로벌 낙관적 UI 지원 제공
+- 무효화를 연결하는 내장 훅(또는 이를 자동으로 지원)
+- 동시에 여러 변이 처리
+- 전역적으로 접근 가능한 리소스로 변이 상태 구성
+- 제출 상태 기록 및 가비지 수집
+
+사용 가능한 라이브러리:
+
+- [TanStack Query](https://tanstack.com/query/latest/docs/react/guides/mutations)
+- [SWR](https://swr.vercel.app/)
+- [RTK Query](https://redux-toolkit.js.org/rtk-query/overview)
+- [urql](https://formidable.com/open-source/urql/)
+- [Relay](https://relay.dev/)
+- [Apollo](https://www.apollographql.com/docs/react/)
+
+또는...
+
+- [Zustand](https://zustand-demo.pmnd.rs/)
+- [Jotai](https://jotai.org/)
+- [Recoil](https://recoiljs.org/)
+- [Redux](https://redux.js.org/)
+
+데이터 가져오기와 마찬가지로, 변이 상태는 모든 상황에 적합한 솔루션은 아니므로, 필요와 팀의 요구에 맞는 솔루션을 선택해야 합니다. 몇 가지 다른 솔루션을 시도해 보고 가장 적합한 것을 찾는 것을 권장합니다.
+
+> ⚠️ 여전히 여기 계신가요? 제출 상태는 지속성과 관련하여 흥미로운 주제입니다. 모든 변이를 영원히 유지해야 하나요? 이를 언제 제거해야 하는지 어떻게 알 수 있나요? 사용자가 화면을 떠나고 다시 돌아오면 어떻게 해야 하나요? 자세히 알아봅시다!
+
+## Invalidating TanStack Router after a mutation
+
+TanStack Router는 단기 캐싱을 기본적으로 제공합니다. 따라서 라우트 매치가 해제된 후 데이터를 저장하지 않더라도, Router에 저장된 데이터와 관련된 변이가 발생하면 현재 라우트 매치의 데이터가 오래될 가능성이 높습니다.
+
+로더 데이터와 관련된 변이가 발생하면, `router.invalidate`를 사용하여 Router의 모든 현재 라우트 매치를 강제로 다시 로드할 수 있습니다:
+
+```tsx
+const router = useRouter();
+
+const addTodo = async (todo: Todo) => {
+  try {
+    await api.addTodo();
+    router.invalidate();
+  } catch {
+    //
+  }
+};
+```
+
+현재 라우트 매치의 무효화는 백그라운드에서 발생하며, 기존 데이터는 새 데이터가 준비될 때까지 계속 제공됩니다. 이는 새로운 라우트로 이동하는 것과 유사하게 작동합니다.
+
+## Long-term mutation State
+
+사용하는 변이 라이브러리와 관계없이 변이는 종종 제출과 관련된 상태를 생성합니다. 대부분의 변이는 "설정 후 잊기(set-and-forget)"로 처리되지만, 일부 변이 상태는 낙관적 UI를 지원하거나 사용자에게 제출 상태에 대한 피드백을 제공하기 위해 더 오랜 기간 유지됩니다. 대부분의 상태 관리 도구는 이러한 제출 상태를 올바르게 유지하고 이를 노출하여 로딩 스피너, 성공 메시지, 오류 메시지 등의 UI 요소를 표시할 수 있도록 합니다.
+
+다음 상호작용을 고려해 보세요:
+
+1. 사용자가 `/posts/123/edit` 화면으로 이동하여 게시물을 편집합니다.
+2. 사용자가 `123` 게시물을 편집하고 성공 메시지가 에디터 아래에 표시됩니다.
+3. 사용자가 `/posts` 화면으로 이동합니다.
+4. 사용자가 다시 `/posts/123/edit` 화면으로 돌아옵니다.
+
+변이 관리 라이브러리에 라우트 변경 사항을 알리지 않으면, 제출 상태가 여전히 남아 있어 사용자가 이전 화면으로 돌아갔을 때 **"게시물이 성공적으로 업데이트되었습니다"** 메시지를 계속 볼 수 있습니다. 이는 이상적인 상태가 아닙니다. 분명히 우리의 의도는 변이 상태를 영원히 유지하는 것이 아니었겠죠?!
+
+## Using mutation keys
+
+가장 간단한 방법은 변이 라이브러리가 키 메커니즘을 지원하여 변이 상태를 키 변경 시 리셋할 수 있도록 하는 것입니다:
+
+```tsx
+const routeApi = getRouteApi("/posts/$postId/edit");
+
+function EditPost() {
+  const { roomId } = routeApi.useParams();
+
+  const sendMessageMutation = useCoolMutation({
+    fn: sendMessage,
+    // roomId 변경 시 변이 상태 초기화
+    key: ["sendMessage", roomId],
+  });
+
+  // 여러 메시지를 전송
+  const test = () => {
+    sendMessageMutation.mutate({ roomId, message: "Hello!" });
+    sendMessageMutation.mutate({ roomId, message: "How are you?" });
+    sendMessageMutation.mutate({ roomId, message: "Goodbye!" });
+  };
+
+  return (
+    <>
+      {sendMessageMutation.submissions.map((submission) => (
+        <div key={submission.id}>
+          <div>{submission.status}</div>
+          <div>{submission.message}</div>
+        </div>
+      ))}
+    </>
+  );
+}
+```
+
+## Using the `router.subscribe` method
+
+키 메커니즘이 없는 라이브러리의 경우, 사용자가 화면에서 벗어날 때 수동으로 변이 상태를 초기화해야 할 수도 있습니다. 이를 해결하기 위해 TanStack Router의 `invalidate` 및 `subscribe` 메서드를 사용하여 더 이상 필요하지 않은 변이 상태를 제거할 수 있습니다.
+
+`router.subscribe` 메서드는 다양한 라우터 이벤트에 대한 콜백을 구독하는 함수입니다. 여기서 사용할 이벤트는 `onResolved` 이벤트입니다. 이 이벤트는 경로가 변경되고(단순 재로드가 아닌) 최종적으로 해결되었을 때 발생합니다.
+
+이전 변이 상태를 초기화하기에 적합한 지점입니다. 다음은 예제입니다:
+
+```tsx
+const router = createRouter();
+const coolMutationCache = createCoolMutationCache();
+
+const unsubscribeFn = router.subscribe("onResolved", () => {
+  // 라우트 변경 시 변이 상태 초기화
+  coolMutationCache.clear();
+});
+```

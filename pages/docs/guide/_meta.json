@@ -46,5 +46,8 @@
   },
   "external-data-loading": {
     "title": "External Data Loading"
+  },
+  "data-mutations": {
+    "title": "Data Mutations"
   }
 }
