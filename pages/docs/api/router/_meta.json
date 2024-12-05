@@ -22,5 +22,8 @@
   },
   "createRouterFunction": {
     "title": "createRouter"
+  },
+  "deferFunction": {
+    "title": "defer"
   }
 }
