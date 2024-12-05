@@ -19,5 +19,8 @@
   },
   "createRouteMaskFunction": {
     "title": "createRouteMask"
+  },
+  "createRouterFunction": {
+    "title": "createRouter"
   }
 }

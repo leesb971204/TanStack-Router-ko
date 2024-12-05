@@ -1,0 +1,34 @@
+---
+id: createRouterFunction
+title: createRouter function
+---
+
+## createRouter function
+
+`createRouter` 함수는 [`RouterOptions`](./RouterOptionsType.md) 객체를 받아 새로운 [`Router`](./RouterClass.md) 인스턴스를 생성합니다.
+
+## createRouter options
+
+- **타입**: [`RouterOptions`](./RouterOptionsType.md)
+- **필수 항목**
+- 라우터 인스턴스를 구성하는 데 사용되는 옵션입니다.
+
+## createRouter returns
+
+- [`Router`](./RouterType.md) 인스턴스.
+
+## Examples
+
+```tsx
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+
+const router = createRouter({
+  routeTree,
+  defaultPreload: "intent",
+});
+
+export default function App() {
+  return <RouterProvider router={router} />;
+}
+```
