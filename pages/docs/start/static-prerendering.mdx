@@ -1,0 +1,31 @@
+---
+id: static-prerendering
+title: Static Prerendering
+---
+
+## Static Prerendering
+
+> Static Prerendering은 Nitro의 기능이며 TanStack Start에서 사용할 수 있지만, 이를 사용하는 최적의 방법을 아직 탐구 중입니다. 신중하게 사용하세요!
+
+Static Prerendering은 애플리케이션의 정적 HTML 파일을 생성하는 과정입니다. 이는 애플리케이션의 성능을 개선하거나, 서버 사이드 렌더링을 지원하지 않는 플랫폼에 정적 사이트를 배포할 때 유용합니다. 사전 렌더링된 HTML 파일을 사용자에게 제공하여 실시간으로 HTML을 생성할 필요를 없앱니다.
+
+## Prerendering, powered by Nitro
+
+TanStack Start는 Nitro를 기반으로 구축되었으므로, Nitro의 사전 렌더링 기능을 활용할 수 있습니다. Nitro는 애플리케이션을 정적 HTML 파일로 사전 렌더링할 수 있으며, 이를 통해 사용자에게 실시간 생성 없이 제공할 수 있습니다. 애플리케이션을 사전 렌더링하려면 `app.config.js` 파일에 `server.prerender` 옵션을 추가하세요:
+
+```js
+// app.config.js
+
+import { defineConfig } from "@tanstack/start/config";
+
+export default defineConfig({
+  server: {
+    prerender: {
+      routes: ["/"],
+      crawlLinks: true,
+    },
+  },
+});
+```
+
+사전 렌더링에 사용할 수 있는 다양한 옵션은 [Nitro 설정의 사전 렌더링 문서](https://nitro.unjs.io/config#prerender)에 자세히 나와 있습니다.

@@ -28,5 +28,8 @@
   },
   "observability": {
     "title": "Observability"
+  },
+  "static-prerendering": {
+    "title": "Static Prerendering"
   }
 }
