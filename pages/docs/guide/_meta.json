@@ -67,5 +67,8 @@
   },
   "custom-search-param-serialization": {
     "title": "Custom Search Param Serialization"
+  },
+  "history-types": {
+    "title": "History Types"
   }
 }
