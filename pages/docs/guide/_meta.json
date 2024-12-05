@@ -64,5 +64,8 @@
   },
   "navigation-masking": {
     "title": "Navigation Masking"
+  },
+  "custom-search-param-serialization": {
+    "title": "Custom Search Param Serialization"
   }
 }
