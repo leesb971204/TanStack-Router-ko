@@ -49,5 +49,8 @@
   },
   "retainSearchParams": {
     "title": "retainSearchParams"
+  },
+  "stripSearchParams": {
+    "title": "stripSearchParams"
   }
 }

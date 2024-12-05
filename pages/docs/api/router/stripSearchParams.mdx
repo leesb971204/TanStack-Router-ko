@@ -1,0 +1,80 @@
+---
+id: stripSearchParams
+title: Search middleware to strip search params
+---
+
+## Search middleware to strip search params
+
+`stripSearchParams`는 검색 매개변수를 제거하는 검색 미들웨어입니다.
+
+## stripSearchParams props
+
+`stripSearchParams`는 다음 중 하나를 입력값으로 받습니다:
+
+- `true`: 검색 스키마에 필수 매개변수가 없는 경우, `true`를 사용하여 모든 검색 매개변수를 제거할 수 있습니다.
+- 제거하려는 검색 매개변수 키의 리스트; 선택적 검색 매개변수의 키만 허용됩니다.
+- 입력 검색 스키마에 부분적으로 일치하는 객체. 검색 매개변수가 이 객체의 값과 깊이 비교하여 동일한 경우 제거됩니다. 기본 검색 매개변수를 제거하는 데 특히 유용합니다.
+
+## Examples
+
+```tsx
+import { z } from "zod";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { zodValidator } from "@tanstack/zod-adapter";
+
+const defaultValues = {
+  one: "abc",
+  two: "xyz",
+};
+
+const searchSchema = z.object({
+  one: z.string().default(defaultValues.one),
+  two: z.string().default(defaultValues.two),
+});
+
+export const Route = createFileRoute("/hello")({
+  validateSearch: zodValidator(searchSchema),
+  search: {
+    // 기본값 제거
+    middlewares: [stripSearchParams(defaultValues)],
+  },
+});
+```
+
+```tsx
+import { z } from "zod";
+import { createRootRoute, stripSearchParams } from "@tanstack/react-router";
+import { zodValidator } from "@tanstack/zod-adapter";
+
+const searchSchema = z.object({
+  hello: z.string().default("world"),
+  requiredParam: z.string(),
+});
+
+export const Route = createRootRoute({
+  validateSearch: zodValidator(searchSchema),
+  search: {
+    // 항상 `hello` 제거
+    middlewares: [stripSearchParams(["hello"])],
+  },
+});
+```
+
+```tsx
+import { z } from "zod";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { zodValidator } from "@tanstack/zod-adapter";
+
+const searchSchema = z.object({
+  one: z.string().default("abc"),
+  two: z.string().default("xyz"),
+});
+
+export const Route = createFileRoute("/hello")({
+  validateSearch: zodValidator(searchSchema),
+  search: {
+    // 모든 검색 매개변수 제거
+    middlewares: [stripSearchParams(true)],
+  },
+});
+```
