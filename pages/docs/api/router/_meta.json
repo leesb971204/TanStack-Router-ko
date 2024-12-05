@@ -37,5 +37,8 @@
   },
   "lazyRouteComponentFunction": {
     "title": "lazyRouteComponent"
+  },
+  "linkOptions": {
+    "title": "LinkOptions"
   }
 }
