@@ -1,0 +1,73 @@
+---
+id: createLazyRouteFunction
+title: createLazyRoute function
+---
+
+## createLazyRoute function
+
+`createLazyRoute` 함수는 매칭 시 지연 로드되는 코드 기반 라우트 인스턴스를 생성하는 데 사용됩니다. 이 라우트 인스턴스는 `component`, `pendingComponent`, `errorComponent`, `notFoundComponent`와 같은 [비핵심 속성](../../guide/code-splitting.md#how-does-tanstack-router-split-code)만 구성하는 데 사용할 수 있습니다.
+
+## createLazyRoute options
+
+`createLazyRoute` 함수는 라우트의 `id`를 나타내는 `string` 타입의 단일 인수를 받습니다.
+
+### `id`
+
+- **타입**: `string`
+- **필수 항목**
+- 라우트의 ID입니다.
+
+## createLazyRoute returns
+
+새로운 함수로, 파일 [`Route`](./RouteType.md) 인스턴스를 구성하는 데 사용되는 [`RouteOptions`](./RouteOptionsType.md)의 일부 타입 인수를 받습니다.
+
+- **타입**:
+
+```tsx
+Pick<
+  RouteOptions,
+  "component" | "pendingComponent" | "errorComponent" | "notFoundComponent"
+>;
+```
+
+- [`RouteOptions`](./RouteOptionsType.md)
+
+> ⚠️ **참고**: 이 라우트 인스턴스는 `createRoute` 함수가 반환한 `lazy` 메서드를 사용하여 해당 핵심 라우트 인스턴스에 대해 수동으로 지연 로드되어야 합니다.
+
+## Examples
+
+```tsx
+// src/route-pages/index.tsx
+import { createLazyRoute } from "@tanstack/react-router";
+
+export const Route = createLazyRoute("/")({
+  component: IndexComponent,
+});
+
+function IndexComponent() {
+  const data = Route.useLoaderData();
+  return <div>{data}</div>;
+}
+
+// src/routeTree.tsx
+import {
+  createRootRouteWithContext,
+  createRoute,
+  Outlet,
+} from "@tanstack/react-router";
+
+interface MyRouterContext {
+  foo: string;
+}
+
+const rootRoute = createRootRouteWithContext<MyRouterContext>()({
+  component: () => <Outlet />,
+});
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+}).lazy(() => import("./route-pages/index").then((d) => d.Route));
+
+export const routeTree = rootRoute.addChildren([indexRoute]);
+```
