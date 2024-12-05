@@ -64,5 +64,8 @@
   },
   "defaultGlobalNotFoundComponent": {
     "title": "defaultGlobalNotFoundComponent"
+  },
+  "errorComponentComponent": {
+    "title": "errorComponent"
   }
 }
