@@ -1,5 +1,8 @@
 {
   "createFileRouteFunction": {
     "title": "createFileRouteFunction"
+  },
+  "createLazyFileRouteFunction": {
+    "title": "createLazyFileRouteFunction"
   }
 }
