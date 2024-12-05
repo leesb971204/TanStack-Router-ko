@@ -1,0 +1,349 @@
+---
+title: Router Context
+---
+
+## Router Context
+
+TanStack Router의 라우터 컨텍스트는 의존성 주입을 포함한 다양한 작업에 사용할 수 있는 매우 강력한 도구입니다. 이름 그대로, 라우터 컨텍스트는 라우터를 통해 전달되고 각 매칭된 라우트를 통해 내려갑니다. 계층 구조의 각 라우트에서 컨텍스트를 수정하거나 추가할 수 있습니다. 다음은 라우터 컨텍스트를 실질적으로 사용할 수 있는 몇 가지 방법입니다:
+
+- 의존성 주입
+  - 로더 함수, 데이터 페칭 클라이언트, 변환 서비스 등 라우트와 모든 하위 라우트에서 직접 가져오거나 생성하지 않고 사용할 수 있는 의존성을 제공합니다.
+- 탐색 경로
+  - 각 라우트의 고유한 컨텍스트가 저장되므로, 각 라우트의 컨텍스트에 탐색 경로나 메서드를 추가할 수 있습니다.
+- 동적 메타 태그 관리
+  - 각 라우트의 컨텍스트에 메타 태그를 추가하고, 메타 태그 관리자를 사용하여 사용자가 사이트를 탐색할 때 메타 태그를 동적으로 업데이트할 수 있습니다.
+
+이 외에도 라우터 컨텍스트는 원하는 방식으로 사용할 수 있습니다!
+
+## Typed Router Context
+
+루트 라우터 컨텍스트는 엄격하게 타입이 지정됩니다. 이 타입은 라우트 매치 트리에서 `beforeLoad` 옵션을 통해 확장될 수 있습니다. 루트 라우터 컨텍스트의 타입을 제한하려면 `createRootRoute()` 대신 `createRootRouteWithContext<YourContextTypeHere>()(routeOptions)` 함수를 사용하세요. 예:
+
+```tsx
+import {
+  createRootRouteWithContext,
+  createRouter,
+} from "@tanstack/react-router";
+
+interface MyRouterContext {
+  user: User;
+}
+
+// Router Context를 사용하여 루트 라우트를 생성합니다.
+const rootRoute = createRootRouteWithContext<MyRouterContext>()({
+  component: App,
+});
+
+const routeTree = rootRoute.addChildren([
+  // ...
+]);
+
+// Router Context를 사용하여 라우터를 생성합니다.
+const router = createRouter({
+  routeTree,
+});
+```
+
+## Passing the initial Router Context
+
+Router Context는 라우터 초기화 시 전달됩니다. 초기 Router Context는 `context` 옵션을 통해 라우터에 전달할 수 있습니다.
+
+> [!TIP]
+> Context에 필요한 속성이 있다면, 초기 Router Context에 이를 전달하지 않으면 TypeScript 오류가 발생합니다. 모든 Context 속성이 선택 사항인 경우, TypeScript 오류가 발생하지 않으며 Context를 전달하는 것은 선택 사항이 됩니다. Context를 전달하지 않으면 기본값으로 `{}`가 사용됩니다.
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+// Router Context를 사용하여 라우터를 생성합니다.
+const router = createRouter({
+  routeTree,
+  context: {
+    user: {
+      id: "123",
+      name: "John Doe",
+    },
+  },
+});
+```
+
+### Invalidating the Router Context
+
+Router에 전달된 Context 상태를 무효화해야 하는 경우, `invalidate` 메서드를 호출하여 라우터가 Context를 다시 계산하도록 할 수 있습니다. 이는 Context 상태를 업데이트하고 라우터가 모든 라우트에 대해 Context를 다시 계산하도록 해야 할 때 유용합니다.
+
+```tsx
+function useAuth() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      router.invalidate();
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return user;
+}
+```
+
+## Using the Router Context
+
+Router Context 타입을 정의한 후, 이를 라우트 정의에서 사용할 수 있습니다:
+
+```tsx
+// src/routes/todos.tsx
+export const Route = createFileRoute("/todos")({
+  component: Todos,
+  loader: ({ context }) => fetchTodosByUserId(context.user.id),
+});
+```
+
+데이터 페칭 및 변환 구현 자체를 주입할 수도 있습니다! 이는 강력히 권장됩니다 😜
+
+간단한 함수로 TODO를 페칭하는 예제를 살펴보겠습니다:
+
+```tsx
+const fetchTodosByUserId = async ({ userId }) => {
+  const response = await fetch(`/api/todos?userId=${userId}`);
+  const data = await response.json();
+  return data;
+};
+
+const router = createRouter({
+  routeTree: rootRoute,
+  context: {
+    userId: "123",
+    fetchTodosByUserId,
+  },
+});
+```
+
+그런 다음 라우트에서:
+
+```tsx
+// src/routes/todos.tsx
+export const Route = createFileRoute("/todos")({
+  component: Todos,
+  loader: ({ context }) => context.fetchTodosByUserId(context.userId),
+});
+```
+
+### How about an external data fetching library?
+
+```tsx
+import {
+  createRootRouteWithContext,
+  createRouter,
+} from "@tanstack/react-router";
+
+interface MyRouterContext {
+  queryClient: QueryClient;
+}
+
+const rootRoute = createRootRouteWithContext<MyRouterContext>()({
+  component: App,
+});
+
+const queryClient = new QueryClient();
+
+const router = createRouter({
+  routeTree: rootRoute,
+  context: {
+    queryClient,
+  },
+});
+```
+
+그런 다음 라우트에서:
+
+```tsx
+// src/routes/todos.tsx
+export const Route = createFileRoute("/todos")({
+  component: Todos,
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData({
+      queryKey: ["todos", { userId: user.id }],
+      queryFn: fetchTodos,
+    });
+  },
+});
+```
+
+## How about using React Context/Hooks?
+
+라우트의 `beforeLoad` 또는 `loader` 함수에서 React Context 또는 Hooks를 사용하려고 할 때 React의 [Hooks 규칙](https://react.dev/reference/rules/rules-of-hooks)을 기억하는 것이 중요합니다. 비-React 함수에서는 Hooks를 사용할 수 없으므로, `beforeLoad` 또는 `loader` 함수에서는 Hooks를 사용할 수 없습니다.
+
+그렇다면 `beforeLoad` 또는 `loader` 함수에서 React Context나 Hooks를 어떻게 사용할 수 있을까요? 이를 위해 Router Context를 활용하여 React Context나 Hooks를 라우트의 `beforeLoad` 또는 `loader` 함수로 전달할 수 있습니다.
+
+다음은 `useNetworkStrength` 훅을 라우트의 `loader` 함수로 전달하는 예제를 보여줍니다:
+
+- `src/routes/__root.tsx`
+
+```tsx
+// 먼저 루트 라우트의 컨텍스트가 타입화되어야 합니다.
+import { createRootRouteWithContext } from "@tanstack/react-router";
+import { useNetworkStrength } from "@/hooks/useNetworkStrength";
+
+interface MyRouterContext {
+  networkStrength: ReturnType<typeof useNetworkStrength>;
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
+  component: App,
+});
+```
+
+이 예제에서는 `<RouterProvider />`를 사용하여 라우터를 렌더링하기 전에 훅을 초기화합니다. 이렇게 하면 React 내에서 훅이 호출되어 Hooks 규칙을 준수하게 됩니다.
+
+- `src/router.tsx`
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+import { routeTree } from "./routeTree.gen";
+
+export const router = createRouter({
+  routeTree,
+  context: {
+    networkStrength: undefined!, // React에서 설정합니다.
+  },
+});
+```
+
+- `src/main.tsx`
+
+```tsx
+import { RouterProvider } from "@tanstack/react-router";
+import { router } from "./router";
+
+import { useNetworkStrength } from "@/hooks/useNetworkStrength";
+
+function App() {
+  const networkStrength = useNetworkStrength();
+  // 훅에서 반환된 값을 Router Context에 주입합니다.
+  return <RouterProvider router={router} context={{ networkStrength }} />;
+}
+
+// ...
+```
+
+이제 라우트의 `loader` 함수에서 Router Context에서 `networkStrength` 훅을 액세스할 수 있습니다:
+
+- `src/routes/posts.tsx`
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts")({
+  component: Posts,
+  loader: ({ context }) => {
+    if (context.networkStrength === "STRONG") {
+      // 작업 수행
+    }
+  },
+});
+```
+
+## Modifying the Router Context
+
+Router Context는 라우트 트리를 따라 내려가며 전달되며 각 라우트에서 병합됩니다. 따라서 각 라우트에서 컨텍스트를 수정할 수 있으며, 수정 사항은 모든 하위 라우트에 사용할 수 있습니다. 예:
+
+- `src/routes/__root.tsx`
+
+```tsx
+import { createRootRouteWithContext } from "@tanstack/react-router";
+
+interface MyRouterContext {
+  foo: boolean;
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
+  component: App,
+});
+```
+
+- `src/router.tsx`
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+import { routeTree } from "./routeTree.gen";
+
+const router = createRouter({
+  routeTree,
+  context: {
+    foo: true,
+  },
+});
+```
+
+- `src/routes/todos.tsx`
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/todos")({
+  component: Todos,
+  beforeLoad: () => {
+    return {
+      bar: true,
+    };
+  },
+  loader: ({ context }) => {
+    context.foo; // true
+    context.bar; // true
+  },
+});
+```
+
+## Processing Accumulated Route Context
+
+특히 개별 라우트의 `context` 객체는 모든 매칭된 라우트에 대한 컨텍스트 객체를 쉽게 축적하고 처리할 수 있도록 만듭니다. 다음은 모든 매칭된 라우트 컨텍스트를 사용하여 탐색 경로를 생성하는 예제입니다:
+
+```tsx
+// src/routes/__root.tsx
+export const Route = createRootRoute({
+  component: () => {
+    const matches = useRouterState({ select: (s) => s.matches });
+
+    const breadcrumbs = matches
+      .filter((match) => match.context.getTitle)
+      .map(({ pathname, context }) => {
+        return {
+          title: context.getTitle(),
+          path: pathname,
+        };
+      });
+
+    // ...
+  },
+});
+```
+
+동일한 라우트 컨텍스트를 사용하여 페이지 `<head>`의 제목 태그를 생성할 수도 있습니다:
+
+```tsx
+// src/routes/__root.tsx
+export const Route = createRootRoute({
+  component: () => {
+    const matches = useRouterState({ select: (s) => s.matches });
+
+    const matchWithTitle = [...matches]
+      .reverse()
+      .find((d) => d.context.getTitle);
+
+    const title = matchWithTitle?.context.getTitle() || "My App";
+
+    return (
+      <html>
+        <head>
+          <title>{title}</title>
+        </head>
+        <body>{/* ... */}</body>
+      </html>
+    );
+  },
+});
+```

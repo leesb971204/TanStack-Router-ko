@@ -70,5 +70,8 @@
   },
   "history-types": {
     "title": "History Types"
+  },
+  "router-context": {
+    "title": "Router Context"
   }
 }
