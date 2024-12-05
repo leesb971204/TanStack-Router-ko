@@ -61,5 +61,8 @@
   },
   "catchNotFoundComponent": {
     "title": "catchNotFoundComponent"
+  },
+  "defaultGlobalNotFoundComponent": {
+    "title": "defaultGlobalNotFoundComponent"
   }
 }
