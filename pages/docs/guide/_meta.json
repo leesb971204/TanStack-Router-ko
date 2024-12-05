@@ -61,5 +61,8 @@
   },
   "route-masking": {
     "title": "Route Masking"
+  },
+  "navigation-masking": {
+    "title": "Navigation Masking"
   }
 }

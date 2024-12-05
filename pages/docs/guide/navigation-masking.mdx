@@ -1,0 +1,153 @@
+---
+title: Navigation Blocking
+---
+
+## Navigation Blocking
+
+Navigation Blocking은 사용자가 다음 상황에서 탐색을 방지하는 방법입니다:
+
+- 저장되지 않은 변경 사항이 있을 때
+- 폼을 작성 중일 때
+- 결제를 진행 중일 때
+
+이러한 상황에서는 사용자에게 탐색을 확인하는 프롬프트나 사용자 지정 UI를 표시해야 합니다.
+
+- 사용자가 확인하면 탐색이 정상적으로 계속됩니다.
+- 사용자가 취소하면 모든 대기 중인 탐색이 차단됩니다.
+
+## How does navigation blocking work?
+
+Navigation Blocking은 기본 히스토리 API에 하나 이상의 "블로커"를 추가합니다. 블로커가 존재하는 경우 탐색은 다음 중 하나의 방법으로 일시 중지됩니다:
+
+- Custom UI
+  - 탐색이 라우터 수준에서 제어되는 경우, 사용자가 작업을 확인하도록 원하는 작업을 수행하거나 UI를 표시할 수 있습니다. 각 블로커의 `blocker` 함수는 비동기적으로 순차적으로 실행됩니다. 블로커 함수가 `true`를 반환하거나 해결되면 탐색이 허용되고, 나머지 블로커도 계속 진행될 수 있습니다. 반면, 블로커 함수가 `false`를 반환하거나 해결되면 탐색이 취소되고, 나머지 블로커 함수는 무시됩니다.
+- The `onbeforeunload` event
+  - 페이지 이벤트를 직접 제어할 수 없는 경우, 브라우저의 `onbeforeunload` 이벤트를 사용합니다. 사용자가 탭을 닫거나, 새로 고치거나, 페이지 리소스를 "언로드"하려고 하면 브라우저의 기본 "떠나시겠습니까?" 대화 상자가 표시됩니다. 사용자가 확인하면 모든 블로커가 우회되고 페이지가 언로드됩니다. 사용자가 취소하면 언로드가 취소되고 페이지는 그대로 유지됩니다. **`onbeforeunload` 흐름이 트리거될 때 사용자 정의 블로커 함수는 실행되지 않습니다.**
+
+## What about the back button?
+
+뒤로 가기 버튼은 특별한 경우입니다. 사용자가 뒤로 가기 버튼을 클릭하면 브라우저 동작을 신뢰할 수 있는 방식으로 가로채거나 제어할 수 없습니다. 모든 브라우저에서 동일하게 작동하는 공식적인 차단 방법도 없습니다. 뒤로 가기 버튼을 차단해야 하는 상황이 있다면, 뒤로 가기 버튼이 저장되지 않은 사용자 데이터를 손상시키지 않도록 UI/UX를 재구성하는 것이 좋습니다. 세션 스토리지에 데이터를 저장하고 사용자가 페이지로 돌아오면 복원하는 패턴이 안전하고 신뢰할 수 있는 방법입니다.
+
+## How do I use navigation blocking?
+
+Navigation Blocking을 사용하는 방법은 두 가지입니다:
+
+- Hook/논리 기반 차단
+- 컴포넌트 기반 차단
+
+## Hook/logical-based blocking
+
+폼이 수정되었을 때 탐색을 방지하고 싶다고 가정해 보겠습니다. `useBlocker` 훅을 사용하여 이를 구현할 수 있습니다:
+
+```tsx
+import { useBlocker } from "@tanstack/react-router";
+
+function MyComponent() {
+  const [formIsDirty, setFormIsDirty] = useState(false);
+
+  useBlocker({
+    blockerFn: () => window.confirm("정말 떠나시겠습니까?"),
+    condition: formIsDirty,
+  });
+
+  // ...
+}
+```
+
+`useBlocker` 훅에 대한 자세한 내용은 [API 참조](../api/router/useBlockerHook.md)에서 확인할 수 있습니다.
+
+## Component-based blocking
+
+논리/훅 기반 차단 외에도 `Block` 컴포넌트를 사용하여 비슷한 결과를 얻을 수 있습니다:
+
+```tsx
+import { Block } from "@tanstack/react-router";
+
+function MyComponent() {
+  const [formIsDirty, setFormIsDirty] = useState(false);
+
+  return (
+    <Block
+      blocker={() => window.confirm("정말 떠나시겠습니까?")}
+      condition={formIsDirty}
+    />
+  );
+
+  // OR
+
+  return (
+    <Block
+      blocker={() => window.confirm("정말 떠나시겠습니까?")}
+      condition={formIsDirty}
+    >
+      {/* ... */}
+    </Block>
+  );
+}
+```
+
+## How can I show a custom UI?
+
+대부분의 경우, `blockerFn` 필드에 `window.confirm`을 전달하는 것으로 충분합니다. 이는 탐색이 차단되고 있음을 사용자에게 명확히 보여줍니다.
+
+하지만 특정 상황에서는 앱 디자인과 더 잘 통합되고 덜 방해가 되는 사용자 지정 UI를 표시하고 싶을 수 있습니다.
+
+**참고:** `blockerFn`의 반환 값이 우선순위를 가집니다. 수동 `proceed` 및 `reset` 함수를 사용하려면 이를 전달하지 마십시오.
+
+### Hook/logical-based custom UI
+
+```tsx
+import { useBlocker } from "@tanstack/react-router";
+
+function MyComponent() {
+  const [formIsDirty, setFormIsDirty] = useState(false);
+
+  const { proceed, reset, status } = useBlocker({
+    condition: formIsDirty,
+  });
+
+  // ...
+
+  return (
+    <>
+      {/* ... */}
+      {status === "blocked" && (
+        <div>
+          <p>정말 떠나시겠습니까?</p>
+          <button onClick={proceed}>예</button>
+          <button onClick={reset}>아니요</button>
+        </div>
+      )}
+    </>
+  );
+}
+```
+
+### Component-based custom UI
+
+훅과 유사하게, `Block` 컴포넌트는 동일한 상태와 함수를 렌더링 prop으로 반환합니다:
+
+```tsx
+import { Block } from "@tanstack/react-router";
+
+function MyComponent() {
+  const [formIsDirty, setFormIsDirty] = useState(false);
+
+  return (
+    <Block condition={formIsDirty}>
+      {({ status, proceed, reset }) => (
+        <>
+          {/* ... */}
+          {status === "blocked" && (
+            <div>
+              <p>정말 떠나시겠습니까?</p>
+              <button onClick={proceed}>예</button>
+              <button onClick={reset}>아니요</button>
+            </div>
+          )}
+        </>
+      )}
+    </Block>
+  );
+}
+```
