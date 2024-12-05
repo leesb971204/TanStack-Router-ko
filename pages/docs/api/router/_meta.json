@@ -52,5 +52,8 @@
   },
   "stripSearchParams": {
     "title": "stripSearchParams"
+  },
+  "awaitComponent": {
+    "title": "awaitComponent"
   }
 }

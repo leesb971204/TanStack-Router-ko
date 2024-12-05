@@ -1,0 +1,46 @@
+---
+id: awaitComponent
+title: Await component
+---
+
+## Await component
+
+`Await` 컴포넌트는 제공된 프라미스가 해결되거나 거부될 때까지 대기하는 컴포넌트입니다.
+
+## Await props
+
+`Await` 컴포넌트는 다음 속성을 받습니다:
+
+### `props.promise` prop
+
+- **타입**: [`DeferredPromise<T>`](./DeferredPromiseType.md)
+- **필수 항목**
+- 대기할 지연된 프라미스.
+
+### `props.children` prop
+
+- **타입**: `(result: T) => React.ReactNode`
+- **필수 항목**
+- 프라미스가 해결된 값과 함께 호출될 함수.
+
+## Await returns
+
+- 프라미스가 거부되면 오류를 던집니다.
+- 프라미스가 대기 중이면 대기 상태(프라미스)를 던집니다.
+- 프라미스가 해결되면 `props.children`을 렌더링 함수로 사용하여 지연된 프라미스의 해결된 값을 반환합니다.
+
+## Examples
+
+```tsx
+import { Await } from "@tanstack/react-router";
+
+function Component() {
+  const { deferredPromise } = route.useLoaderData();
+
+  return (
+    <Await promise={deferredPromise}>
+      {(data) => <div>{JSON.stringify(data)}</div>}
+    </Await>
+  );
+}
+```
