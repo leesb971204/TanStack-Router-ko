@@ -79,5 +79,8 @@
   },
   "outletComponent": {
     "title": "Outlet"
+  },
+  "useAwaitedHook": {
+    "title": "useAwaited"
   }
 }

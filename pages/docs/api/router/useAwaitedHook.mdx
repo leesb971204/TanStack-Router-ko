@@ -1,0 +1,37 @@
+---
+id: useAwaitedHook
+title: useAwaited hook
+---
+
+## useAwaited hook
+
+`useAwaited` 메서드는 제공된 프라미스가 해결되거나 거부될 때까지 대기하는 훅입니다.
+
+## useAwaited options
+
+`useAwaited` 훅은 단일 인수로 `options` 객체를 받습니다.
+
+### `options.promise` option
+
+- **타입**: [`DeferredPromise<T>`](./DeferredPromiseType.md)
+- **필수 항목**
+- 대기할 지연된 프라미스.
+
+## useAwaited returns
+
+- 프라미스가 거부된 경우 오류를 던집니다.
+- 프라미스가 대기 중인 경우 대기 상태(프라미스)를 던집니다.
+- 프라미스가 해결된 경우 지연된 프라미스의 해결된 값을 반환합니다.
+
+## Examples
+
+```tsx
+import { useAwaited } from "@tanstack/react-router";
+
+function Component() {
+  const { deferredPromise } = route.useLoaderData();
+
+  const data = useAwaited({ promise: myDeferredPromise });
+  // ...
+}
+```
