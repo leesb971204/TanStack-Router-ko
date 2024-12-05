@@ -10,5 +10,8 @@
   },
   "createRootRouteWithContextFunction": {
     "title": "createRootRouteWithContextFunction"
+  },
+  "createRouteFunction": {
+    "title": "createRouteFunction"
   }
 }
