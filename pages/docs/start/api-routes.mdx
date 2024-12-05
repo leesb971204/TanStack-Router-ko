@@ -1,0 +1,260 @@
+---
+id: api-routes
+title: API Routes
+---
+
+## API Routes
+
+API Routes는 TanStack Start의 강력한 기능으로, 별도의 서버 없이 애플리케이션 내에서 서버 측 엔드포인트를 생성할 수 있도록 합니다. API Routes는 폼 제출, 사용자 인증 등을 처리하는 데 유용합니다.
+
+기본적으로 API Routes는 프로젝트의 `./app/routes/api` 디렉토리에 정의되며, TanStack Start 서버에 의해 자동으로 처리됩니다.
+
+> 🧠 기본적으로 API Routes는 `/api`로 접두사가 붙으며 애플리케이션과 동일한 서버에서 제공됩니다. `apiBase`를 TanStack Start 설정에서 변경하여 기본 경로를 사용자 정의할 수 있습니다.
+
+이 가이드에서 다루는 주제:
+
+- [File Route Conventions](#file-route-conventions)
+- [Nested Directories vs File-names](#nested-directories-vs-file-names)
+- [Setting up the entry handler](#setting-up-the-entry-handler)
+- [Defining an API Route](#defining-an-api-route)
+- [Dynamic Path Params](#dynamic-path-params)
+- [Wildcard/Splat Param](#wildcardsplat-param)
+- [Handling requests with a body](#handling-requests-with-a-body)
+- [Responding with JSON](#responding-with-json)
+- [Using the `json` helper function](#using-the-json-helper-function)
+- [Responding with a status code](#responding-with-a-status-code)
+- [Setting headers in the response](#setting-headers-in-the-response)
+
+## File Route Conventions
+
+TanStack Start에서 API Routes는 TanStack Router와 동일한 파일 기반 라우팅 규칙을 따릅니다. 즉, `routes` 디렉토리에서 `api`로 접두사가 붙은 각 파일이 API 라우트로 처리됩니다. 예를 들어:
+
+- `routes/api.users.ts`는 `/api/users`에 API 라우트를 생성합니다.
+- `routes/api/users.ts`도 `/api/users`에 API 라우트를 생성합니다.
+- `routes/api/users.index.ts`도 `/api/users`에 API 라우트를 생성합니다.
+- `routes/api/users/$id.ts`는 `/api/users/$id`에 API 라우트를 생성합니다.
+- `routes/api/users/$id/posts.ts`는 `/api/users/$id/posts`에 API 라우트를 생성합니다.
+- `routes/api.users.$id.posts.ts`도 `/api/users/$id/posts`에 API 라우트를 생성합니다.
+- `routes/api/file/$.ts`는 `/api/file/$`에 API 라우트를 생성합니다.
+
+`api`로 접두사가 붙은 라우트 파일은 해당 API 라우트 경로에 대한 핸들러로 생각할 수 있습니다.
+
+❗ 라우트에는 단일 핸들러 파일만 연결될 수 있습니다. 예를 들어, `routes/api/users.ts` 파일이 `/api/users` 경로와 일치한다면, 다음과 같은 파일은 동일한 경로와 일치하므로 사용할 수 없습니다:
+
+- `routes/api/users.index.ts`
+- `routes/api.users.ts`
+- `routes/api.users.index.ts`.
+
+❗ 또 하나 기억할 점은, API Routes에는 pathless/layout 라우트나 병렬 라우트의 개념이 없습니다. 따라서 다음과 같은 파일:
+
+- `routes/api/_layout/users.ts`는 `/api/_layout/users`로 해석되며 **NOT** `/api/users`로 해석되지 않습니다.
+
+## Nested Directories vs File-names
+
+위 예제에서 보듯이 파일 명명 규칙은 유연하며 디렉토리와 파일 이름을 혼합하여 사용할 수 있습니다. 이는 애플리케이션에 적합한 방식으로 API Routes를 구성할 수 있도록 의도적으로 설계되었습니다. 자세한 내용은 [TanStack Router File-based Routing Guide](../guide/file-based-routing.md#s-or-s)를 참조하세요.
+
+## Setting up the entry handler
+
+TanStack Start 프로젝트는 API 들어오는 요청을 처리하고 적절한 API 라우트 핸들러로 라우팅하기 위해 엔트리 핸들러가 필요합니다. 이를 위해 프로젝트에 `app/api.ts` 파일을 생성합니다:
+
+```ts
+// app/api.ts
+import {
+  createStartAPIHandler,
+  defaultAPIFileRouteHandler,
+} from "@tanstack/start/api";
+
+export default createStartAPIHandler(defaultAPIFileRouteHandler);
+```
+
+이 파일은 들어오는 요청을 적절한 API 라우트 핸들러로 라우팅하는 데 사용되는 API 핸들러를 생성합니다. `defaultAPIFileRouteHandler`는 들어오는 요청에 따라 적절한 API 라우트 핸들러를 자동으로 로드하고 실행하는 헬퍼 함수입니다.
+
+## Defining an API Route
+
+API Routes는 `createAPIFileRoute` 함수를 호출하여 APIRoute 인스턴스를 내보냅니다. TanStack Router의 다른 파일 기반 라우트와 유사하게, 이 함수의 첫 번째 인수는 라우트 경로입니다. 반환된 함수는 각 HTTP 메서드에 대한 라우트 핸들러를 정의하는 객체와 함께 다시 호출됩니다.
+
+```ts
+// routes/api/hello.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+
+export const APIRoute = createAPIFileRoute("/hello")({
+  GET: async ({ request }) => {
+    return new Response("Hello, World! from " + request.url);
+  },
+});
+```
+
+각 HTTP 메서드 핸들러는 다음 속성을 가진 객체를 받습니다:
+
+- `request`: 들어오는 요청 객체. [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Request)에서 `Request` 객체에 대해 더 알아볼 수 있습니다.
+- `params`: 라우트의 동적 경로 매개변수를 포함하는 객체. 예를 들어, 경로가 `/users/$id`이고 요청이 `/users/123`으로 이루어진 경우, `params`는 `{ id: '123' }`입니다.
+
+## Dynamic Path Params
+
+API Routes는 `$` 뒤에 매개변수 이름이 오는 동적 경로 매개변수를 지원합니다.
+
+```ts
+// routes/api/users/$id.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+
+export const APIRoute = createAPIFileRoute("/users/$id")({
+  GET: async ({ params }) => {
+    const { id } = params;
+    return new Response(`User ID: ${id}`);
+  },
+});
+```
+
+## Wildcard/Splat Param
+
+경로 끝에 `$` 뒤에 아무것도 없는 와일드카드 매개변수를 사용할 수도 있습니다.
+
+```ts
+// routes/api/file/$.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+
+export const APIRoute = createAPIFileRoute("/file/$")({
+  GET: async ({ params }) => {
+    const { _splat } = params;
+    return new Response(`File: ${_splat}`);
+  },
+});
+```
+
+## Handling requests with a body
+
+POST 요청을 처리하려면 라우트 객체에 `POST` 핸들러를 추가합니다.
+
+```ts
+// routes/api/hello.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+
+export const APIRoute = createAPIFileRoute("/hello")({
+  POST: async ({ request }) => {
+    const body = await request.json();
+    return new Response(`Hello, ${body.name}!`);
+  },
+});
+```
+
+## Responding with JSON
+
+`Response` 객체를 사용하여 JSON을 반환하는 일반적인 패턴은 다음과 같습니다:
+
+```ts
+// routes/api/hello.ts
+import { createAPIFileRoute } from "@tanstack/start/api";
+
+export const APIRoute = createAPIFileRoute("/hello")({
+  GET: async ({ request }) => {
+    return new Response(JSON.stringify({ message: "Hello, World!" }), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  },
+});
+```
+
+## Using the `json` helper function
+
+`json` 헬퍼 함수를 사용하여 `Content-Type` 헤더를 자동으로 설정하고 JSON 객체를 직렬화할 수 있습니다:
+
+```ts
+// routes/api/hello.ts
+import { json } from "@tanstack/start";
+import { createAPIFileRoute } from "@tanstack/start/api";
+
+export const APIRoute = createAPIFileRoute("/hello")({
+  GET: async ({ request }) => {
+    return json({ message: "Hello, World!" });
+  },
+});
+```
+
+## Responding with a status code
+
+응답의 상태 코드는 다음 방법으로 설정할 수 있습니다:
+
+- `Response` 생성자의 두 번째 인수로 상태 코드를 전달
+
+  ```ts
+  // routes/api/hello.ts
+  import { json } from "@tanstack/start";
+  import { createAPIFileRoute } from "@tanstack/start/api";
+
+  export const APIRoute = createAPIFileRoute("/users/$id")({
+    GET: async ({ request, params }) => {
+      const user = await findUser(params.id);
+      if (!user) {
+        return new Response("User not found", {
+          status: 404,
+        });
+      }
+      return json(user);
+    },
+  });
+  ```
+
+- `vinxi/http`의 `setResponseStatus` 헬퍼 함수를 사용
+
+  ```ts
+  // routes/api/hello.ts
+  import { json } from "@tanstack/start";
+  import { createAPIFileRoute } from "@tanstack/start/api";
+  import { setResponseStatus } from "vinxi/http";
+
+  export const APIRoute = createAPIFileRoute("/users/$id")({
+    GET: async ({ request, params }) => {
+      const user = await findUser(params.id);
+      if (!user) {
+        setResponseStatus(404);
+        return new Response("User not found");
+      }
+      return json(user);
+    },
+  });
+  ```
+
+이 예제에서는 사용자가 없을 경우 `404` 상태 코드를 반환합니다. 이 방법으로 모든 유효한 HTTP 상태 코드를 설정할 수 있습니다.
+
+## Setting headers in the response
+
+때로는 응답에 헤더를 설정해야 할 때가 있습니다. 이를 다음 방법으로 설정할 수 있습니다:
+
+- `Response` 생성자의 두 번째 인수로 객체를 전달하여 설정
+
+  ```ts
+  // routes/api/hello.ts
+  import { createAPIFileRoute } from "@tanstack/start/api";
+
+  export const APIRoute = createAPIFileRoute("/hello")({
+    GET: async ({ request }) => {
+      return new Response("Hello, World!", {
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      });
+    },
+  });
+
+  // /api/hello로 방문하면 다음과 같은 응답을 받습니다:
+  // Hello, World!
+  ```
+
+- 또는 `vinxi/http`의 `setHeaders` 헬퍼 함수를 사용하여 설정
+
+  ```ts
+  // routes/api/hello.ts
+  import { createAPIFileRoute } from "@tanstack/start/api";
+  import { setHeaders } from "vinxi/http";
+
+  export const APIRoute = createAPIFileRoute("/hello")({
+    GET: async ({ request }) => {
+      setHeaders({
+        "Content-Type": "text/plain",
+      });
+      return new Response("Hello, World!");
+    },
+  });
+  ```

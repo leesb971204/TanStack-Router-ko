@@ -10,5 +10,8 @@
   },
   "middleware": {
     "title": "Middleware"
+  },
+  "api-routes": {
+    "title": "API Routes"
   }
 }
