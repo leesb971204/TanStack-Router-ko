@@ -31,5 +31,8 @@
   },
   "static-prerendering": {
     "title": "Static Prerendering"
+  },
+  "path-aliases": {
+    "title": "Path Aliases"
   }
 }
