@@ -79,5 +79,8 @@
   },
   "authenticated-routes": {
     "title": "Authenticated Routes"
+  },
+  "scroll-restoration": {
+    "title": "Scroll Restoration"
   }
 }

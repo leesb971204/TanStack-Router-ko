@@ -1,0 +1,139 @@
+---
+id: scroll-restoration
+title: Scroll Restoration
+---
+
+## Scroll Restoration
+
+Scroll restoration은 사용자가 페이지를 다시 방문할 때 스크롤 위치를 복원하는 과정입니다. 이는 일반적으로 표준 HTML 기반 웹사이트에서 기본 제공되는 기능이지만, SPA 애플리케이션에서는 다음과 같은 이유로 복제하기 어려울 수 있습니다:
+
+- SPA는 일반적으로 `history.pushState` API를 사용하여 네비게이션을 처리하므로, 브라우저가 스크롤 위치를 기본적으로 복원할 수 없습니다.
+- SPA는 때때로 콘텐츠를 비동기적으로 렌더링하므로, 브라우저는 페이지가 렌더링될 때까지 페이지의 높이를 알지 못합니다.
+- SPA는 때때로 특정 레이아웃과 기능을 강제로 적용하기 위해 중첩된 스크롤 가능한 컨테이너를 사용할 수 있습니다.
+
+또한, 애플리케이션 내에서 단순히 본문뿐만 아니라 여러 개의 스크롤 가능한 영역을 갖는 것이 매우 일반적입니다. 예를 들어, 채팅 애플리케이션에는 스크롤 가능한 사이드바와 스크롤 가능한 채팅 영역이 있을 수 있습니다. 이 경우, 두 영역의 스크롤 위치를 독립적으로 복원하고자 할 수 있습니다.
+
+이 문제를 해결하기 위해, TanStack Router는 스크롤 위치 모니터링, 캐싱 및 복원을 처리하는 스크롤 복원 컴포넌트와 훅을 제공합니다.
+
+이것은 다음과 같은 방식으로 이루어집니다:
+
+- DOM에서 스크롤 이벤트를 모니터링
+- 스크롤 복원 캐시로 스크롤 가능한 영역 등록
+- 스크롤 위치를 캐시하고 복원해야 할 때를 알기 위해 적절한 라우터 이벤트를 수신
+- 각 스크롤 가능한 영역에 대해 스크롤 위치를 캐시에 저장 ( `window` 및 `body` 포함)
+- DOM 페인트 전에 성공적인 네비게이션 후 스크롤 위치 복원
+
+이 과정이 복잡하게 들릴 수 있지만, 실제로는 이처럼 간단합니다:
+
+```tsx
+import { ScrollRestoration } from "@tanstack/react-router";
+
+function Root() {
+  return (
+    <>
+      <ScrollRestoration />
+      <Outlet />
+    </>
+  );
+}
+```
+
+`ScrollRestoration` 컴포넌트를 애플리케이션의 루트에 렌더링하거나 `useScrollRestoration` 훅을 사용하면 모든 것을 자동으로 처리해 줍니다!
+
+## Custom Cache Keys
+
+Remix의 자체 스크롤 복원 API에 이어, `getKey` 옵션을 사용하여 주어진 스크롤 가능한 영역에 대한 스크롤 위치를 캐시하는 데 사용되는 키를 사용자 정의할 수도 있습니다. 예를 들어, 사용자의 브라우저 히스토리와 관계없이 동일한 스크롤 위치를 사용하도록 강제할 수 있습니다.
+
+`getKey` 옵션은 TanStack Router에서 관련된 `Location` 상태를 받아들이며, 해당 상태에 대한 스크롤 측정을 고유하게 식별할 수 있는 문자열을 반환해야 합니다.
+
+기본 `getKey`는 `(location) => location.state.key!`로, `key`는 히스토리의 각 항목에 대해 고유하게 생성된 키입니다.
+
+## Examples
+
+스크롤을 경로명(pathname)에 맞춰 동기화할 수 있습니다:
+
+```tsx
+import { ScrollRestoration } from "@tanstack/react-router";
+
+function Root() {
+  return (
+    <>
+      <ScrollRestoration getKey={(location) => location.pathname} />
+      <Outlet />
+    </>
+  );
+}
+```
+
+일부 경로만 동기화하고 나머지는 키를 사용할 수도 있습니다:
+
+```tsx
+import { ScrollRestoration } from "@tanstack/react-router";
+
+function Root() {
+  return (
+    <>
+      <ScrollRestoration
+        getKey={(location) => {
+          const paths = ["/", "/chat"];
+          return paths.includes(location.pathname)
+            ? location.pathname
+            : location.state.key!;
+        }}
+      />
+      <Outlet />
+    </>
+  );
+}
+```
+
+## Preventing Scroll Restoration
+
+가끔은 스크롤 복원을 방지하고 싶을 수 있습니다. 이를 위해 다음 API에서 사용할 수 있는 `resetScroll` 옵션을 활용할 수 있습니다:
+
+- `<Link resetScroll={false}>`
+- `navigate({ resetScroll: false })`
+- `redirect({ resetScroll: false })`
+
+`resetScroll`을 `false`로 설정하면, 다음 네비게이션의 스크롤 위치가 복원되지 않거나 (히스토리 스택의 기존 이벤트로 이동할 경우) 스크롤이 맨 위로 리셋되지 않습니다 (새로운 히스토리 이벤트로 이동할 경우).
+
+## Manual Scroll Restoration
+
+대부분의 경우, 스크롤 복원 기능은 특별히 할 필요 없이 자동으로 작동합니다. 그러나 일부 경우에는 수동으로 스크롤 복원을 제어해야 할 수도 있습니다. 가장 일반적인 예시는 **가상화된 리스트**입니다.
+
+스크롤 복원을 수동으로 제어하려면 `useElementScrollRestoration` 훅과 `data-scroll-restoration-id` DOM 속성을 사용할 수 있습니다:
+
+```tsx
+function Component() {
+  // 특정 요소에 대해 수동 스크롤 복원을 위한 고유한 ID가 필요합니다
+  // 이 요소에 대해 가능한 한 고유한 값을 사용하는 것이 좋습니다
+  const scrollRestorationId = "myVirtualizedContent";
+
+  // 이 ID를 사용하여 해당 요소에 대한 스크롤 항목을 가져옵니다
+  const scrollEntry = useElementScrollRestoration({
+    id: scrollRestorationId,
+  });
+
+  // TanStack Virtual을 사용하여 콘텐츠를 가상화합니다!
+  const virtualizerParentRef = React.useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: 10000,
+    getScrollElement: () => virtualizerParentRef.current,
+    estimateSize: () => 100,
+    // 스크롤 복원 항목에서 받은 scrollY를 가상화된 컨텐츠의 초기 오프셋으로 전달합니다
+    initialOffset: scrollEntry?.scrollY,
+  });
+
+  return (
+    <div
+      ref={virtualizerParentRef}
+      // 이 요소에 스크롤 복원 ID를 사용자 정의 속성으로 전달합니다
+      // 스크롤 복원 감시자가 이를 인식합니다
+      data-scroll-restoration-id={scrollRestorationId}
+      className="flex-1 border rounded-lg overflow-auto relative"
+    >
+      ...
+    </div>
+  );
+}
+```
