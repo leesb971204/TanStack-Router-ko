@@ -55,5 +55,8 @@
   },
   "type-safety": {
     "title": "Type Safety"
+  },
+  "preloading": {
+    "title": "Preloading"
   }
 }

@@ -1,0 +1,124 @@
+---
+title: Preloading
+---
+
+## Preloading
+
+TanStack Router에서 프리로딩은 사용자가 실제로 해당 경로로 이동하기 전에 경로를 미리 로드하는 방법입니다. 이는 사용자가 다음으로 방문할 가능성이 높은 경로에 유용합니다. 예를 들어, 게시물 목록이 있고 사용자가 해당 목록 중 하나를 클릭할 가능성이 높은 경우, 게시물 경로를 미리 로드하여 사용자가 클릭할 때 바로 준비되도록 할 수 있습니다.
+
+## Supported Preloading Strategies
+
+- Intent
+  - **"Intent"**에 의한 프리로딩은 `<Link>` 컴포넌트에서 hover 및 touch start 이벤트를 사용하여 대상 경로의 의존성을 미리 로드합니다.
+  - 이 전략은 사용자가 다음으로 방문할 가능성이 높은 경로를 프리로딩하는 데 유용합니다.
+- Viewport Visibility
+  - **"Viewport"**에 의한 프리로딩은 Intersection Observer API를 사용하여 `<Link>` 컴포넌트가 뷰포트에 들어올 때 대상 경로의 의존성을 미리 로드합니다.
+  - 이 전략은 화면 아래에 있거나 오프스크린에 있는 경로를 프리로딩하는 데 유용합니다.
+- Render
+  - **"Render"**에 의한 프리로딩은 `<Link>` 컴포넌트가 DOM에 렌더링되자마자 대상 경로의 의존성을 미리 로드합니다.
+  - 이 전략은 항상 필요한 경로를 프리로딩하는 데 유용합니다.
+
+## How long does preloaded data stay in memory?
+
+프리로딩된 경로 매치는 다음과 같은 중요한 조건과 함께 메모리에 일시적으로 캐시됩니다:
+
+- **사용되지 않은 프리로딩된 데이터는 기본적으로 30초 후에 제거됩니다.** 이는 라우터의 `defaultPreloadMaxAge` 옵션을 설정하여 구성할 수 있습니다.
+- **경로가 로드되면 프리로딩된 버전이 라우터의 정상적인 대기 매치 상태로 승격됩니다.**
+
+프리로딩, 캐싱 및/또는 프리로딩된 데이터의 가비지 컬렉션에 대한 더 많은 제어가 필요한 경우 [TanStack Query](https://tanstack.com/query)와 같은 외부 캐싱 라이브러리를 사용하는 것이 좋습니다.
+
+애플리케이션의 경로를 프리로딩하는 가장 간단한 방법은 라우터의 `defaultPreload` 옵션을 `intent`로 설정하는 것입니다:
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+const router = createRouter({
+  // ...
+  defaultPreload: "intent",
+});
+```
+
+이렇게 하면 애플리케이션의 모든 `<Link>` 컴포넌트에서 기본적으로 `intent` 프리로딩이 활성화됩니다. 개별 `<Link>` 컴포넌트에서 `preload` 속성을 설정하여 기본 동작을 재정의할 수도 있습니다.
+
+## Preload Delay
+
+기본적으로 프리로딩은 사용자가 `<Link>` 컴포넌트를 hover하거나 touch한 후 **50ms** 후에 시작됩니다. 이 지연 시간은 라우터의 `defaultPreloadDelay` 옵션을 설정하여 변경할 수 있습니다:
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+const router = createRouter({
+  // ...
+  defaultPreloadDelay: 100,
+});
+```
+
+또한 개별 `<Link>` 컴포넌트에서 `preloadDelay` 속성을 설정하여 링크별로 기본 동작을 재정의할 수 있습니다.
+
+## Built-in Preloading & `preloadStaleTime`
+
+내장 로더를 사용하는 경우, `routerOptions.defaultPreloadStaleTime` 또는 `routeOptions.preloadStaleTime`을 밀리초 단위로 설정하여 프리로딩된 데이터가 신선한 상태로 간주되는 시간을 제어할 수 있습니다. **기본적으로 프리로딩된 데이터는 30초 동안 신선한 상태로 간주됩니다.**
+
+이를 변경하려면 라우터의 `defaultPreloadStaleTime` 옵션을 설정할 수 있습니다:
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+const router = createRouter({
+  // ...
+  defaultPreloadStaleTime: 10_000,
+});
+```
+
+또는 개별 경로에서 `routeOptions.preloadStaleTime` 옵션을 사용할 수 있습니다:
+
+```tsx
+// src/routes/posts.$postId.tsx
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ params }) => fetchPost(params.postId),
+  // 프리로딩 캐시가 10초 이상 된 경우 경로를 다시 프리로딩합니다.
+  preloadStaleTime: 10_000,
+});
+```
+
+## Preloading with External Libraries
+
+React Query와 같은 외부 캐싱 라이브러리를 통합할 때 TanStack Router의 기본 프리로딩 및 stale-while-revalidate 로직을 재정의해야 할 수 있습니다. 이러한 라이브러리는 종종 데이터의 신선도를 제어하기 위해 `staleTime`과 같은 옵션을 사용합니다.
+
+TanStack Router에서 프리로딩 동작을 사용자 정의하고 외부 라이브러리의 캐싱 전략을 최대한 활용하려면 `routerOptions.defaultPreloadStaleTime` 또는 `routeOptions.preloadStaleTime`을 0으로 설정하여 기본 캐싱을 우회할 수 있습니다. 이렇게 하면 모든 프리로딩이 내부적으로 오래된 것으로 표시되며, 로더가 항상 호출됩니다. 이를 통해 React Query와 같은 외부 라이브러리가 데이터 로딩 및 캐싱을 관리할 수 있습니다.
+
+예를 들어:
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+const router = createRouter({
+  // ...
+  defaultPreloadStaleTime: 0,
+});
+```
+
+이렇게 하면 React Query의 `staleTime`과 같은 옵션을 사용하여 프리로딩의 신선도를 제어할 수 있습니다.
+
+## Preloading Manually
+
+경로를 수동으로 프리로딩해야 하는 경우, 라우터의 `preloadRoute` 메서드를 사용할 수 있습니다. 이 메서드는 표준 TanStack `NavigateOptions` 객체를 수락하며, 경로가 프리로딩되면 완료되는 프로미스를 반환합니다.
+
+```tsx
+function Component() {
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const matches = await router.preloadRoute({
+        to: postRoute,
+        params: { id: 1 },
+      });
+    } catch (err) {
+      // 경로 프리로딩 실패
+    }
+  }, []);
+
+  return <div />;
+}
+```
