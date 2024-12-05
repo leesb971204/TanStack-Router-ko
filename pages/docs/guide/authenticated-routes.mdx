@@ -1,0 +1,168 @@
+---
+id: authenticated-routes
+title: Authenticated Routes
+---
+
+## Authenticated Routes
+
+인증은 웹 애플리케이션에서 매우 흔한 요구 사항입니다. 이 가이드에서는 TanStack Router를 사용하여 보호된 경로를 구축하는 방법과, 사용자가 이를 접근하려 할 때 로그인 페이지로 리디렉션하는 방법을 설명합니다.
+
+## The `route.beforeLoad` Option
+
+`route.beforeLoad` 옵션을 사용하면 경로가 로드되기 전에 호출될 함수를 지정할 수 있습니다. 이 함수는 `route.loader` 함수와 동일한 인수를 받습니다. 사용자가 인증되었는지 확인하고, 인증되지 않았다면 로그인 페이지로 리디렉션하는 데 매우 유용한 위치입니다.
+
+`beforeLoad` 함수는 다른 경로 로딩 함수들에 대해 상대적인 순서로 실행됩니다:
+
+- 경로 매칭 (위에서 아래로)
+  - `route.params.parse`
+  - `route.validateSearch`
+- 경로 로딩 (프리로딩 포함)
+  - **`route.beforeLoad`**
+  - `route.onError`
+- 경로 로딩 (병렬)
+  - `route.component.preload?`
+  - `route.load`
+
+**중요한 점은 `beforeLoad` 함수가 해당 경로의 자식 경로들에 대한 `beforeLoad` 함수들보다 먼저 호출된다는 점입니다.** 이는 경로와 그 자식들에 대한 미들웨어 함수와 같은 역할을 합니다.
+
+**`beforeLoad`에서 오류를 던지면 해당 경로의 자식 경로들은 로드되지 않습니다.**
+
+## Redirecting
+
+리디렉션은 필수는 아니지만, 일부 인증 흐름에서는 로그인 페이지로 리디렉션하는 것이 필요합니다. 이를 위해서는 `beforeLoad`에서 **`redirect()`**를 던지면 됩니다:
+
+```tsx
+// src/routes/_authenticated.tsx
+export const Route = createFileRoute("/_authenticated")({
+  beforeLoad: async ({ location }) => {
+    if (!isAuthenticated()) {
+      throw redirect({
+        to: "/login",
+        search: {
+          // 로그인 후 리디렉션을 위해 현재 위치를 사용
+          // (`router.state.resolvedLocation`은 실제 현재 위치보다 지연될 수 있으므로 사용하지 마세요)
+          redirect: location.href,
+        },
+      });
+    }
+  },
+});
+```
+
+> [!TIP] > `redirect()` 함수는 `navigate` 함수와 동일한 옵션을 받으므로, `replace: true`와 같은 옵션을 전달하여 현재 히스토리 항목을 대체할 수 있습니다.
+
+사용자가 인증된 후, 사용자가 접근하려 했던 페이지로 다시 리디렉션하는 것이 일반적인 방법입니다. 이를 위해 원래 리디렉션에서 추가한 `redirect` 검색 파라미터를 활용할 수 있습니다. URL 전체를 원래 상태로 대체할 것이므로 `router.navigate`보다 `router.history.push`가 더 적합합니다:
+
+```tsx
+router.history.push(search.redirect);
+```
+
+## Non-Redirected Authentication
+
+일부 애플리케이션에서는 사용자에게 로그인 페이지로 리디렉션하지 않고, 대신 동일한 페이지에 로그인 양식을 표시하여 기본 콘텐츠를 교체하거나 모달을 통해 숨깁니다. TanStack Router를 사용하면 `<Outlet />`을 렌더링하는 것을 중단하여 이를 구현할 수 있습니다:
+
+```tsx
+// src/routes/_authenticated.tsx
+export const Route = createFileRoute("/_authenticated")({
+  component: () => {
+    if (!isAuthenticated()) {
+      return <Login />;
+    }
+
+    return <Outlet />;
+  },
+});
+```
+
+이 방법은 사용자를 동일한 페이지에 유지하면서 로그인 양식을 표시할 수 있습니다. 사용자가 인증되면 `<Outlet />`을 렌더링하고 자식 경로들이 렌더링됩니다.
+
+## Authentication using React context/hooks
+
+인증 흐름이 React 컨텍스트 및/또는 훅과의 상호작용에 의존하는 경우, `router.context` 옵션을 사용하여 인증 상태를 TanStack Router에 전달해야 합니다.
+
+> [!IMPORTANT]
+> React 훅은 React 컴포넌트 외부에서 사용하기 위한 것이 아닙니다. 훅을 React 컴포넌트 외부에서 사용해야 하는 경우, `<RouterProvider />`를 감싸는 컴포넌트 내에서 훅에서 반환된 상태를 추출한 후, 이를 TanStack Router에 전달해야 합니다.
+
+`router.context` 옵션에 대해서는 [Router Context](./router-context.md) 섹션에서 자세히 다룰 것입니다.
+
+다음은 TanStack Router에서 인증된 경로를 보호하기 위해 React 컨텍스트와 훅을 사용하는 예입니다. 전체 동작하는 설정은 [Authenticated Routes example](../../examples/authenticated-routes)에서 확인할 수 있습니다.
+
+- `src/routes/__root.tsx`
+
+```tsx
+import { createRootRouteWithContext } from "@tanstack/react-router";
+
+interface MyRouterContext {
+  // useAuth 훅의 반환값 또는 AuthContext의 값
+  auth: AuthState;
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
+  component: () => <Outlet />,
+});
+```
+
+- `src/router.tsx`
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+
+import { routeTree } from "./routeTree.gen";
+
+export const router = createRouter({
+  routeTree,
+  context: {
+    // auth는 처음에는 undefined입니다.
+    // React 컴포넌트 내에서 auth 상태를 전달할 예정입니다.
+    auth: undefined!,
+  },
+});
+```
+
+- `src/App.tsx`
+
+```tsx
+import { RouterProvider } from "@tanstack/react-router";
+
+import { AuthProvider, useAuth } from "./auth";
+
+import { router } from "./router";
+
+function InnerApp() {
+  const auth = useAuth();
+  return <RouterProvider router={router} context={{ auth }} />;
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <InnerApp />
+    </AuthProvider>
+  );
+}
+```
+
+이제 인증된 경로에서 `beforeLoad` 함수를 사용하여 auth 상태를 확인하고, 사용자가 로그인하지 않았다면 **`redirect()`**를 던져 로그인 경로로 리디렉션할 수 있습니다.
+
+- `src/routes/dashboard.route.tsx`
+
+```tsx
+import { createFileRoute, redirect } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/dashboard")({
+  beforeLoad: ({ context, location }) => {
+    if (!context.auth.isAuthenticated) {
+      throw redirect({
+        to: "/login",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
+  },
+});
+```
+
+또한, [리디렉션하지 않는 인증](#non-redirected-authentication) 방법을 사용하여 로그인 양식을 표시하고 **리디렉션**을 호출하지 않는 방식으로 처리할 수도 있습니다.
+
+이 방법은 특정 레이아웃 하에 모든 경로를 보호하려는 경우 레이아웃 또는 부모 경로와 함께 사용할 수도 있습니다.
