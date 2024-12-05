@@ -52,5 +52,8 @@
   },
   "data-mutations": {
     "title": "Data Mutations"
+  },
+  "type-safety": {
+    "title": "Type Safety"
   }
 }
