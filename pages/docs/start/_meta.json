@@ -16,5 +16,8 @@
   },
   "ssr": {
     "title": "SSR"
+  },
+  "hosting": {
+    "title": "Hosting"
   }
 }
