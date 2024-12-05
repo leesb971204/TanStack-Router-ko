@@ -1,0 +1,37 @@
+---
+id: createRouteMaskFunction
+title: createRouteMask function
+---
+
+## createRouteMask function
+
+`createRouteMask` 함수는 라우트 마스크 구성을 생성하는 데 사용되는 헬퍼 함수입니다. 생성된 라우트 마스크는 `RouterOptions.routeMasks` 옵션에 전달될 수 있습니다.
+
+## createRouteMask options
+
+- **타입**: [`RouteMask`](./RouteMaskType.md)
+- **필수 항목**
+- 라우트 마스크를 구성하는 데 사용되는 옵션입니다.
+
+## createRouteMask returns
+
+- `RouterOptions.routeMasks` 옵션에 전달할 수 있는 [`RouteMask`](./RouteMaskType.md) 타입의 객체를 반환합니다.
+
+## Examples
+
+```tsx
+import { createRouteMask, createRouter } from "@tanstack/react-router";
+
+const photoModalToPhotoMask = createRouteMask({
+  routeTree,
+  from: "/photos/$photoId/modal",
+  to: "/photos/$photoId",
+  params: true,
+});
+
+// 라우터 인스턴스 설정
+const router = createRouter({
+  routeTree,
+  routeMasks: [photoModalToPhotoMask],
+});
+```
