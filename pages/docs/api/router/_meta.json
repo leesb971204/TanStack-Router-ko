@@ -58,5 +58,8 @@
   },
   "catchBoundaryComponent": {
     "title": "catchBoundaryComponent"
+  },
+  "catchNotFoundComponent": {
+    "title": "catchNotFoundComponent"
   }
 }

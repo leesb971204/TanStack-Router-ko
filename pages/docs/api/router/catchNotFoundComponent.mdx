@@ -1,0 +1,51 @@
+---
+id: catchNotFoundComponent
+title: CatchNotFound Component
+---
+
+## CatchNotFound Component
+
+`CatchNotFound` 컴포넌트는 자식 컴포넌트에서 발생한 "not-found" 오류를 포착하고, 폴백 컴포넌트를 렌더링하며 선택적으로 `onCatch` 콜백을 호출할 수 있는 컴포넌트입니다. 이 컴포넌트는 경로 이름이 변경될 때 상태를 초기화합니다.
+
+## CatchNotFound props
+
+`CatchNotFound` 컴포넌트는 다음 속성을 받습니다:
+
+### `props.children` prop
+
+- **타입**: `React.ReactNode`
+- **필수 항목**
+- 오류가 없을 때 렌더링할 자식 컴포넌트.
+
+### `props.fallback` prop
+
+- **타입**: `(error: NotFoundError) => React.ReactElement`
+- **선택 사항**
+- 오류가 발생했을 때 렌더링할 컴포넌트.
+
+### `props.onCatch` prop
+
+- **타입**: `(error: any) => void`
+- **선택 사항**
+- 자식 컴포넌트에서 발생한 오류와 함께 호출되는 콜백.
+
+## CatchNotFound returns
+
+- 오류가 없을 경우 컴포넌트의 자식을 반환합니다.
+- 오류가 있을 경우 `fallback`을 반환합니다.
+
+## Examples
+
+```tsx
+import { CatchNotFound } from "@tanstack/react-router";
+
+function Component() {
+  return (
+    <CatchNotFound
+      fallback={(error) => <p>Not found error! {JSON.stringify(error)}</p>}
+    >
+      <ComponentThatMightThrowANotFoundError />
+    </CatchNotFound>
+  );
+}
+```
