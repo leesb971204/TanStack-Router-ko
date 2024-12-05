@@ -31,5 +31,8 @@
   },
   "isNotFoundFunction": {
     "title": "isNotFound"
+  },
+  "isRedirectFunction": {
+    "title": "isRedirect"
   }
 }
