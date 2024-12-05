@@ -1,0 +1,46 @@
+---
+id: authentication
+title: Authentication
+---
+
+## Authentication
+
+Authentication은 사용자의 신원을 확인하는 과정입니다. 이는 사용자가 로그인하거나 보호된 리소스에 접근해야 하는 모든 애플리케이션에서 중요한 부분입니다. TanStack Start는 애플리케이션에서 인증을 구현하는 데 필요한 풀스택 API를 제공합니다.
+
+## What should I use?
+
+TanStack Start는 **모든 인증 제공자와 함께 작동하도록 설계**되었습니다. 따라서 이미 염두에 둔 인증 제공자나 전략이 있다면, 기존 예제를 참조하거나 TanStack Start가 제공하는 풀스택 API를 사용하여 사용자 지정 인증 로직을 구현할 수 있습니다.
+
+그럼에도 불구하고, 인증은 가볍게 다뤄서는 안 됩니다. 철저한 검토, 사용 및 검증 끝에, 저희는 최상의 인증 경험을 위해 [Clerk](https://clerk.dev)을 사용하는 것을 강력히 추천합니다. Clerk는 애플리케이션에서 인증을 구현하고 원활한 사용자 경험을 제공하는 데 필요한 전체 인증 API 및 UI 구성 요소를 제공합니다.
+
+## What is Clerk?
+
+<a href="https://go.clerk.com/wOwHtuJ" alt="Clerk Logo">
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/clerk-logo-dark.svg"
+      width="280"
+    />
+    <source
+      media="(prefers-color-scheme: light)"
+      srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/clerk-logo-light.svg"
+      width="280"
+    />
+    <img
+      alt="Convex logo"
+      src="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/clerk-logo-light.svg"
+      width="280"
+    />
+  </picture>
+</a>
+
+Clerk는 애플리케이션에서 인증을 구현하는 데 도움을 주는 현대적인 인증 플랫폼으로, 전체 인증 API 및 UI 구성 요소를 제공합니다. Clerk는 사용하기 쉽도록 설계되었으며 원활한 사용자 경험을 제공합니다. Clerk를 사용하면 몇 분 만에 애플리케이션에 인증을 구현하고 사용자에게 안전하고 신뢰할 수 있는 인증 경험을 제공할 수 있습니다.
+
+- Clerk에 대해 더 알아보려면 [Clerk 웹사이트](https://go.clerk.com/wOwHtuJ)를 방문하세요.
+- 가입하려면 [Clerk 대시보드](https://go.clerk.com/PrSDXti)를 방문하세요.
+- Clerk 시작하기: [공식 Start + Clerk 예제](../../examples/start-clerk-basic/)를 확인하세요!
+
+## Documentation & APIs
+
+TanStack Start에서 사용자 지정 인증 로직을 구현하기 위한 문서는 곧 추가될 예정입니다! 그동안, `-auth`로 접두사가 붙은 [예제들](../../../../examples)을 참조하여 시작점을 찾아보세요.

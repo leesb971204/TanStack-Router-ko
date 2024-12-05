@@ -19,5 +19,8 @@
   },
   "hosting": {
     "title": "Hosting"
+  },
+  "authentication": {
+    "title": "Authentication"
   }
 }
