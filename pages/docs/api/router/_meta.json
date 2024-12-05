@@ -43,5 +43,8 @@
   },
   "notFoundFunction": {
     "title": "notFound"
+  },
+  "redirectFunction": {
+    "title": "redirect"
   }
 }

@@ -1,0 +1,47 @@
+---
+id: redirectFunction
+title: redirect function
+---
+
+## redirect function
+
+`redirect` 함수는 새로운 `Redirect` 객체를 반환하며, 이 객체는 라우트의 `beforeLoad` 또는 `loader` 콜백과 같은 위치에서 반환하거나 던질 수 있어 새로운 위치로 *리디렉션*을 트리거합니다.
+
+## redirect options
+
+`redirect` 함수는 리디렉션 동작을 결정하기 위한 단일 인수 `options`를 받습니다.
+
+- **타입**: [`Redirect`](./RedirectType.md)
+- **필수 항목**
+
+## redirect returns
+
+- `options` 객체에서 `throw` 속성이 `true`인 경우, 함수 호출 내에서 `Redirect` 객체가 던져집니다.
+- `options` 객체에서 `throw` 속성이 `false | undefined`인 경우, `Redirect` 객체가 반환됩니다.
+
+## Examples
+
+```tsx
+import { redirect } from "@tanstack/react-router";
+
+const route = createRoute({
+  // redirect 객체를 던지기
+  loader: () => {
+    if (!user) {
+      throw redirect({
+        to: "/login",
+      });
+    }
+  },
+  // 또는 `redirect`를 강제로 던지게 하기
+  loader: () => {
+    if (!user) {
+      redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+  },
+  // ... 기타 라우트 옵션
+});
+```
