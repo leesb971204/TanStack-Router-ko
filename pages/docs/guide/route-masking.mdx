@@ -1,0 +1,140 @@
+---
+title: Route Masking
+---
+
+## Route Masking
+
+Route Masking은 브라우저의 히스토리와 URL 바에 유지되는 실제 URL을 가리는 방법입니다. 이는 사용자가 실제로 이동하려는 경로와 다른 URL을 표시하려는 경우에 유용하며, 표시된 URL을 공유하거나 페이지가 새로 고쳐질 때 이를 다시 표시할 수 있도록 합니다. 몇 가지 예를 들어보면:
+
+- `/photo/5/modal`과 같은 모달 경로로 이동하지만, 실제 URL은 `/photos/5`로 마스킹
+- `/post/5/comments`와 같은 모달 경로로 이동하지만, 실제 URL은 `/posts/5`로 마스킹
+- `?showLogin=true`와 같은 검색 매개변수를 가진 경로로 이동하지만, URL에는 검색 매개변수가 포함되지 않도록 마스킹
+- `?modal=settings`와 같은 검색 매개변수를 가진 경로로 이동하지만, URL은 `/settings`로 마스킹
+
+이러한 시나리오는 Route Masking을 통해 구현할 수 있으며, [Parallel Routes](./parallel-routes.md)와 같은 고급 패턴을 지원하도록 확장할 수도 있습니다.
+
+## How does route masking work?
+
+> [!IMPORTANT]
+> Route Masking을 사용하기 위해 작동 방식을 이해할 필요는 없습니다. 이 섹션은 내부 작동 방식을 궁금해하는 분들을 위한 것입니다. 사용 방법을 배우려면 [How do I use route masking?](#how-do-i-use-route-masking)로 건너뛰세요!
+
+Route Masking은 `location.state` API를 사용하여 URL에 기록될 위치 내부에 런타임 위치를 저장합니다. 이 런타임 위치는 `__tempLocation` 상태 속성에 저장됩니다:
+
+```tsx
+const location = {
+  pathname: "/photos/5",
+  search: "",
+  hash: "",
+  state: {
+    key: "wesdfs",
+    __tempKey: "sadfasd",
+    __tempLocation: {
+      pathname: "/photo/5/modal",
+      search: "",
+      hash: "",
+      state: {},
+    },
+  },
+};
+```
+
+라우터가 히스토리에서 `location.state.__tempLocation` 속성을 가진 위치를 구문 분석하면, URL에서 구문 분석된 위치 대신 해당 위치를 사용합니다. 이를 통해 `/photos/5`와 같은 경로로 이동하면서도 실제로는 `/photo/5/modal`로 이동할 수 있습니다. 이 경우 히스토리 위치는 **실제 URL**을 알아야 하는 경우를 대비해 `location.maskedLocation` 속성에 저장됩니다.
+
+이 모든 것은 내부적으로 자동 처리되므로 걱정할 필요가 없습니다!
+
+## How do I use route masking?
+
+Route Masking은 두 가지 방법으로 사용할 수 있는 간단한 API입니다:
+
+- `<Link>` 및 `navigate()` API에서 제공하는 `mask` 옵션을 통해 명령형으로
+- 라우터의 `routeMasks` 옵션을 통해 선언형으로
+
+각 Route Masking API에서 `mask` 옵션은 `<Link>` 및 `navigate()` API에서 사용하는 것과 동일한 네비게이션 객체를 수락합니다. 즉, 이미 익숙한 `to`, `replace`, `state`, `search` 옵션을 사용할 수 있습니다. 차이점은 `mask` 옵션이 탐색하려는 경로의 URL을 마스킹하는 데 사용된다는 것입니다.
+
+> 🧠 `mask` 옵션은 **타입 안전**합니다! TypeScript를 사용하는 경우, 유효하지 않은 네비게이션 객체를 `mask` 옵션에 전달하려고 하면 타입 오류가 발생합니다.
+
+### Imperative route masking
+
+`<Link>` 및 `navigate()` API는 모두 탐색하려는 경로의 URL을 마스킹하는 데 사용할 수 있는 `mask` 옵션을 수락합니다. `<Link>` 컴포넌트를 사용하는 예제:
+
+```tsx
+<Link
+  to="/photos/$photoId/modal"
+  params={{ photoId: 5 }}
+  mask={{
+    to: "/photos/$photoId",
+    params: {
+      photoId: 5,
+    },
+  }}
+>
+  Open Photo
+</Link>
+```
+
+`navigate()` API를 사용하는 예제:
+
+```tsx
+const navigate = useNavigate();
+
+function onOpenPhoto() {
+  navigate({
+    to: "/photos/$photoId/modal",
+    params: { photoId: 5 },
+    mask: {
+      to: "/photos/$photoId",
+      params: {
+        photoId: 5,
+      },
+    },
+  });
+}
+```
+
+### Declarative route masking
+
+명령형 API 외에도, 라우터의 `routeMasks` 옵션을 사용하여 선언적으로 경로를 마스킹할 수 있습니다. 모든 `<Link>` 또는 `navigate()` 호출에 `mask` 옵션을 전달하는 대신, 특정 패턴과 일치하는 경로를 마스킹하도록 라우터에 Route Mask를 생성할 수 있습니다. 위 예제를 `routeMasks` 옵션을 사용하여 선언적으로 작성한 예제:
+
+```tsx
+import { createRouteMask } from "@tanstack/react-router";
+
+const photoModalToPhotoMask = createRouteMask({
+  routeTree,
+  from: "/photos/$photoId/modal",
+  to: "/photos/$photoId",
+  params: (prev) => ({
+    photoId: prev.photoId,
+  }),
+});
+
+const router = createRouter({
+  routeTree,
+  routeMasks: [photoModalToPhotoMask],
+});
+```
+
+Route Mask를 생성할 때 다음 인자를 전달해야 합니다:
+
+- `routeTree` - Route Mask가 적용될 라우트 트리
+- `from` - Route Mask가 적용될 라우트 ID
+- `...navigateOptions` - `<Link>` 및 `navigate()` API에서 사용하는 표준 `to`, `search`, `params`, `replace` 옵션 등
+
+> 🧠 `createRouteMask` 옵션도 **타입 안전**합니다! TypeScript를 사용하는 경우, 유효하지 않은 Route Mask를 `routeMasks` 옵션에 전달하려고 하면 타입 오류가 발생합니다.
+
+## Unmasking when sharing the URL
+
+URL이 공유되면 자동으로 마스킹이 해제됩니다. 이는 URL이 브라우저의 로컬 히스토리 스택에서 분리되면 마스킹 데이터가 더 이상 사용할 수 없기 때문입니다. 즉, URL을 복사하여 붙여넣는 순간 마스킹 데이터가 손실됩니다. 이는 URL을 마스킹하는 이유와 일치합니다.
+
+## Local Unmasking Defaults
+
+**기본적으로, 페이지를 로컬에서 새로 고칠 때 URL은 마스킹이 해제되지 않습니다.** 마스킹 데이터는 히스토리 위치의 `location.state` 속성에 저장되므로, 히스토리 위치가 히스토리 스택에 메모리로 남아 있는 한 마스킹 데이터가 계속 유지됩니다.
+
+## Unmasking on page reload
+
+**위에서 언급했듯이, 기본적으로 페이지를 새로 고칠 때 URL은 마스킹이 해제되지 않습니다.**
+
+페이지를 새로 고칠 때 로컬에서 URL의 마스킹을 해제하려면, 다음 세 가지 옵션 중 하나를 사용할 수 있습니다. 각 옵션은 이전 옵션보다 우선순위를 가집니다:
+
+- 라우터의 기본 `unmaskOnReload` 옵션을 `true`로 설정
+- `createRouteMask()`를 사용하여 Route Mask를 생성할 때 마스킹 함수에서 `unmaskOnReload: true` 옵션을 반환
+- `<Link>` 컴포넌트 또는 `navigate()` API에 `unmaskOnReload: true` 옵션 전달

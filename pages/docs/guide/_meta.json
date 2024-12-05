@@ -58,5 +58,8 @@
   },
   "preloading": {
     "title": "Preloading"
+  },
+  "route-masking": {
+    "title": "Route Masking"
   }
 }
