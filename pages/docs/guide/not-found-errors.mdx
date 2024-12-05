@@ -1,0 +1,275 @@
+---
+title: Not Found Errors
+---
+
+## Not Found Errors
+
+> ⚠️ 이 페이지는 새롭게 추가된 `notFound` 함수 및 `notFoundComponent` API를 다루며, 더 이상 지원되지 않는 `NotFoundRoute` 라우트는 향후 릴리스에서 제거될 예정입니다. [Migrating from `NotFoundRoute`](#migrating-from-notfoundroute)를 참고하세요.
+
+## Overview
+
+TanStack Router에서 "Not Found" 오류는 두 가지로 나뉩니다:
+
+- **일치하지 않는 라우트 경로**: 경로가 정의된 라우트 패턴과 일치하지 않거나, 부분적으로 일치하지만 추가 경로 세그먼트를 포함하는 경우.
+  - **라우터**는 경로가 알려진 라우트 패턴과 일치하지 않을 때 자동으로 "Not Found" 오류를 발생시킵니다.
+  - 라우터의 `notFoundMode`가 `fuzzy`로 설정되어 있으면, 가장 가까운 상위 라우트에서 `notFoundComponent`를 처리합니다. `notFoundMode`가 `root`로 설정되어 있으면 루트 라우트에서 처리합니다.
+  - 예:
+    - `/users` 경로를 접근하려 하지만 `/users` 라우트가 없는 경우
+    - `/posts/1/edit`를 접근하려 하지만 라우트 트리가 `/posts/$postId`만 처리하는 경우
+- **누락된 리소스**: 특정 ID를 가진 게시물 또는 존재하지 않는 비동기 데이터와 같은 리소스를 찾을 수 없는 경우.
+  - **개발자**가 리소스를 찾을 수 없을 때 직접 "Not Found" 오류를 발생시켜야 합니다. `beforeLoad` 또는 `loader` 함수에서 `notFound` 유틸리티를 사용해 수행할 수 있습니다.
+  - 가장 가까운 상위 라우트에서 `notFoundComponent`를 통해 처리됩니다.
+  - 예:
+    - `/posts/1`을 접근하려 하지만 ID 1을 가진 게시물이 없는 경우
+    - `/docs/path/to/document`를 접근하려 하지만 문서가 존재하지 않는 경우
+
+내부적으로 이 두 가지 경우는 동일한 `notFound` 함수와 `notFoundComponent` API를 사용하여 구현됩니다.
+
+## The `notFoundMode` option
+
+TanStack Router는 **알려진 라우트 패턴과 일치하지 않는 경로** 또는 **부분적으로 일치하지만 추가 경로 세그먼트를 포함한 경로**를 만났을 때 자동으로 "Not Found" 오류를 발생시킵니다.
+
+`notFoundMode` 옵션에 따라 라우터가 이러한 오류를 처리하는 방식이 달라집니다:
+
+- ["fuzzy" 모드](#notfoundmode-fuzzy) (기본값): 라우터는 가장 적합한 라우트를 찾아 `notFoundComponent`를 표시합니다.
+- ["root" 모드](#notfoundmode-root): 모든 "Not Found" 오류는 루트 라우트의 `notFoundComponent`에 의해 처리됩니다.
+
+### `notFoundMode: 'fuzzy'`
+
+기본적으로 라우터의 `notFoundMode`는 `fuzzy`로 설정되어 있습니다. 이는 경로가 알려진 라우트와 일치하지 않을 경우, 자식 및 `Outlet`을 가진 가장 적합한 상위 라우트를 찾아 해당 `notFoundComponent`를 사용한다는 의미입니다.
+
+> **❓ 왜 기본값이 `fuzzy`인가요?** 사용자가 예상했던 위치에 최대한 가깝게 부모 레이아웃을 유지하면 더 유용한 탐색 컨텍스트를 제공합니다.
+
+가장 적합한 라우트를 찾는 기준은 다음과 같습니다:
+
+- 라우트에 자식이 있어야 하며, 따라서 `notFoundComponent`를 렌더링할 `Outlet`이 있어야 합니다.
+- 라우트에 `notFoundComponent`가 구성되어 있거나, 라우터에 `defaultNotFoundComponent`가 구성되어 있어야 합니다.
+
+예를 들어, 다음과 같은 라우트 트리를 고려해봅니다:
+
+- `__root__` (구성된 `notFoundComponent`가 있음)
+  - `posts` (구성된 `notFoundComponent`가 있음)
+    - `$postId` (구성된 `notFoundComponent`가 있음)
+
+`/posts/1/edit` 경로를 제공하면 다음과 같은 컴포넌트 구조가 렌더링됩니다:
+
+- `<Root>`
+  - `<Posts>`
+    - `<Posts.notFoundComponent>`
+
+`posts` 라우트의 `notFoundComponent`가 렌더링됩니다. 이는 **가장 가까운 적합한 부모 라우트**이기 때문입니다.
+
+### `notFoundMode: 'root'`
+
+`notFoundMode`가 `root`로 설정되면 모든 "Not Found" 오류는 루트 라우트의 `notFoundComponent`에 의해 처리됩니다.
+
+예를 들어, 다음과 같은 라우트 트리를 고려합니다:
+
+- `__root__` (구성된 `notFoundComponent`가 있음)
+  - `posts` (구성된 `notFoundComponent`가 있음)
+    - `$postId` (구성된 `notFoundComponent`가 있음)
+
+`/posts/1/edit` 경로를 제공하면 다음과 같은 컴포넌트 구조가 렌더링됩니다:
+
+- `<Root>`
+  - `<Root.notFoundComponent>`
+
+`__root__` 라우트의 `notFoundComponent`가 렌더링됩니다. 이는 `notFoundMode`가 `root`로 설정되어 있기 때문입니다.
+
+## Configuring a route's `notFoundComponent`
+
+"Not Found" 오류의 두 가지 유형을 모두 처리하려면 `notFoundComponent`를 라우트에 추가할 수 있습니다. 이 컴포넌트는 "Not Found" 오류가 발생할 때 렌더링됩니다.
+
+예를 들어, 존재하지 않는 설정 페이지를 처리하기 위해 `/settings` 라우트에 `notFoundComponent`를 구성합니다:
+
+```tsx
+export const Route = createFileRoute("/settings")({
+  component: () => {
+    return (
+      <div>
+        <p>Settings page</p>
+        <Outlet />
+      </div>
+    );
+  },
+  notFoundComponent: () => {
+    return <p>This setting page doesn't exist!</p>;
+  },
+});
+```
+
+또는 존재하지 않는 게시물을 처리하기 위해 `/posts/$postId` 라우트에 `notFoundComponent`를 구성합니다:
+
+```tsx
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ params: { postId } }) => {
+    const post = await getPost(postId);
+    if (!post) throw notFound();
+    return { post };
+  },
+  component: ({ post }) => {
+    return (
+      <div>
+        <h1>{post.title}</h1>
+        <p>{post.body}</p>
+      </div>
+    );
+  },
+  notFoundComponent: () => {
+    return <p>Post not found!</p>;
+  },
+});
+```
+
+## Default Router-Wide Not Found Handling
+
+모든 자식 라우트에 대해 기본 "Not Found" 컴포넌트를 제공하려면 `defaultNotFoundComponent`를 `createRouter` 함수에 전달하면 됩니다.
+
+> 왜 자식 라우트만 해당하나요? **Leaf-node 라우트(자식이 없는 라우트)는 `Outlet`을 렌더링하지 않으므로 "Not Found" 오류를 처리할 수 없습니다.**
+
+```tsx
+const router = createRouter({
+  defaultNotFoundComponent: () => {
+    return (
+      <div>
+        <p>Not found!</p>
+        <Link to="/">Go home</Link>
+      </div>
+    );
+  },
+});
+```
+
+## Throwing your own `notFound` errors
+
+로더 메서드와 컴포넌트에서 `notFound` 함수를 사용하여 직접 "Not Found" 오류를 발생시킬 수 있습니다. 이는 리소스를 찾을 수 없음을 신호해야 할 때 유용합니다.
+
+`notFound` 함수는 `redirect` 함수와 유사하게 작동합니다. "Not Found" 오류를 발생시키려면 **`notFound()`를 throw** 하면 됩니다.
+
+```tsx
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ params: { postId } }) => {
+    // 게시물이 없으면 `null` 반환
+    const post = await getPost(postId);
+    if (!post) {
+      throw notFound();
+      // 또는 `notFound({ throw: true })`를 사용하여 오류 발생
+    }
+    // 오류가 발생하면 이 위치에서 게시물이 정의됩니다.
+    return { post };
+  },
+});
+```
+
+위의 not-found 오류는 `notFoundComponent` 라우트 옵션 또는 `defaultNotFoundComponent` 라우터 옵션이 구성된 동일한 라우트 또는 가장 가까운 부모 라우트에 의해 처리됩니다.
+
+라우트나 적합한 부모 라우트가 오류를 처리하지 못할 경우, 루트 라우트가 TanStack Router의 **극도로 단순하고 (일부러 매력적이지 않게 설계된)** 기본 not-found 컴포넌트를 사용하여 `<div>Not Found</div>`을 렌더링하며 이를 처리합니다. 최소 하나 이상의 `notFoundComponent`를 루트 라우트에 추가하거나 라우터 전역 `defaultNotFoundComponent`를 구성하여 not-found 오류를 처리하는 것을 권장합니다.
+
+## Specifying Which Routes Handle Not Found Errors
+
+때로는 특정 부모 라우트에서 not-found를 트리거하고 일반적인 not-found 컴포넌트 전파를 우회하고 싶을 수 있습니다. 이를 위해 `notFound` 함수의 `route` 옵션에 라우트 ID를 전달합니다.
+
+```tsx
+// _layout.tsx
+export const Route = createFileRoute("/_layout")({
+  // 이 컴포넌트가 렌더링됩니다
+  notFoundComponent: () => {
+    return <p>Not found (in _layout)</p>;
+  },
+  component: () => {
+    return (
+      <div>
+        <p>This is a layout!</p>
+        <Outlet />
+      </div>
+    );
+  },
+});
+
+// _layout/a.tsx
+export const Route = createFileRoute("/_layout/a")({
+  loader: async () => {
+    // 이 코드는 LayoutRoute가 not-found 오류를 처리하도록 만듭니다
+    throw notFound({ routeId: "/_layout" });
+    //                      ^^^^^^^^^ 등록된 라우터에서 자동완성됩니다
+  },
+  // 이 컴포넌트는 렌더링되지 않습니다
+  notFoundComponent: () => {
+    return <p>Not found (in _layout/a)</p>;
+  },
+});
+```
+
+### Manually targeting the root route
+
+루트 라우트를 수동으로 지정하려면 `notFound` 함수의 `route` 속성에 내보낸 `rootRouteId` 변수를 전달합니다.
+
+```tsx
+import { rootRouteId } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ params: { postId } }) => {
+    const post = await getPost(postId);
+    if (!post) throw notFound({ routeId: rootRouteId });
+    return { post };
+  },
+});
+```
+
+### Throwing Not Found Errors in Components
+
+컴포넌트에서도 not-found 오류를 발생시킬 수 있습니다. 그러나 **로더 메서드에서 not-found 오류를 발생시키는 것이 로더 데이터를 올바르게 타입 지정하고 깜빡임을 방지하는 데 권장됩니다.**
+
+TanStack Router는 `CatchBoundary`와 유사한 `CatchNotFound` 컴포넌트를 제공하며, 이를 사용하여 컴포넌트 내 not-found 오류를 포착하고 UI를 표시할 수 있습니다.
+
+### Data Loading Inside `notFoundComponent`
+
+`notFoundComponent`는 데이터 로딩과 관련해 특별한 경우에 해당합니다. **`SomeRoute.useLoaderData`는 접근하려는 라우트 및 not-found 오류가 발생한 위치에 따라 정의되지 않을 수 있습니다.** 하지만 `Route.useParams`, `Route.useSearch`, `Route.useRouteContext` 등은 정의된 값을 반환합니다.
+
+**`notFoundComponent`에 불완전한 로더 데이터를 전달해야 하는 경우,** 데이터를 `notFound` 함수의 `data` 옵션을 통해 전달하고 `notFoundComponent`에서 이를 검증하십시오.
+
+```tsx
+export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ params: { postId } }) => {
+    const post = await getPost(postId);
+    if (!post)
+      throw notFound({
+        // 일부 불완전한 로더 데이터를 전달합니다
+        // data: someIncompleteLoaderData
+      });
+    return { post };
+  },
+  // `data: unknown`은 `notFound` 호출 시 `data` 옵션을 통해 컴포넌트에 전달됩니다
+  notFoundComponent: ({ data }) => {
+    // ❌ useLoaderData는 여기서 유효하지 않습니다: const { post } = Route.useLoaderData()
+
+    // ✅:
+    const { postId } = Route.useParams();
+    const search = Route.useSearch();
+    const context = Route.useRouteContext();
+
+    return <p>Post with id {postId} not found!</p>;
+  },
+});
+```
+
+## Usage With SSR
+
+SSR에 대한 자세한 정보는 [SSR guide](./ssr.md)를 참조하세요.
+
+## Migrating from `NotFoundRoute`
+
+`NotFoundRoute` API는 `notFoundComponent`로 대체되었으며, 향후 릴리스에서 제거될 예정입니다.
+
+**`NotFoundRoute`를 사용하는 경우 `notFound` 함수와 `notFoundComponent`는 작동하지 않습니다.**
+
+주요 차이점은 다음과 같습니다:
+
+- `NotFoundRoute`는 부모 라우트에 `<Outlet>`이 있어야 렌더링되는 라우트입니다. `notFoundComponent`는 어떤 라우트에도 연결할 수 있는 컴포넌트입니다.
+- `NotFoundRoute`를 사용하는 경우 레이아웃을 사용할 수 없습니다. `notFoundComponent`는 레이아웃과 함께 사용할 수 있습니다.
+- `notFoundComponent`를 사용할 때 경로 매칭은 엄격합니다. `/post/$postId`에 라우트가 있을 경우 `/post/1/2/3`에 접근하려 하면 not-found 오류가 발생합니다. 하지만 `NotFoundRoute`를 사용할 경우 `/post/1/2/3`은 `NotFoundRoute`에 매칭되고, `<Outlet>`이 있을 때만 렌더링됩니다.
+
+`NotFoundRoute`에서 `notFoundComponent`로 마이그레이션하려면 다음 단계를 따르세요:
+
+- not-found 오류를 처리해야 하는 라우트에 `NotFoundRoute`를 `notFoundComponent`로 교체합니다. "전역" not-found 오류의 경우, 루트 라우트에 `notFoundComponent`를 연결합니다.
+- `NotFoundRoute`를 사용했던 라우트에서 `<Outlet>`을 제거합니다.
