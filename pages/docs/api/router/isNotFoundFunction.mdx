@@ -1,0 +1,36 @@
+---
+id: isNotFoundFunction
+title: isNotFound function
+---
+
+## isNotFound function
+
+`isNotFound` 함수는 객체가 [`NotFoundError`](./NotFoundErrorType.md) 객체인지 여부를 확인하는 데 사용됩니다.
+
+## isNotFound options
+
+`isNotFound` 함수는 단일 인수로 `input`을 받습니다.
+
+### `input` option
+
+- **타입**: `unknown`
+- **필수 항목**
+- [`NotFoundError`](./NotFoundErrorType.md)인지 확인할 객체입니다.
+
+## isNotFound returns
+
+- **타입**: `boolean`
+- 객체가 [`NotFoundError`](./NotFoundErrorType.md)일 경우 `true`.
+- 객체가 [`NotFoundError`](./NotFoundErrorType.md)가 아닐 경우 `false`.
+
+## Examples
+
+```tsx
+import { isNotFound } from "@tanstack/react-router";
+
+function somewhere(obj: unknown) {
+  if (isNotFound(obj)) {
+    // ...
+  }
+}
+```
