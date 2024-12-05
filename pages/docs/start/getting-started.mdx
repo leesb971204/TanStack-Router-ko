@@ -1,0 +1,301 @@
+---
+id: getting-started
+title: Getting Started
+---
+
+## Getting Started
+
+TanStack Start 프로젝트를 설정하려면 다음 단계를 수행해야 합니다:
+
+1. 종속성 설치
+2. 구성 파일 추가
+3. 필요한 템플릿 생성
+
+이 가이드를 따라 기본적인 TanStack Start 웹 애플리케이션을 구축해 보겠습니다. 함께 TanStack Start를 사용하여:
+
+- 인덱스 페이지를 제공합니다...
+- 카운터를 표시합니다...
+- 카운터를 지속적으로 증가시키는 버튼을 만듭니다.
+
+[여기에서 어떻게 보일지 확인해보세요](https://stackblitz.com/github/tanstack/router/tree/main/examples/react/start-counter)
+
+새 프로젝트를 시작하는 경우:
+
+```shell
+mkdir myApp
+cd myApp
+npm init -y
+```
+
+`tsconfig.json` 파일을 최소한 다음 설정으로 생성합니다:
+
+```jsonc
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "target": "ES2022",
+    "skipLibCheck": true,
+    "strictNullChecks": true
+  }
+}
+```
+
+## Install Dependencies
+
+TanStack Start는 [Vinxi](https://vinxi.vercel.app/)와 [TanStack Router](https://tanstack.com/router)로 구동되며, 이들을 종속성으로 설치해야 합니다.
+
+다음 명령어로 설치하세요:
+
+```shell
+npm i @tanstack/start @tanstack/react-router vinxi
+```
+
+React와 Vite React 플러그인도 필요하므로, 이를 함께 설치합니다:
+
+```shell
+npm i react react-dom; npm i -D @vitejs/plugin-react
+```
+
+TypeScript도 필요합니다:
+
+```shell
+npm i -D typescript @types/react @types/react-dom
+```
+
+## Update Configuration Files
+
+이제 `package.json`을 업데이트하여 새로운 Vinxi 진입점을 참조하고 `"type": "module"`을 설정합니다:
+
+```json
+{
+  // ...
+  "type": "module",
+  "scripts": {
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start"
+  }
+}
+```
+
+TanStack Start의 최소 동작을 시작하도록 Vinxi에 지시하려면 `app.config.ts` 파일을 구성해야 합니다:
+
+```typescript
+// app.config.ts
+import { defineConfig } from "@tanstack/start/config";
+
+export default defineConfig({});
+```
+
+## Add the Basic Templating
+
+TanStack Start를 사용하려면 네 가지 필수 파일이 필요합니다:
+
+1. 라우터 구성
+2. 서버 엔트리 포인트
+3. 클라이언트 엔트리 포인트
+4. 애플리케이션의 루트
+
+구성이 완료되면 다음과 같은 파일 트리가 생성됩니다:
+
+```
+.
+├── app/
+│   ├── routes/
+│   │   └── `__root.tsx`
+│   ├── `client.tsx`
+│   ├── `router.tsx`
+│   ├── `routeTree.gen.ts`
+│   └── `ssr.tsx`
+├── `.gitignore`
+├── `app.config.ts`
+├── `package.json`
+└── `tsconfig.json`
+```
+
+## The Router Configuration
+
+이 파일은 TanStack Router의 동작을 결정합니다. 여기에서 기본 [프리로딩 기능](../guide/preloading.md)부터 [캐시된 데이터의 신선도](../guide/data-loading.md)까지 모든 설정을 할 수 있습니다.
+
+```tsx
+// app/router.tsx
+import { createRouter as createTanStackRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+
+export function createRouter() {
+  const router = createTanStackRouter({
+    routeTree,
+  });
+
+  return router;
+}
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: ReturnType<typeof createRouter>;
+  }
+}
+```
+
+> `routeTree.gen.ts`는 이 시점에서 생성된 파일이 아닙니다.
+> TanStack Start를 처음 실행하면(`npm run dev` 또는 `npm run start`), 이 파일은 자동으로 생성됩니다.
+
+## The Server Entry Point
+
+TanStack Start는 [SSR](https://unicorn-utterances.com/posts/what-is-ssr-and-ssg) 프레임워크이므로, 이 라우터 정보를 서버 엔트리 포인트로 전달해야 합니다:
+
+```tsx
+// app/ssr.tsx
+/// <reference types="vinxi/types/server" />
+import {
+  createStartHandler,
+  defaultStreamHandler,
+} from "@tanstack/start/server";
+import { getRouterManifest } from "@tanstack/start/router-manifest";
+
+import { createRouter } from "./router";
+
+export default createStartHandler({
+  createRouter,
+  getRouterManifest,
+})(defaultStreamHandler);
+```
+
+이 코드는 사용자가 주어진 경로로 접근할 때 실행해야 할 라우트와 로더를 알 수 있게 해줍니다.
+
+## The Client Entry Point
+
+이제 경로가 클라이언트로 해결된 후 클라이언트 측 JavaScript를 하이드레이트할 방법이 필요합니다. 이를 위해 동일한 라우터 정보를 클라이언트 엔트리 포인트로 전달합니다:
+
+```tsx
+// app/client.tsx
+/// <reference types="vinxi/types/client" />
+import { hydrateRoot } from "react-dom/client";
+import { StartClient } from "@tanstack/start";
+import { createRouter } from "./router";
+
+const router = createRouter();
+
+hydrateRoot(document, <StartClient router={router} />);
+```
+
+이 설정은 사용자의 초기 서버 요청이 완료된 후 클라이언트 측 라우팅을 시작할 수 있게 해줍니다.
+
+## The Root of Your Application
+
+마지막으로, 애플리케이션의 루트를 생성해야 합니다. 이 파일은 모든 다른 라우트를 감싸는 진입점 역할을 합니다.
+
+```tsx
+// app/routes/__root.tsx
+import {
+  Outlet,
+  ScrollRestoration,
+  createRootRoute,
+} from "@tanstack/react-router";
+import { Meta, Scripts } from "@tanstack/start";
+import type { ReactNode } from "react";
+
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      {
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      {
+        title: "TanStack Start Starter",
+      },
+    ],
+  }),
+  component: RootComponent,
+});
+
+function RootComponent() {
+  return (
+    <RootDocument>
+      <Outlet />
+    </RootDocument>
+  );
+}
+
+function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <html>
+      <head>
+        <Meta />
+      </head>
+      <body>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+```
+
+## Writing Your First Route
+
+기본 템플릿 설정이 완료되었으므로, 첫 번째 라우트를 작성할 수 있습니다. 이는 `app/routes` 디렉토리에 새 파일을 생성하여 수행할 수 있습니다.
+
+```tsx
+// app/routes/index.tsx
+import * as fs from "node:fs";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/start";
+
+const filePath = "count.txt";
+
+async function readCount() {
+  return parseInt(
+    await fs.promises.readFile(filePath, "utf-8").catch(() => "0")
+  );
+}
+
+const getCount = createServerFn({
+  method: "GET",
+}).handler(() => {
+  return readCount();
+});
+
+const updateCount = createServerFn({ method: "POST" })
+  .validator((d: number) => d)
+  .handler(async ({ data }) => {
+    const count = await readCount();
+    await fs.promises.writeFile(filePath, `${count + data}`);
+  });
+
+export const Route = createFileRoute("/")({
+  component: Home,
+  loader: async () => await getCount(),
+});
+
+function Home() {
+  const router = useRouter();
+  const state = Route.useLoaderData();
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        updateCount({ data: 1 }).then(() => {
+          router.invalidate();
+        });
+      }}
+    >
+      Add 1 to {state}?
+    </button>
+  );
+}
+```
+
+그게 전부입니다! 🤯 이제 TanStack Start 프로젝트를 설정하고 첫 번째 라우트를 작성했습니다. 🎉
+
+이제 `npm run dev` 명령어를 실행하여 서버를 시작하고 `http://localhost:3000`에 접속하여 라우트를 확인할 수 있습니다.
+
+애플리케이션을 배포하고 싶으신가요? [호스팅 가이드](./hosting.md)를 확인해 보세요.
