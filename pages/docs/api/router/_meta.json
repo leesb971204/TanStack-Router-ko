@@ -34,5 +34,8 @@
   },
   "isRedirectFunction": {
     "title": "isRedirect"
+  },
+  "lazyRouteComponentFunction": {
+    "title": "lazyRouteComponent"
   }
 }

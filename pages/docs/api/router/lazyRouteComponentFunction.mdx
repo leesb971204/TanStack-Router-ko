@@ -1,0 +1,54 @@
+---
+id: lazyRouteComponentFunction
+title: lazyRouteComponent function
+---
+
+## lazyRouteComponent function
+
+> [!IMPORTANT]
+> 파일 기반 라우팅을 사용하는 경우, `createLazyFileRoute` 함수를 사용하는 것이 권장됩니다.
+
+`lazyRouteComponent` 함수는 `component.preload()` 메서드를 사용해 사전 로드할 수 있는 1회성 코드 분할 라우트 컴포넌트를 생성하는 데 사용됩니다.
+
+## lazyRouteComponent options
+
+`lazyRouteComponent` 함수는 두 개의 인수를 받습니다:
+
+### `importer` option
+
+- **타입**: `() => Promise<T>`
+- **필수 항목**
+- 로드할 컴포넌트를 포함하는 객체를 반환하는 프라미스를 반환하는 함수.
+
+### `exportName` option
+
+- **타입**: `string`
+- \*선택 사항\*\*
+- 가져온 객체에서 로드할 컴포넌트의 이름. 기본값은 `'default'`입니다.
+
+## lazyRouteComponent returns
+
+- `React.lazy` 컴포넌트로, `component.preload()` 메서드를 사용하여 사전 로드할 수 있습니다.
+
+## Examples
+
+```tsx
+import { lazyRouteComponent } from "@tanstack/react-router";
+
+// 기본 내보내기
+const route = createRoute({
+  path: "/posts/$postId",
+  component: lazyRouteComponent(() => import("./Post")), // default export
+});
+
+// 또는
+
+// 이름으로 내보내기
+const route = createRoute({
+  path: "/posts/$postId",
+  component: lazyRouteComponent(
+    () => import("./Post"),
+    "PostByIdPageComponent" // named export
+  ),
+});
+```
