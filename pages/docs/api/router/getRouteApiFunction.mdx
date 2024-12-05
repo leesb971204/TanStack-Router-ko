@@ -1,0 +1,35 @@
+---
+id: getRouteApiFunction
+title: getRouteApi function
+---
+
+## getRouteApi function
+
+`getRouteApi` 함수는 `useParams`, `useSearch`, `useRouteContext`, `useNavigate`, `useLoaderData`, `useLoaderDeps`와 같은 공통 훅의 타입 안전한 버전을 제공합니다. 이 훅들은 특정 라우트 ID와 등록된 라우트 타입에 사전 바인딩됩니다.
+
+## getRouteApi options
+
+`getRouteApi` 함수는 단일 인수로 `routeId` 문자열 리터럴을 받습니다.
+
+### `routeId` option
+
+- **타입**: `string`
+- **필수 항목**
+- [`RouteApi`](./RouteApiClass.md) 인스턴스가 바인딩될 라우트 ID입니다.
+
+## getRouteApi returns
+
+- `getRouteApi` 함수 호출 시 전달된 라우트 ID에 사전 바인딩된 [`RouteApi`](./RouteApiType.md) 인스턴스.
+
+## Examples
+
+```tsx
+import { getRouteApi } from "@tanstack/react-router";
+
+const routeApi = getRouteApi("/posts");
+
+export function PostsPage() {
+  const posts = routeApi.useLoaderData();
+  // ...
+}
+```
