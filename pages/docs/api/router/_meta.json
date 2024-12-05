@@ -67,5 +67,8 @@
   },
   "errorComponentComponent": {
     "title": "errorComponent"
+  },
+  "linkComponent": {
+    "title": "Link"
   }
 }

@@ -1,0 +1,39 @@
+---
+id: linkComponent
+title: Link component
+---
+
+## Link component
+
+`Link` 컴포넌트는 새로운 위치로 이동하기 위한 링크를 생성하는 데 사용되는 컴포넌트입니다. 경로 이름, 검색 매개변수, 해시, 위치 상태 등을 변경할 수 있습니다.
+
+## Link props
+
+`Link` 컴포넌트는 다음 속성을 받습니다:
+
+### `...props`
+
+- **타입**: `LinkProps & React.RefAttributes<HTMLAnchorElement>`
+- [`LinkProps`](./LinkPropsType.md)
+
+## Link returns
+
+- 새로운 위치로 이동할 수 있는 앵커(`anchor`) 요소를 반환합니다.
+
+## Examples
+
+```tsx
+import { Link } from "@tanstack/react-router";
+
+function Component() {
+  return (
+    <Link
+      to="/somewhere/$somewhereId"
+      params={{ somewhereId: "baz" }}
+      search={(prev) => ({ ...prev, foo: "bar" })}
+    >
+      Click me
+    </Link>
+  );
+}
+```
