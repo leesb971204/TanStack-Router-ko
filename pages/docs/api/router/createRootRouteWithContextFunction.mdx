@@ -1,0 +1,55 @@
+---
+id: createRootRouteWithContextFunction
+title: createRootRouteWithContext function
+---
+
+## createRootRouteWithContext function
+
+`createRootRouteWithContext` 함수는 라우터가 생성될 때 컨텍스트 타입을 요구하는 루트 라우트 인스턴스를 생성하기 위해 사용되는 헬퍼 함수입니다.
+
+## createRootRouteWithContext generics
+
+`createRootRouteWithContext` 함수는 하나의 제네릭 인수를 받습니다:
+
+### `TRouterContext` generic
+
+- **타입**: `TRouterContext`
+- 선택 사항, **하지만 권장됨**.
+- 라우터가 생성될 때 요구되는 컨텍스트 타입.
+
+## createRootRouteWithContext returns
+
+- 새로운 [`createRootRoute`](./createRootRouteFunction.md) 인스턴스를 생성하는 팩토리 함수.
+- 이 함수는 [`createRootRoute`](./createRootRouteFunction.md) 함수와 동일한 단일 인수를 받습니다.
+
+## Examples
+
+```tsx
+import {
+  createRootRouteWithContext,
+  createRouter,
+} from "@tanstack/react-router";
+import { QueryClient } from "@tanstack/react-query";
+
+interface MyRouterContext {
+  queryClient: QueryClient;
+}
+
+const rootRoute = createRootRouteWithContext<MyRouterContext>()({
+  component: () => <Outlet />,
+  // ... 루트 라우트 옵션
+});
+
+const routeTree = rootRoute.addChildren([
+  // ... 다른 라우트
+]);
+
+const queryClient = new QueryClient();
+
+const router = createRouter({
+  routeTree,
+  context: {
+    queryClient,
+  },
+});
+```
