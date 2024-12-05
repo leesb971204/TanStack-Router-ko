@@ -35,6 +35,9 @@
   "search-params": {
     "title": "Search Params"
   },
+  "link-options": {
+    "title": "Link Options"
+  },
   "custom-link": {
     "title": "Custom Link"
   },
