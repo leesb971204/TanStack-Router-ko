@@ -22,5 +22,8 @@
   },
   "authentication": {
     "title": "Authentication"
+  },
+  "databases": {
+    "title": "Databases"
   }
 }
