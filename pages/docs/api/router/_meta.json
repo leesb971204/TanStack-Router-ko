@@ -40,5 +40,8 @@
   },
   "linkOptions": {
     "title": "LinkOptions"
+  },
+  "notFoundFunction": {
+    "title": "notFound"
   }
 }

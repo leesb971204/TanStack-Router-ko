@@ -1,0 +1,42 @@
+---
+id: notFoundFunction
+title: notFound function
+---
+
+## notFound function
+
+`notFound` 함수는 새로운 `NotFoundError` 객체를 반환하며, 이 객체는 라우트의 `beforeLoad` 또는 `loader` 콜백과 같은 위치에서 반환하거나 던질 수 있어 `notFoundComponent`를 트리거합니다.
+
+## notFound options
+
+`notFound` 함수는 `not-found` 에러 객체를 생성하기 위한 단일 선택적 인수 `options`를 받습니다.
+
+- **타입**: [`Partial<NotFoundError>`](./NotFoundErrorType.md)
+- **선택 사항**
+
+## notFound returns
+
+- `options` 객체에서 `throw` 속성이 `true`인 경우, 함수 호출 내에서 `NotFoundError` 객체가 던져집니다.
+- `options` 객체에서 `throw` 속성이 `false | undefined`인 경우, `NotFoundError` 객체가 반환됩니다.
+
+## Examples
+
+```tsx
+import { notFound, createFileRoute } from "@tanstack/react-router";
+
+const Route = new createFileRoute("/posts/$postId")({
+  // not-found 객체를 던지기
+  loader: ({ context: { post } }) => {
+    if (!post) {
+      throw notFound();
+    }
+  },
+  // 전체 페이지에 not-found를 표시하고 싶은 경우
+  loader: ({ context: { team } }) => {
+    if (!team) {
+      throw notFound({ global: true });
+    }
+  },
+  // ... 기타 라우트 옵션
+});
+```
