@@ -6,17 +6,17 @@ title: External Data Loading
 ## External Data Loading
 
 > [!IMPORTANT]
-> This guide is geared towards external state management libraries and their integration with TanStack Router for data fetching, ssr, hydration/dehydration and streaming. If you haven't read the standard [Data Loading](./data-loading.md) guide, please do so first.
+> 이 가이드는 외부 상태 관리 라이브러리와 TanStack Router의 통합을 위한 데이터 가져오기, SSR, 수화/탈수화 및 스트리밍에 중점을 둡니다. 표준 [Data Loading](./data-loading.md) 가이드를 읽지 않았다면 먼저 읽어보시기 바랍니다.
 
 ## To **Store** or to **Coordinate**?
 
-While Router is very capable of storing and managing most data needs out of the box, sometimes you just might want something more robust!
+Router는 대부분의 데이터 요구를 기본적으로 저장하고 관리할 수 있지만, 때로는 더 강력한 기능이 필요할 수 있습니다!
 
-Router is designed to be a perfect **coordinator** for external data fetching and caching libraries. This means that you can use any data fetching/caching library you want, and the router will coordinate the loading of your data in a way that aligns with your users' navigation and expectations of freshness.
+Router는 외부 데이터 가져오기 및 캐싱 라이브러리를 위한 완벽한 **조정자**로 설계되었습니다. 즉, 원하는 데이터 가져오기/캐싱 라이브러리를 사용할 수 있으며, Router는 사용자의 탐색 및 최신성에 대한 기대와 일치하는 방식으로 데이터 로딩을 조정합니다.
 
 ## What data fetching libraries are supported?
 
-Any data fetching library that supports asynchronous promises can be used with TanStack Router. This includes:
+비동기 프로미스를 지원하는 모든 데이터 가져오기 라이브러리를 TanStack Router와 함께 사용할 수 있습니다. 여기에는 다음이 포함됩니다:
 
 - [TanStack Query](https://tanstack.com/query/latest/docs/react/overview)
 - [SWR](https://swr.vercel.app/)
@@ -25,26 +25,26 @@ Any data fetching library that supports asynchronous promises can be used with T
 - [Relay](https://relay.dev/)
 - [Apollo](https://www.apollographql.com/docs/react/)
 
-Or, even...
+또는...
 
 - [Zustand](https://zustand-demo.pmnd.rs/)
 - [Jotai](https://jotai.org/)
 - [Recoil](https://recoiljs.org/)
 - [Redux](https://redux.js.org/)
 
-Literally any library that **can return a promise and read/write data** can be integrated.
+프로미스를 반환하고 데이터를 읽거나 쓸 수 있는 **모든 라이브러리**를 통합할 수 있습니다.
 
 ## Using Loaders to ensure data is loaded
 
-The easiest way to use integrate and external caching/data library into Router is to use `route.loader`s to ensure that the data required inside of a route has been loaded and is ready to be displayed.
+외부 캐싱/데이터 라이브러리를 Router에 통합하는 가장 쉬운 방법은 `route.loader`를 사용하여 경로 내부에서 필요한 데이터가 로드되고 표시할 준비가 되었는지 확인하는 것입니다.
 
-> ⚠️ BUT WHY? It's very important to preload your critical render data in the loader for a few reasons:
+> ⚠️ 왜 필요한가요? Loader에서 중요한 렌더링 데이터를 미리 로드하는 것은 다음과 같은 이유로 매우 중요합니다:
 >
-> - No "flash of loading" states
-> - No waterfall data fetching, caused by component based fetching
-> - Better for SEO. If you data is available at render time, it will be indexed by search engines.
+> - "로딩" 상태가 깜빡이는 현상이 없습니다.
+> - 컴포넌트 기반 데이터 가져기로 인해 발생하는 워터폴 데이터 가져기가 없습니다.
+> - SEO에 더 유리합니다. 렌더링 시 데이터가 사용 가능하면 검색 엔진에서 인덱싱됩니다.
 
-Here is a naive illustration (don't do this) of using a Route's `loader` option to seed the cache for some data:
+다음은 일부 데이터를 캐시에 시드하기 위해 Route의 `loader` 옵션을 사용하는 간단한 예시입니다(이렇게 하지 마세요):
 
 ```tsx
 // src/routes/posts.tsx
@@ -67,14 +67,14 @@ export const Route = createFileRoute("/posts")({
 });
 ```
 
-This example is **obviously flawed**, but illustrates the point that you can use a route's `loader` option to seed your cache with data. Let's take a look at a more realistic example using TanStack Query.
+이 예시는 **분명히 결함이 있지만**, Route의 `loader` 옵션을 사용하여 데이터를 캐시에 시드할 수 있음을 보여줍니다. TanStack Query를 사용하는 보다 현실적인 예시를 살펴보겠습니다.
 
-- Replace `fetchPosts` with your preferred data fetching library's prefetching API
-- Replace `postsCache` with your preferred data fetching library's read-or-fetch API or hook
+- `fetchPosts`를 선호하는 데이터 가져오기 라이브러리의 사전 가져오기 API로 대체합니다.
+- `postsCache`를 선호하는 데이터 가져오기 라이브러리의 읽기 또는 가져오기 API나 훅으로 대체합니다.
 
 ## A more realistic example using TanStack Query
 
-Let's take a look at a more realistic example using TanStack Query.
+TanStack Query를 사용하는 보다 현실적인 예시를 살펴보겠습니다.
 
 ```tsx
 // src/routes/posts.tsx
@@ -106,7 +106,7 @@ export const Route = createFileRoute("/posts")({
 
 ### Error handling with TanStack Query
 
-When an error occurs while using `suspense` with `Tanstack Query`, you'll need to let queries know that you want to try again when re-rendering. This can be done by using the `reset` function provided by the `useQueryErrorResetBoundary` hook. We can invoke this function in an effect as soon as the error component mounts. This will make sure that the query is reset and will try to fetch data again when the route component is rendered again. This will also cover cases where users navigate away from our route instead of clicking the `retry` button.
+`suspense`와 함께 `TanStack Query`를 사용할 때 오류가 발생하면, 쿼리들이 다시 렌더링될 때 다시 시도하도록 알려야 합니다. 이는 `useQueryErrorResetBoundary` 훅에서 제공하는 `reset` 함수를 사용하여 수행할 수 있습니다. 이 함수는 오류 컴포넌트가 마운트되자마자 효과에서 호출할 수 있습니다. 이렇게 하면 쿼리가 리셋되고 라우트 컴포넌트가 다시 렌더링될 때 데이터를 다시 가져오려고 시도합니다. 이는 사용자가 라우트에서 벗어나거나 `retry` 버튼을 클릭하지 않는 경우를 포함합니다.
 
 ```tsx
 export const Route = createFileRoute("/posts")({
@@ -139,15 +139,15 @@ export const Route = createFileRoute("/posts")({
 
 ## SSR Dehydration/Hydration
 
-Tools that are able can integrate with TanStack Router's convenient Dehydration/Hydration APIs to shuttle dehydrated data between the server and client and rehydrate it where needed. Let's go over how to do this with both 3rd party critical data and 3rd party deferred data.
+TanStack Router의 편리한 Dehydration/Hydration API와 통합할 수 있는 도구들은 서버와 클라이언트 간에 탈수된 데이터를 전달하고 필요할 때 다시 수화할 수 있습니다. 3rd 파티 주요 데이터와 3rd 파티 지연된 데이터를 사용하여 이를 수행하는 방법을 살펴보겠습니다.
 
 ## Critical Dehydration/Hydration
 
-**For critical data needed for the first render/paint**, TanStack Router supports **`dehydrate` and `hydrate`** options when configuring the `Router`. These callbacks are functions that are automatically called on the server and client when the router dehydrates and hydrates normally and allow you to augment the dehydrated data with your own data.
+**첫 렌더링/페인트에 필요한 중요한 데이터**의 경우, TanStack Router는 `Router`를 구성할 때 `dehydrate` 및 `hydrate` 옵션을 지원합니다. 이 콜백 함수는 서버와 클라이언트에서 Router가 일반적으로 탈수 및 수화할 때 자동으로 호출되며, 탈수된 데이터를 자신의 데이터로 증강할 수 있습니다.
 
-The `dehydrate` function can return any serializable JSON data which will get merged and injected into the dehydrated payload that is sent to the client. This payload is delivered via the `DehydrateRouter` component which, when rendered, provides the data back to you in the `hydrate` function on the client.
+`dehydrate` 함수는 직렬화 가능한 JSON 데이터를 반환할 수 있으며, 이는 클라이언트에 전달된 탈수된 페이로드에 병합되고 주입됩니다. 이 페이로드는 `DehydrateRouter` 컴포넌트를 통해 제공되며, 렌더링 시 클라이언트에서 `hydrate` 함수에 데이터를 다시 제공합니다.
 
-For example, let's dehydrate and hydrate a TanStack Query `QueryClient` so that our data we fetched on the server will be available for hydration on the client.
+예를 들어, TanStack Query의 `QueryClient`를 탈수 및 수화하여 서버에서 가져온 데이터를 클라이언트에서 수화할 수 있도록 하겠습니다.
 
 ```tsx
 // src/router.tsx
