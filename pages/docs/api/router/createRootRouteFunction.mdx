@@ -1,0 +1,52 @@
+---
+id: createRootRouteFunction
+title: createRootRoute function
+---
+
+## createRootRoute function
+
+`createRootRoute` 함수는 새로운 루트 라우트 인스턴스를 반환합니다. 루트 라우트 인스턴스를 사용하여 라우트 트리를 생성할 수 있습니다.
+
+## createRootRoute options
+
+루트 라우트 인스턴스를 구성하는 데 사용되는 옵션입니다.
+
+- **타입**:
+
+```tsx
+Omit<
+  RouteOptions,
+  | "path"
+  | "id"
+  | "getParentRoute"
+  | "caseSensitive"
+  | "parseParams"
+  | "stringifyParams"
+>;
+```
+
+- [`RouteOptions`](./RouteOptionsType.md)
+- 선택 사항
+
+## createRootRoute returns
+
+새로운 [`Route`](./RouteType.md) 인스턴스.
+
+## Examples
+
+```tsx
+import { createRootRoute, createRouter, Outlet } from "@tanstack/react-router";
+
+const rootRoute = createRootRoute({
+  component: () => <Outlet />,
+  // ... 루트 라우트 옵션
+});
+
+const routeTree = rootRoute.addChildren([
+  // ... 다른 라우트
+]);
+
+const router = createRouter({
+  routeTree,
+});
+```

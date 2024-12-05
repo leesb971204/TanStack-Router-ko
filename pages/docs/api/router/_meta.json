@@ -4,5 +4,8 @@
   },
   "createLazyFileRouteFunction": {
     "title": "createLazyFileRouteFunction"
+  },
+  "createRootRouteFunction": {
+    "title": "createRootRouteFunction"
   }
 }
