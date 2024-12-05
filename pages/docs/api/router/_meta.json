@@ -1,20 +1,23 @@
 {
   "createFileRouteFunction": {
-    "title": "createFileRouteFunction"
+    "title": "createFileRoute"
   },
   "createLazyFileRouteFunction": {
-    "title": "createLazyFileRouteFunction"
+    "title": "createLazyFileRoute"
   },
   "createRootRouteFunction": {
-    "title": "createRootRouteFunction"
+    "title": "createRootRoute"
   },
   "createRootRouteWithContextFunction": {
-    "title": "createRootRouteWithContextFunction"
+    "title": "createRootRouteWithContext"
   },
   "createRouteFunction": {
-    "title": "createRouteFunction"
+    "title": "createRoute"
   },
   "createLazyRouteFunction": {
-    "title": "createLazyRouteFunction"
+    "title": "createLazyRoute"
+  },
+  "createRouteMaskFunction": {
+    "title": "createRouteMask"
   }
 }
