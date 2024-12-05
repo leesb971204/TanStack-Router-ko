@@ -1,0 +1,88 @@
+---
+id: useBlockerHook
+title: useBlocker hook
+---
+
+## useBlocker hook
+
+`useBlocker` 메서드는 조건이 충족될 때 [탐색을 차단](../../guide/navigation-blocking.md)하는 hook입니다.
+
+## useBlocker options
+
+`useBlocker` hook은 단일 _선택적_ 인수인 옵션 객체를 허용합니다:
+
+### `options.blockerFn` option
+
+- 선택 사항
+- 타입: `BlockerFn`
+- 탐색을 허용할지 여부를 나타내는 `boolean` 또는 `Promise<boolean>`을 반환하는 함수입니다.
+
+### `options.condition` option
+
+- 선택 사항 - 기본값은 `true`
+- 타입: `boolean`
+- 이 조건이 `true`일 때 탐색 시도가 차단됩니다.
+
+## useBlocker returns
+
+탐색의 수동 차단 및 차단 해제를 제어할 수 있는 객체를 반환합니다.
+
+- `status` - `'blocked'` 또는 `'idle'` 중 하나의 문자열 리터럴
+- `proceed` - 탐색을 계속할 수 있게 하는 함수
+- `reset` - 탐색을 취소하는 함수 (`status`는 `'idle'`로 재설정됨)
+
+## Examples
+
+`useBlocker` hook의 두 가지 일반적인 사용 사례는 다음과 같습니다:
+
+### Basic usage
+
+```tsx
+import { useBlocker } from "@tanstack/react-router";
+
+function MyComponent() {
+  const [formIsDirty, setFormIsDirty] = useState(false);
+
+  useBlocker({
+    blockerFn: () => window.confirm("Are you sure you want to leave?"),
+    condition: formIsDirty,
+  });
+
+  // ...
+}
+```
+
+````
+
+### Custom UI
+
+```tsx
+import { useBlocker } from '@tanstack/react-router'
+
+function MyComponent() {
+  const [formIsDirty, setFormIsDirty] = useState(false)
+
+  const { proceed, reset, status } = useBlocker({
+    condition: formIsDirty,
+  })
+
+  // ...
+
+  return (
+    <>
+      {/* ... */}
+      {status === 'blocked' && (
+        <div>
+          <p>Are you sure you want to leave?</p>
+          <button onClick={proceed}>Yes</button>
+          <button onClick={reset}>No</button>
+        </div>
+      )}
+    </>
+}
+```
+
+```
+
+```
+````
