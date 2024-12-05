@@ -25,5 +25,8 @@
   },
   "databases": {
     "title": "Databases"
+  },
+  "observability": {
+    "title": "Observability"
   }
 }
