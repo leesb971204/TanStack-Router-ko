@@ -1,0 +1,36 @@
+---
+id: ssr
+title: SSR
+---
+
+## SSR
+
+서버 사이드 렌더링(SSR)은 애플리케이션을 서버에서 렌더링하고 렌더링된 HTML을 클라이언트에 전송하거나 스트리밍하는 과정입니다. 이는 애플리케이션의 성능을 개선하고 SEO를 향상시키는 데 유용하며, 사용자가 애플리케이션의 내용을 더 빠르게 볼 수 있도록 하고 검색 엔진이 애플리케이션을 더 쉽게 크롤링할 수 있게 합니다.
+
+## SSR Basics
+
+TanStack Start는 기본적으로 서버 사이드 렌더링을 지원합니다. 서버 사이드 렌더링을 활성화하려면 프로젝트에 `app/ssr.tsx` 파일을 생성하세요:
+
+```tsx
+// app/ssr.tsx
+
+import {
+  createStartHandler,
+  defaultStreamHandler,
+} from "@tanstack/start/server";
+import { getRouterManifest } from "@tanstack/start/router-manifest";
+
+import { createRouter } from "./router";
+
+export default createStartHandler({
+  createRouter,
+  getRouterManifest,
+})(defaultStreamHandler);
+```
+
+이 파일은 서버 사이드 렌더링 핸들러를 생성하는 함수를 내보냅니다. 핸들러는 `@tanstack/start/server`의 `createStartHandler` 함수를 사용하여 생성되며, 이 함수는 다음 속성을 가진 객체를 인수로 받습니다:
+
+- `createRouter`: 애플리케이션용 라우터를 생성하는 함수입니다. 이 함수는 호출될 때마다 새 라우터 인스턴스를 반환해야 합니다.
+- `getRouterManifest`: 애플리케이션의 모든 라우트에 대한 매니페스트를 반환하는 함수입니다.
+
+이 핸들러는 `@tanstack/start/server`의 `defaultStreamHandler` 함수와 함께 호출됩니다. 이 함수는 응답을 클라이언트로 스트리밍하는 역할을 합니다.
