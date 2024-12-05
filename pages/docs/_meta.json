@@ -4,5 +4,8 @@
   },
   "guide": {
     "title": "Guide"
+  },
+  "start": {
+    "title": "Start"
   }
 }

@@ -1,0 +1,112 @@
+---
+id: overview
+title: TanStack Start Overview
+---
+
+## TanStack Start Overview
+
+TanStack Start는 TanStack Router가 지원하는 풀스택 React 프레임워크입니다. TanStack Router, Vinxi, Vite로 구동되는 풀 문서 SSR, 스트리밍, 서버 함수, 번들링 등 다양한 기능을 제공합니다. 여러분이 좋아하는 호스팅 서비스에 배포할 준비가 되어 있습니다!
+
+## Router or Start?
+
+TanStack Router는 React 애플리케이션을 위한 강력하고 타입 안전한, 풀 기능의 라우팅 시스템입니다. 이는 복잡한 풀스택 라우팅 요구 사항을 손쉽게 처리할 수 있도록 설계되었습니다. TanStack Start는 Router의 타입 시스템을 기반으로 타입 안전한 풀스택 API를 제공하여 빠른 개발을 지원합니다.
+
+TanStack Router로 얻을 수 있는 것:
+
+- 100% 추론된 TypeScript 지원
+- 타입 안전한 네비게이션
+- 중첩 라우팅 및 레이아웃 라우트
+- 내장된 라우트 로더(SWR 캐싱 포함)
+- 클라이언트 측 데이터 캐시(예: TanStack Query, SWR 등)용 설계
+- 자동 라우트 프리패칭
+- 비동기 라우트 요소 및 오류 경계
+- 파일 기반 라우트 생성
+- 타입 안전한 JSON 우선 검색 파라미터 상태 관리 API
+- 경로 및 검색 파라미터 스키마 검증
+- 검색 파라미터 네비게이션 API
+- 사용자 정의 검색 파라미터 파서/직렬화 지원
+- 검색 파라미터 미들웨어
+- 라우트 매칭/로딩 미들웨어
+
+TanStack Start로 얻을 수 있는 것:
+
+- 풀 문서 SSR
+- 스트리밍
+- 서버 함수 / RPC
+- 번들링
+- 배포
+- 풀스택 타입 안전성
+
+**요약하자면, 클라이언트 측 라우팅에는 TanStack Router를, 풀스택 라우팅에는 TanStack Start를 사용하세요.**
+
+## How does it work?
+
+TanStack Start는 애플리케이션을 번들하고 배포하기 위해 **Vinxi**라는 도구를 사용합니다. 사실, 이것은 Solid Start를 구동하는 동일한 도구입니다! Vinxi를 사용하면 이전에 할 수 없었던 몇 가지 작업을 할 수 있습니다:
+
+- SSR, 스트리밍 및 하이드레이션을 위한 통합 API 제공
+- 서버 전용 코드를 클라이언트 측 코드에서 추출(예: 서버 함수)
+- 애플리케이션을 번들링하여 모든 호스팅 서비스에 배포 가능하게 만듭니다
+
+## When should I use it?
+
+TanStack Start는 다음 요구 사항을 가진 풀스택 React 애플리케이션을 구축하려는 경우에 완벽합니다:
+
+- 풀 문서 SSR & 하이드레이션
+- 스트리밍
+- 서버 함수 / RPC
+- 풀스택 타입 안전성
+- 강력한 라우팅
+- 풍부한 클라이언트 측 상호작용
+
+## When might I not want to use it?
+
+TanStack Start는 다음과 같은 경우에는 적합하지 않습니다:
+
+- 사이트가 100% 정적일 경우
+- 목표가 JS가 전혀 없거나 최소한의 클라이언트 측 상호작용만 있는 서버 렌더링 사이트일 경우
+- React-Server-Component를 우선하는 프레임워크를 찾고 있을 경우 (저희는 곧 자체적으로 React-Server-Component를 지원할 예정입니다!)
+
+## How is TanStack Start funded?
+
+TanStack은 파트너와 긴밀히 협력하여 최고의 개발자 경험을 제공하고, 또한 어디서든 잘 작동하고 업계 전문가들이 검증한 솔루션을 제공합니다. 각 파트너는 TanStack 생태계에서 독특한 역할을 합니다:
+
+- **Vercel**
+    <a href="https://vercel.com?utm_source=tanstack" alt="Vercel Logo">
+  <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/vercel-dark.svg" style="height: 40px;">
+<source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/vercel-light.svg" style="height: 40px;">
+<img alt="Convex logo" src="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/vercel-light.svg" style="height: 40px;">
+</picture>
+</a>
+웹 애플리케이션 배포를 위한 빠르고 안전하며 신뢰할 수 있는 환경을 제공하는 선도적인 호스팅 플랫폼입니다. TanStack Start 애플리케이션이 Vercel 플랫폼에 원활하게 배포될 수 있도록 협력하며, 성능, 보안, 신뢰성에 관한 최선의 실천을 구현합니다.
+- **Clerk**
+    <a href="https://go.clerk.com/wOwHtuJ" alt="Clerk Logo">
+  <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/clerk-logo-dark.svg" style="height: 40px;">
+<source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/clerk-logo-light.svg" style="height: 40px;">
+<img alt="Convex logo" src="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/clerk-logo-light.svg" style="height: 40px;">
+</picture>
+</a>
+현대적인 웹 애플리케이션을 위한 최고의 인증 경험을 제공합니다. Clerk는 TanStack Start 사용자에게 인증을 위한 1등급 통합 솔루션을 제공하며, 최신 인증 최선의 실천에 맞춰 TanStack 팀과 밀접하게 협력하고 있습니다.
+- **Convex**
+    <a href="https://convex.dev?utm_source=tanstack" alt="Convex Logo">
+  <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/convex-white.svg" style="height: 40px;">
+<source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/convex-color.svg" style="height: 40px;">
+<img alt="Convex logo" src="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/convex-color.svg" style="height: 40px;">
+</picture>
+</a>
+TanStack Start와 원활하게 통합되는 서버리스 데이터베이스 플랫폼입니다. Convex는 애플리케이션 데이터를 관리하는 프로세스를 간소화하며, 실시간, 확장 가능하고 트랜잭션 가능한 데이터 백엔드를 제공합니다. Convex는 TanStack 팀과 밀접하게 협력하여 최신 데이터베이스 최선의 실천에 맞는 API를 제공합니다.
+- **Sentry**
+    <a href="https://sentry.io?utm_source=tanstack" alt='Sentry Logo'>
+  <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/sentry-wordmark-light.svg" style="height: 60px;">
+<source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/sentry-wordmark-dark.svg" style="height: 60px;">
+<img alt="Convex logo" src="https://raw.githubusercontent.com/tanstack/tanstack.com/main/app/images/sentry-wordmark-light.svg" style="height: 60px;">
+</picture>
+</a>
+강력하고 완전한 기능을 갖춘 관찰 가능성 플랫폼으로, TanStack Start와 원활하게 통합됩니다. Sentry는 개발자가 실시간으로 충돌을 모니터링하고 수정할 수 있도록 도와주며, 애플리케이션 성능 및 오류 추적에 대한 인사이트를 제공합니다. Sentry는 TanStack 팀과 협력하여 최신 관찰 가능성 최선의 실천에 맞는 API를 제공합니다.
+
+## Ready to get started?
+
+다음 페이지로 이동하여 TanStack Start를 설치하고 첫 번째 앱을 만드는 방법을 배우세요!
