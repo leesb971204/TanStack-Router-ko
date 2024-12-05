@@ -1,0 +1,83 @@
+---
+title: Static Route Data
+---
+
+## Static Route Data
+
+경로를 생성할 때, 경로 옵션에 `staticData` 속성을 선택적으로 지정할 수 있습니다. 이 객체에는 경로를 생성할 때 동기적으로 사용할 수 있는 모든 데이터를 포함할 수 있습니다.
+
+이 데이터를 경로 자체에서 접근할 수 있을 뿐만 아니라, `match.staticData` 속성에서 매칭된 경로에서도 접근할 수 있습니다.
+
+## Example
+
+- `posts.tsx`
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts")({
+  staticData: {
+    customData: "Hello!",
+  },
+});
+```
+
+그런 다음 이 데이터를 경로에 접근할 수 있는 곳이라면 어디서든 접근할 수 있습니다. 예를 들어, 경로로 다시 매핑할 수 있는 매칭에서도 접근 가능합니다.
+
+- `__root.tsx`
+
+```tsx
+import { createRootRoute } from "@tanstack/react-router";
+
+export const Route = createRootRoute({
+  component: () => {
+    const matches = useMatches();
+
+    return (
+      <div>
+        {matches.map((match) => {
+          return <div key={match.id}>{match.staticData.customData}</div>;
+        })}
+      </div>
+    );
+  },
+});
+```
+
+## Enforcing Static Data
+
+경로에 정적 데이터가 반드시 있어야 한다면, 선언 병합을 사용하여 경로의 정적 옵션에 타입을 추가할 수 있습니다:
+
+```tsx
+declare module "@tanstack/react-router" {
+  interface StaticDataRouteOption {
+    customData: string;
+  }
+}
+```
+
+이제 `customData` 속성 없이 경로를 생성하려고 하면 타입 오류가 발생합니다:
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts")({
+  staticData: {
+    // Property 'customData' is missing in type '{ customData: number; }' but required in type 'StaticDataRouteOption'.ts(2741)
+  },
+});
+```
+
+## Optional Static Data
+
+정적 데이터를 선택적으로 만들고 싶다면, 속성에 `?`를 추가하면 됩니다:
+
+```tsx
+declare module "@tanstack/react-router" {
+  interface StaticDataRouteOption {
+    customData?: string;
+  }
+}
+```
+
+`StaticDataRouteOption`에 필수 속성이 하나라도 있다면, 객체를 전달해야 합니다.

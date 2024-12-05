@@ -82,5 +82,8 @@
   },
   "scroll-restoration": {
     "title": "Scroll Restoration"
+  },
+  "static-route-data": {
+    "title": "Static Route Data"
   }
 }
