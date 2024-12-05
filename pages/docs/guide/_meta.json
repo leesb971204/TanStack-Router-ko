@@ -88,5 +88,8 @@
   },
   "ssr": {
     "title": "SSR"
+  },
+  "render-optimizations": {
+    "title": "Render Optimizations"
   }
 }

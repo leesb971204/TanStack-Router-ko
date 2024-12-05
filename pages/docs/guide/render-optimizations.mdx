@@ -1,0 +1,90 @@
+---
+title: Render Optimizations
+---
+
+## Render Optimizations
+
+TanStack Router는 컴포넌트가 필요할 때만 다시 렌더링되도록 보장하기 위한 여러 최적화를 포함하고 있습니다. 이러한 최적화는 다음을 포함합니다:
+
+## structural sharing
+
+TanStack Router는 "구조적 공유"라는 기법을 사용하여 재렌더링 사이에서 가능한 한 많은 참조를 유지합니다. 이는 URL에 저장된 상태(예: 검색 매개변수)에서 특히 유용합니다.
+
+예를 들어, `foo`와 `bar`라는 두 개의 검색 매개변수가 있는 `details` 경로를 다음과 같이 접근한다고 가정해 봅니다:
+
+```tsx
+const search = Route.useSearch();
+```
+
+`/details?foo=f1&bar=b1`에서 `/details?foo=f1&bar=b2`로 이동할 때 `bar`만 변경되면, `search.foo`는 참조적으로 안정적이며 오직 `search.bar`만 교체됩니다.
+
+## fine-grained selectors
+
+`useRouterState`, `useSearch`와 같은 다양한 훅을 사용하여 라우터 상태에 접근하고 구독할 수 있습니다. 특정 컴포넌트가 라우터 상태의 특정 하위 집합, 예를 들어 검색 매개변수의 일부가 변경될 때만 다시 렌더링되기를 원한다면, `select` 속성을 사용하여 부분 구독을 할 수 있습니다.
+
+```tsx
+// `bar`가 변경될 때 컴포넌트는 다시 렌더링되지 않습니다.
+const foo = Route.useSearch({ select: ({ foo }) => foo });
+```
+
+### structural sharing with fine-grained selectors
+
+`select` 함수는 라우터 상태에서 다양한 계산을 수행할 수 있으며, 객체와 같은 다양한 유형의 값을 반환할 수 있습니다. 예를 들어:
+
+```tsx
+const result = Route.useSearch({
+  select: (search) => {
+    return {
+      foo: search.foo,
+      hello: `hello ${search.foo}`,
+    };
+  },
+});
+```
+
+이렇게 하면 동작하지만, `select`가 호출될 때마다 새로운 객체를 반환하게 되어 컴포넌트가 매번 다시 렌더링됩니다.
+
+위에서 설명한 "구조적 공유"를 사용하여 이 문제를 피할 수 있습니다. 기본적으로 구조적 공유는 이전 버전과의 호환성을 유지하기 위해 꺼져 있지만, v2에서는 변경될 수 있습니다.
+
+세분화된 선택자에 대해 구조적 공유를 활성화하려면 두 가지 방법이 있습니다:
+
+#### Enable it by default in the router options:
+
+```tsx
+const router = createRouter({
+  routeTree,
+  defaultStructuralSharing: true,
+});
+```
+
+#### Enable it per hook usage as shown here:
+
+```tsx
+const result = Route.useSearch({
+  select: (search) => {
+    return {
+      foo: search.foo,
+      hello: `hello ${search.foo}`,
+    };
+  },
+  structuralSharing: true,
+});
+```
+
+> [!IMPORTANT]
+> 구조적 공유는 JSON 호환 데이터에서만 작동합니다. 이는 구조적 공유가 활성화된 상태에서는 클래스 인스턴스와 같은 항목을 `select`로 반환할 수 없다는 것을 의미합니다.
+
+TanStack Router의 타입 안전성 디자인에 맞게, TypeScript는 다음과 같은 코드를 시도하면 오류를 발생시킵니다:
+
+```tsx
+const result = Route.useSearch({
+  select: (search) => {
+    return {
+      date: new Date(),
+    };
+  },
+  structuralSharing: true,
+});
+```
+
+라우터 옵션에서 구조적 공유가 기본값으로 활성화되어 있으면, `structuralSharing: false`로 설정하여 이 오류를 방지할 수 있습니다.
