@@ -70,5 +70,8 @@
   },
   "linkComponent": {
     "title": "Link"
+  },
+  "matchRouteComponent": {
+    "title": "matchRoute"
   }
 }

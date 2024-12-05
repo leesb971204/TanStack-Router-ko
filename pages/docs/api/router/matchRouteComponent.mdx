@@ -1,0 +1,43 @@
+---
+id: matchRouteComponent
+title: MatchRoute component
+---
+
+## MatchRoute component
+
+`MatchRoute` 컴포넌트는 `useMatchRoute` 훅의 컴포넌트 버전입니다. 동일한 옵션을 받으며, 조건부 렌더링을 지원하기 위한 추가 속성을 제공합니다.
+
+## MatchRoute props
+
+`MatchRoute` 컴포넌트는 `useMatchRoute` 훅과 동일한 옵션을 받으며, 조건부 렌더링을 지원하는 추가 속성을 포함합니다.
+
+### `...props` prop
+
+- **타입**: [`UseMatchRouteOptions`](./UseMatchRouteOptionsType.md)
+
+### `children` prop
+
+- **선택 사항**
+- **타입**:
+  - `React.ReactNode`: 매칭된 라우트가 있을 때 렌더링될 컴포넌트.
+  - `((params: TParams | false) => React.ReactNode)`: 매칭된 라우트의 `params` 또는 매칭되지 않을 경우 `false`를 인수로 호출되는 함수. 항상 렌더링이 필요하지만, 라우트 매칭 여부에 따라 다른 속성을 렌더링해야 하는 컴포넌트에 유용합니다.
+
+## MatchRoute returns
+
+`children` 속성이나 `children` 함수의 반환 값을 반환합니다.
+
+## Examples
+
+```tsx
+import { MatchRoute } from "@tanstack/react-router";
+
+function Component() {
+  return (
+    <div>
+      <MatchRoute to="/posts/$postId" params={{ postId: "123" }} pending>
+        {(match) => <Spinner show={!!match} wait="delay-50" />}
+      </MatchRoute>
+    </div>
+  );
+}
+```
