@@ -1,0 +1,233 @@
+---
+id: ssr
+title: SSR
+---
+
+## SSR
+
+서버 사이드 렌더링(SSR)은 서버에서 컴포넌트를 렌더링하고 HTML 마크업을 클라이언트로 전송하는 과정입니다. 그 후 클라이언트는 해당 마크업을 완전한 상호작용이 가능한 컴포넌트로 하이드레이트(hydrate)합니다.
+
+보통 고려해야 할 두 가지 유형의 SSR이 있습니다:
+
+- 비스트리밍 SSR
+  - 전체 페이지가 서버에서 렌더링되어 클라이언트로 하나의 HTML 요청으로 전송되며, 애플리케이션이 클라이언트에서 하이드레이트할 수 있는 직렬화된 데이터도 포함됩니다.
+- 스트리밍 SSR
+  - 페이지의 중요한 첫 번째 페인트가 서버에서 렌더링되어 클라이언트로 하나의 HTML 요청으로 전송되며, 애플리케이션이 클라이언트에서 하이드레이트할 수 있는 직렬화된 데이터도 포함됩니다.
+  - 그 후 나머지 페이지는 서버에서 렌더링되는 대로 클라이언트로 스트리밍됩니다.
+
+이 가이드는 TanStack Router로 두 가지 유형의 SSR을 구현하는 방법을 설명합니다!
+
+## Non-Streaming SSR
+
+비스트리밍 서버 사이드 렌더링은 서버에서 애플리케이션 페이지의 마크업을 렌더링하고 완성된 HTML 마크업(및 데이터)을 클라이언트로 전송하는 고전적인 과정입니다. 그런 다음 클라이언트는 마크업을 완전한 상호작용이 가능한 애플리케이션으로 다시 하이드레이트합니다.
+
+비스트리밍 SSR을 TanStack Router로 구현하려면 다음과 같은 유틸리티가 필요합니다:
+
+- `StartServer` from `@tanstack/start/server`
+  - 예: `<StartServer router={router} />`
+  - 이 컴포넌트를 서버 엔트리에서 렌더링하면 애플리케이션을 렌더링하고 애플리케이션 수준에서 하이드레이트/디하이드레이트를 자동으로 처리하며 `Router`의 `Wrap` 컴포넌트 옵션을 구현합니다.
+- `StartClient` from `@tanstack/start`
+  - 예: `<StartClient router={router} />`
+  - 이 컴포넌트를 클라이언트 엔트리에서 렌더링하면 애플리케이션을 렌더링하고 `Router`의 `Wrap` 컴포넌트 옵션을 자동으로 구현합니다.
+
+### Router Creation
+
+라우터는 서버와 클라이언트 모두에서 존재하므로, 두 환경에서 일관되게 라우터를 생성하는 것이 중요합니다. 이를 가장 쉽게 구현하는 방법은 서버와 클라이언트 엔트리 파일 모두에서 가져와 호출할 수 있는 `createRouter` 함수를 공유 파일에서 노출하는 것입니다.
+
+- `src/router.tsx`
+
+```tsx
+import * as React from "react";
+import { createRouter as createTanstackRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+
+export function createRouter() {
+  return createTanstackRouter({ routeTree });
+}
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: ReturnType<typeof createRouter>;
+  }
+}
+```
+
+이제 이 함수를 서버와 클라이언트 엔트리 파일에서 모두 가져와 라우터를 생성할 수 있습니다.
+
+- `src/entry-server.tsx`
+
+```tsx
+import { createRouter } from "./router";
+
+export async function render(req, res) {
+  const router = createRouter();
+}
+```
+
+- `src/entry-client.tsx`
+
+```tsx
+import { createRouter } from "./router";
+
+const router = createRouter();
+```
+
+### Server History
+
+클라이언트에서는 기본적으로 `createBrowserHistory` 인스턴스를 사용하지만, 서버에서는 대신 `createMemoryHistory` 인스턴스를 사용하는 것이 좋습니다. 이는 `createBrowserHistory`가 `window` 객체를 사용하기 때문인데, 서버에는 `window` 객체가 존재하지 않기 때문입니다.
+
+> 🧠 서버에서 렌더링되는 URL로 메모리 히스토리를 초기화하는 것을 잊지 마세요.
+
+- `src/entry-server.tsx`
+
+```tsx
+const router = createRouter();
+
+const memoryHistory = createMemoryHistory({
+  initialEntries: [opts.url],
+});
+```
+
+메모리 히스토리 인스턴스를 생성한 후, 이를 사용하도록 라우터를 업데이트할 수 있습니다.
+
+- `src/entry-server.tsx`
+
+```tsx
+router.update({
+  history: memoryHistory,
+});
+```
+
+### Loading Critical Router Data on the Server
+
+서버에서 애플리케이션을 렌더링하려면, 라우터가 해당 경로의 `loader` 함수들을 실행하여 중요한 데이터를 로드했는지 확인해야 합니다. 이를 위해 애플리케이션을 렌더링하기 전에 `await router.load()`를 호출할 수 있습니다. 이 메서드는 이 URL에 대해 매칭된 모든 경로의 `loader` 함수들이 병렬로 실행될 때까지 기다립니다.
+
+- `src/entry-server.tsx`
+
+```tsx
+await router.load();
+```
+
+## Automatic Loader Dehydration/Hydration
+
+라우터가 가져온 해결된 로더 데이터는 이 가이드에서 설명한 표준 SSR 단계를 완료하는 한 TanStack Router에 의해 자동으로 디하이드레이트 및 하이드레이트됩니다.
+
+⚠️ 만약 지연된 데이터 스트리밍을 사용 중이라면, 이 가이드 끝부분에 있는 [SSR 스트리밍 및 스트림 변환](#streaming-ssr) 패턴을 구현했는지 확인해야 합니다.
+
+데이터 로딩 및 데이터 스트리밍에 대한 더 자세한 정보는 [데이터 로딩](./data-loading.md)과 [데이터 스트리밍](../data-streaming) 가이드를 참조하세요.
+
+### Rendering the Application on the Server
+
+현재 URL에 대해 중요한 데이터를 모두 로드한 라우터 인스턴스를 가지고 나면, 서버에서 애플리케이션을 렌더링할 수 있습니다:
+
+```tsx
+// src/entry-server.tsx
+
+const html = ReactDOMServer.renderToString(<StartServer router={router} />);
+```
+
+### Handling Not Found Errors
+
+`router`에는 렌더링 중에 찾을 수 없는 오류가 발생했는지 확인하는 `hasNotFoundMatch` 메서드가 있습니다. 이 메서드를 사용하여 찾을 수 없는 오류가 발생했는지 확인하고 응답 상태 코드를 적절히 설정할 수 있습니다:
+
+```tsx
+// src/entry-server.tsx
+if (router.hasNotFoundMatch()) statusCode = 404;
+```
+
+### All Together Now!
+
+위에서 논의된 모든 개념을 사용한 서버 엔트리 파일의 전체 예시입니다.
+
+```tsx
+// src/entry-server.tsx
+import * as React from "react";
+import ReactDOMServer from "react-dom/server";
+import { createMemoryHistory } from "@tanstack/react-router";
+import { StartServer } from "@tanstack/start/server";
+import { createRouter } from "./router";
+
+export async function render(url, response) {
+  const router = createRouter();
+
+  const memoryHistory = createMemoryHistory({
+    initialEntries: [url],
+  });
+
+  router.update({
+    history: memoryHistory,
+  });
+
+  await router.load();
+
+  const appHtml = ReactDOMServer.renderToString(
+    <StartServer router={router} />
+  );
+
+  response.statusCode = router.hasNotFoundMatch() ? 404 : 200;
+  response.setHeader("Content-Type", "text/html");
+  response.end(`<!DOCTYPE html>${appHtml}`);
+}
+```
+
+## Rendering the Application on the Client
+
+클라이언트에서는 작업이 훨씬 간단합니다.
+
+- 라우터 인스턴스를 생성
+- `<StartClient />` 컴포넌트를 사용하여 애플리케이션을 렌더링
+
+```tsx
+// src/entry-client.tsx
+
+import * as React from "react";
+import ReactDOM from "react-dom/client";
+
+import { StartClient } from "@tanstack/start";
+import { createRouter } from "./router";
+
+const router = createRouter();
+
+ReactDOM.hydrateRoot(document, <StartClient router={router} />);
+```
+
+이 설정으로 애플리케이션은 서버에서 렌더링되고 클라이언트에서 하이드레이트됩니다!
+
+## Streaming SSR
+
+스트리밍 SSR은 가장 현대적인 SSR 유형으로, 서버에서 렌더링되는 대로 HTML 마크업을 클라이언트로 지속적으로 그리고 점진적으로 전송하는 과정입니다. 이는 전통적인 SSR과는 개념적으로 약간 다릅니다. 왜냐하면 중요한 첫 번째 페인트를 하이드레이트하고 마크업과 데이터는 동일한 요청에서 렌더링 후 클라이언트로 스트리밍될 수 있기 때문입니다.
+
+이 패턴은 데이터 페칭 요구가 느리거나 고지연인 페이지에 유용할 수 있습니다. 예를 들어, 타사 API에서 데이터를 가져와야 하는 페이지가 있다면, 중요한 초기 마크업과 데이터를 클라이언트로 스트리밍하고 그 후 타사 데이터를 스트리밍할 수 있습니다.
+
+**이 스트리밍 패턴은 `renderToPipeableStream`을 사용하는 한 자동으로 처리됩니다.**
+
+## Streaming Dehydration/Hydration
+
+스트리밍 디하이드레이트/하이드레이트는 마크업을 넘어서는 고급 패턴으로, 서버에서 클라이언트로 지원 데이터를 디하이드레이트하고 스트리밍하며, 이를 도착 시 하이드레이트하는 과정입니다. 이는 초기 마크업을 렌더링하는 데 사용된 기본 데이터를 추가적으로 사용/관리할 필요가 있는 애플리케이션에 유용합니다.
+
+## Data Transformers
+
+SSR을 사용할 때, 서버와 클라이언트 간에 데이터를 전송하려면 데이터가 직렬화되어야 합니다. 기본적으로 TanStack Router는 `JSON.stringify/JSON.parse` 외에도 몇 가지 기본 유형을 지원하는 매우 가벼운 직렬화기를 사용하여 데이터를 직렬화합니다.
+
+기본적으로 지원되는 유형은 다음과 같습니다:
+
+- `Date`
+- `undefined`
+
+기본적으로 지원되어야 하는 다른 유형이 있다고 생각되면, TanStack Router 레포지토리에서 이슈를 열어주세요.
+
+`Map`, `Set`, `BigInt` 등의 복잡한 데이터 유형을 사용하는 경우, 데이터의 정확한 타입 정의와 직렬화/역직렬화가 제대로 이루어지도록 하기 위해 사용자 정의 직렬화기를 사용해야 할 수 있습니다. 이때 `createRouter`의 `transformer` 옵션을 사용하면 됩니다.
+
+데이터 변환기 API는 네트워크를 통한 통신 시 이러한 데이터 유형을 투명하게 사용할 수 있도록 사용자 정의 직렬화기를 사용할 수 있게 해줍니다.
+
+다음 예시는 [SuperJSON](https://github.com/blitz-js/superjson)을 사용하는 예시를 보여줍니다. 그러나 [`Router Transformer`](../api/router/RouterOptionsType.md#transformer-property)를 구현한 다른 라이브러리도 사용할 수 있습니다.
+
+```tsx
+import { SuperJSON } from "superjson";
+
+const router = createRouter({
+  transformer: SuperJSON,
+});
+```
+
+이렇게 하면 TanStack Router는 이제 네트워크를 통해 데이터를 직렬화할 때 SuperJSON을 적절히 사용합니다.
