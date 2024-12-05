@@ -1,0 +1,50 @@
+---
+id: retainSearchParams
+title: Search middleware to retain search params
+---
+
+## Search middleware to retain search params
+
+`retainSearchParams`는 검색 매개변수를 유지하도록 돕는 검색 미들웨어입니다.
+
+## retainSearchParams props
+
+`retainSearchParams`는 `true` 또는 유지하려는 검색 매개변수 키의 리스트를 받을 수 있습니다.  
+`true`가 전달되면, 모든 검색 매개변수가 유지됩니다.
+
+## Examples
+
+```tsx
+import { z } from "zod";
+import { createRootRoute, retainSearchParams } from "@tanstack/react-router";
+import { zodValidator } from "@tanstack/zod-adapter";
+
+const searchSchema = z.object({
+  rootValue: z.string().optional(),
+});
+
+export const Route = createRootRoute({
+  validateSearch: zodValidator(searchSchema),
+  search: {
+    middlewares: [retainSearchParams(["rootValue"])],
+  },
+});
+```
+
+```tsx
+import { z } from "zod";
+import { createFileRoute, retainSearchParams } from "@tanstack/react-router";
+import { zodValidator } from "@tanstack/zod-adapter";
+
+const searchSchema = z.object({
+  one: z.string().optional(),
+  two: z.string().optional(),
+});
+
+export const Route = createFileRoute("/hello")({
+  validateSearch: zodValidator(searchSchema),
+  search: {
+    middlewares: [retainSearchParams(true)],
+  },
+});
+```
