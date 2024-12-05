@@ -1,0 +1,58 @@
+---
+id: catchBoundaryComponent
+title: CatchBoundary component
+---
+
+## CatchBoundary component
+
+`CatchBoundary` 컴포넌트는 자식 컴포넌트에서 발생한 오류를 포착하고, 오류 컴포넌트를 렌더링하며 선택적으로 `onCatch` 콜백을 호출할 수 있는 컴포넌트입니다. 또한, 키가 변경될 때 컴포넌트의 상태를 선언적으로 재설정할 수 있는 `getResetKey` 함수를 받습니다.
+
+## CatchBoundary props
+
+`CatchBoundary` 컴포넌트는 다음 속성을 받습니다:
+
+### `props.getResetKey` prop
+
+- **타입**: `() => string`
+- **필수 항목**
+- 키가 변경될 때 컴포넌트의 상태를 재설정하는 데 사용할 문자열을 반환하는 함수.
+
+### `props.children` prop
+
+- **타입**: `React.ReactNode`
+- **필수 항목**
+- 오류가 없을 때 렌더링할 자식 컴포넌트.
+
+### `props.errorComponent` prop
+
+- **타입**: `React.ReactNode`
+- **선택 사항** - [`기본값: ErrorComponent`](./errorComponentComponent.md)
+- 오류가 발생했을 때 렌더링할 컴포넌트.
+
+### `props.onCatch` prop
+
+- **타입**: `(error: any) => void`
+- **선택 사항**
+- 자식 컴포넌트에서 발생한 오류와 함께 호출되는 콜백.
+
+## CatchBoundary returns
+
+- 오류가 없을 경우 컴포넌트의 자식을 반환합니다.
+- 오류가 있을 경우 `errorComponent`를 반환합니다.
+
+## Examples
+
+```tsx
+import { CatchBoundary } from "@tanstack/react-router";
+
+function Component() {
+  return (
+    <CatchBoundary
+      getResetKey={() => "reset"}
+      onCatch={(error) => console.error(error)}
+    >
+      <div>My Component</div>
+    </CatchBoundary>
+  );
+}
+```

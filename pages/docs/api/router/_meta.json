@@ -55,5 +55,8 @@
   },
   "awaitComponent": {
     "title": "awaitComponent"
+  },
+  "catchBoundaryComponent": {
+    "title": "catchBoundaryComponent"
   }
 }
