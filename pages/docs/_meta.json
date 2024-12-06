@@ -10,5 +10,8 @@
   },
   "api": {
     "title": "API"
+  },
+  "eslint": {
+    "title": "ESLint"
   }
 }

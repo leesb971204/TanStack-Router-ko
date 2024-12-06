@@ -1,0 +1,59 @@
+---
+id: create-route-property-order
+title: Ensure correct order of inference sensitive properties for createRoute functions
+---
+
+## Ensure correct order of inference sensitive properties for createRoute functions
+
+다음 함수에 대해 전달된 객체의 속성 순서는 타입 추론 때문에 중요합니다:
+
+- `createRoute`
+- `createFileRoute`
+- `createRootRoute`
+- `createRootRouteWithContext`
+
+올바른 속성 순서는 다음과 같습니다:
+
+1. `params`, `validateSearch`
+2. `loaderDeps`, `search.middlewares`
+3. `context`
+4. `beforeLoad`
+5. `loader`
+6. `onEnter`, `onStay`, `onLeave`, `meta`, `links`, `scripts`, `headers`
+
+이외의 속성은 타입 추론에 의존하지 않으므로 순서에 민감하지 않습니다.
+
+## Rule Details
+
+**잘못된** 코드 예:
+
+```tsx
+/* eslint "@tanstack/router/create-route-property-order": "warn" */
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/foo/bar/$id')({
+  loader: async ({context}) => {
+    await context.queryClient.ensureQueryData(getQueryOptions(context.hello)),
+  },
+  beforeLoad: () => ({hello: 'world'})
+})
+```
+
+**올바른** 코드 예:
+
+```tsx
+/* eslint "@tanstack/router/create-route-property-order": "warn" */
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/foo/bar/$id')({
+  beforeLoad: () => ({hello: 'world'}),
+  loader: async ({context}) => {
+    await context.queryClient.ensureQueryData(getQueryOptions(context.hello)),
+  }
+})
+```
+
+## Attributes
+
+- [x] ✅ Recommended
+- [x] 🔧 Fixable
