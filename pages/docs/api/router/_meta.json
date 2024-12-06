@@ -157,5 +157,8 @@
   },
   "NotFoundErrorType": {
     "title": "NotFoundError"
+  },
+  "ParsedLocationType": {
+    "title": "ParsedLocation"
   }
 }

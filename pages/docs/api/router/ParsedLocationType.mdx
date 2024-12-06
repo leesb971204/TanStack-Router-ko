@@ -1,0 +1,21 @@
+---
+id: ParsedLocationType
+title: ParsedLocation type
+---
+
+## ParsedLocation type
+
+`ParsedLocation` 타입은 TanStack Router에서 파싱된 위치를 나타냅니다. 이 타입은 현재 위치에 대한 경로명, 검색 매개변수, 해시, 위치 상태, 라우트 마스킹 정보 등 유용한 정보를 포함합니다.
+
+```tsx
+interface ParsedLocation {
+  href: string;
+  pathname: string;
+  search: TFullSearchSchema;
+  searchStr: string;
+  state: HistoryState;
+  hash: string;
+  maskedLocation?: ParsedLocation;
+  unmaskOnReload?: boolean;
+}
+```
