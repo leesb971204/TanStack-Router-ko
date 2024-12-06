@@ -1,0 +1,49 @@
+---
+id: useRouteContextHook
+title: useRouteContext hook
+---
+
+## useRouteContext hook
+
+`useRouteContext` 메서드는 현재 라우트의 컨텍스트를 반환하는 hook입니다. 이 hook은 컴포넌트에서 현재 라우트 컨텍스트에 접근할 때 유용합니다.
+
+## useRouteContext options
+
+`useRouteContext` hook은 `options` 객체를 허용합니다.
+
+### `opts.from` option
+
+- 타입: `string`
+- 필수
+- 라우트 컨텍스트를 매칭할 RouteID.
+
+### `opts.select` option
+
+- 타입: `(context: RouteContext) => TSelected`
+- 선택 사항
+- 제공될 경우, 이 함수는 라우트 컨텍스트 객체를 사용하여 호출되며, 반환 값은 `useRouteContext`에서 반환됩니다.
+
+## useRouteContext returns
+
+- 현재 라우트의 컨텍스트 또는 `select` 함수가 제공된 경우 `TSelected`.
+
+## Examples
+
+```tsx
+import { useRouteContext } from "@tanstack/react-router";
+
+function Component() {
+  const context = useRouteContext({ from: "/posts/$postId" });
+  //    ^ RouteContext
+
+  // OR
+
+  const selected = useRouteContext({
+    from: "/posts/$postId",
+    select: (context) => context.postId,
+  });
+  //    ^ string
+
+  // ...
+}
+```

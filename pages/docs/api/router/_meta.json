@@ -118,5 +118,8 @@
   },
   "useParamsHook": {
     "title": "useParams"
+  },
+  "useRouteContextHook": {
+    "title": "useRouteContext"
   }
 }
