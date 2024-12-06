@@ -217,5 +217,8 @@
   },
   "RouteApiClass": {
     "title": "RouteApi"
+  },
+  "RootRouteClass": {
+    "title": "RootRoute"
   }
 }

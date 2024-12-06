@@ -1,0 +1,60 @@
+---
+id: RootRouteClass
+title: RootRoute class
+---
+
+## RootRoute class
+
+> [!CAUTION]
+> 이 클래스는 더 이상 사용되지 않으며, TanStack Router의 다음 주요 버전에서 제거될 예정입니다.
+> 대신 [`createRootRoute`](./createRootRouteFunction.md) 함수를 사용하세요.
+
+`RootRoute` 클래스는 `Route` 클래스를 확장하며, 루트 라우트 인스턴스를 생성하는 데 사용됩니다. 생성된 루트 라우트 인스턴스는 라우트 트리를 생성하는 데 사용할 수 있습니다.
+
+## `RootRoute` constructor
+
+`RootRoute` 생성자는 객체를 유일한 인수로 받습니다.
+
+### Constructor options
+
+루트 라우트 인스턴스를 구성하는 데 사용할 옵션.
+
+- 타입:
+
+```tsx
+Omit<
+  RouteOptions,
+  | "path"
+  | "id"
+  | "getParentRoute"
+  | "caseSensitive"
+  | "parseParams"
+  | "stringifyParams"
+>;
+```
+
+- [`RouteOptions`](./RouteOptionsType.md)
+- 선택 사항
+
+## Constructor returns
+
+- 새로운 [`Route`](./RouteType.md) 인스턴스.
+
+## Examples
+
+```tsx
+import { RootRoute, createRouter, Outlet } from "@tanstack/react-router";
+
+const rootRoute = new RootRoute({
+  component: () => <Outlet />,
+  // ... root route options
+});
+
+const routeTree = rootRoute.addChildren([
+  // ... other routes
+]);
+
+const router = createRouter({
+  routeTree,
+});
+```
