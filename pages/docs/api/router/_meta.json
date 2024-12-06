@@ -136,5 +136,8 @@
   },
   "AsyncRouteComponentType": {
     "title": "AsyncRouteComponent"
+  },
+  "DeferredPromiseType": {
+    "title": "DeferredPromise"
   }
 }
