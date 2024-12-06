@@ -94,5 +94,8 @@
   },
   "useLoaderDataHook": {
     "title": "useLoaderData"
+  },
+  "useLoaderDepsHook": {
+    "title": "useLoaderDeps"
   }
 }
