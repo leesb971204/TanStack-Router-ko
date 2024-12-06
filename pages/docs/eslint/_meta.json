@@ -1,4 +1,7 @@
 {
+  "eslint-plugin-router": {
+    "title": "ESLint Plugin Router"
+  },
   "create-route-property-order": {
     "title": "Create Route Property Order"
   }

@@ -1,0 +1,106 @@
+---
+id: eslint-plugin-router
+title: ESLint Plugin Router
+---
+
+## ESLint Plugin Router
+
+TanStack Router는 자체 ESLint 플러그인을 제공합니다. 이 플러그인은 모범 사례를 적용하고 일반적인 실수를 방지하는 데 사용됩니다.
+
+## Installation
+
+플러그인은 별도의 패키지로 제공되며 설치가 필요합니다:
+
+```sh
+npm install -D @tanstack/eslint-plugin-router
+```
+
+또는
+
+```sh
+pnpm add -D @tanstack/eslint-plugin-router
+```
+
+또는
+
+```sh
+yarn add -D @tanstack/eslint-plugin-router
+```
+
+또는
+
+```sh
+bun add -D @tanstack/eslint-plugin-router
+```
+
+## Flat Config (`eslint.config.js`)
+
+ESLint 9.0의 릴리스는 Flat Config 형식을 사용하여 ESLint를 구성하는 새로운 방법을 도입했습니다. 이 형식은 기존 `.eslintrc` 형식보다 더 유연하며, ESLint를 더 세분화하여 구성할 수 있습니다. TanStack Router ESLint Plugin은 이 새로운 형식을 지원하며 플러그인의 모든 권장 규칙을 활성화할 수 있는 권장 구성을 제공합니다.
+
+### Recommended Flat Config setup
+
+플러그인의 모든 권장 규칙을 활성화하려면 다음 구성을 추가하세요:
+
+```js
+// eslint.config.js
+import pluginRouter from "@tanstack/eslint-plugin-router";
+
+export default [
+  ...pluginRouter.configs["flat/recommended"],
+  // 기타 구성...
+];
+```
+
+### Custom Flat Config setup
+
+또는, 플러그인을 로드하고 사용하려는 규칙만 구성할 수 있습니다:
+
+```js
+// eslint.config.js
+import pluginRouter from "@tanstack/eslint-plugin-router";
+
+export default [
+  {
+    plugins: {
+      "@tanstack/router": pluginRouter,
+    },
+    rules: {
+      "@tanstack/router/create-route-property-order": "error",
+    },
+  },
+  // 기타 구성...
+];
+```
+
+## Legacy Config (`.eslintrc`)
+
+ESLint 9.0 릴리스 이전에는 `.eslintrc` 파일을 사용하여 ESLint를 구성하는 것이 일반적이었습니다. TanStack Router ESLint Plugin은 여전히 이 구성 방법을 지원합니다.
+
+### Recommended Legacy Config setup
+
+플러그인의 모든 권장 규칙을 활성화하려면, `extends`에 `plugin:@tanstack/eslint-plugin-router/recommended`를 추가하세요:
+
+```json
+{
+  "extends": ["plugin:@tanstack/eslint-plugin-router/recommended"]
+}
+```
+
+### Custom Legacy Config setup
+
+또는, `@tanstack/eslint-plugin-router`를 플러그인 섹션에 추가하고 사용하려는 규칙을 구성하세요:
+
+```json
+{
+  "plugins": ["@tanstack/eslint-plugin-router"],
+  "rules": {
+    "@tanstack/router/create-route-property-order": "error"
+  }
+}
+```
+
+## Rules
+
+TanStack Router ESLint Plugin에서 사용할 수 있는 규칙은 다음과 같습니다:
+
+- [@tanstack/router/create-route-property-order](./create-route-property-order.md)
