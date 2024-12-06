@@ -1,0 +1,30 @@
+---
+id: RouteMaskType
+title: RouteMask type
+---
+
+## RouteMask type
+
+`RouteMask` 타입은 [`ToOptions`](./ToOptionsType.md) 타입을 확장하며, 라우트 마스크를 생성하는 데 필요한 추가 속성을 포함합니다.
+
+## RouteMask properties
+
+`RouteMask` 타입은 다음 속성을 가진 객체를 허용합니다:
+
+### `...ToOptions`
+
+- 타입: [`ToOptions`](./ToOptionsType.md)
+- 필수
+- 라우트 마스크를 구성하는 데 사용되는 옵션.
+
+### `options.routeTree`
+
+- 타입: `TRouteTree`
+- 필수
+- 이 라우트 마스크가 지원할 라우트 트리.
+
+### `options.unmaskOnReload`
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 페이지를 새로 고침할 때 라우트 마스크가 제거됩니다.

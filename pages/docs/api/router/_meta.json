@@ -172,5 +172,8 @@
   },
   "RouteApiType": {
     "title": "RouteApi"
+  },
+  "RouteMaskType": {
+    "title": "RouteMask"
   }
 }
