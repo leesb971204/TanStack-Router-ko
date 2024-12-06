@@ -1,0 +1,61 @@
+---
+id: RouterStateType
+title: RouterState ∆∆type
+---
+
+## RouterState type
+
+`RouterState` 타입은 라우터의 내부 상태 구조를 나타냅니다. 라우터의 내부 상태는 대기 중인 매치나 라우터가 로딩 상태에 있는지 등을 확인해야 할 때 유용합니다.
+
+```tsx
+type RouterState = {
+  status: "pending" | "idle";
+  isLoading: boolean;
+  isTransitioning: boolean;
+  matches: Array<RouteMatch>;
+  pendingMatches: Array<RouteMatch>;
+  location: ParsedLocation;
+  resolvedLocation: ParsedLocation;
+};
+```
+
+## RouterState properties
+
+`RouterState` 타입은 라우터 상태에서 사용할 수 있는 모든 속성을 포함합니다.
+
+### `status` property
+
+- 타입: `'pending' | 'idle'`
+- 라우터의 현재 상태를 나타냅니다.
+  - `pending`: 라우터가 현재 경로를 로드 중이거나 새로운 경로로 전환 중임을 의미합니다.
+  - `idle`: 라우터가 대기 상태임을 나타냅니다.
+
+### `isLoading` property
+
+- 타입: `boolean`
+- 라우터가 현재 경로를 로드 중이거나 경로 로드가 완료되기를 기다리는 중이라면 `true`.
+
+### `isTransitioning` property
+
+- 타입: `boolean`
+- 라우터가 현재 새로운 경로로 전환 중이라면 `true`.
+
+### `matches` property
+
+- 타입: [`Array<RouteMatch>`](./RouteMatchType.md)
+- 해결되었고 현재 활성 상태인 모든 라우트 매치의 배열.
+
+### `pendingMatches` property
+
+- 타입: [`Array<RouteMatch>`](./RouteMatchType.md)
+- 현재 대기 중인 모든 라우트 매치의 배열.
+
+### `location` property
+
+- 타입: [`ParsedLocation`](./ParsedLocationType.md)
+- 브라우저 히스토리에서 라우터가 파싱한 최신 위치. 이 위치는 아직 해결되거나 로드되지 않았을 수 있습니다.
+
+### `resolvedLocation` property
+
+- 타입: [`ParsedLocation`](./ParsedLocationType.md)
+- 라우터가 해결하고 로드한 위치.

@@ -190,5 +190,8 @@
   },
   "RouterOptionsType": {
     "title": "RouterOptions"
+  },
+  "RouterStateType": {
+    "title": "RouterState"
   }
 }
