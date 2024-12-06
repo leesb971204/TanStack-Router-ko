@@ -202,5 +202,8 @@
   },
   "UseMatchRouteOptionsType": {
     "title": "UseMatchRouteOptions"
+  },
+  "ViewTransitionOptionsType": {
+    "title": "ViewTransitionOptions"
   }
 }

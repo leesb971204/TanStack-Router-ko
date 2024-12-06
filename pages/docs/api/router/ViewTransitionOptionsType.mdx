@@ -1,0 +1,24 @@
+---
+id: ViewTransitionOptionsType
+title: ViewTransitionOptions type
+---
+
+## ViewTransitionOptions type
+
+`ViewTransitionOptions` 타입은 [viewTransition 타입](https://developer.chrome.com/docs/web-platform/view-transitions/same-document#view-transition-types)을 정의하는 데 사용됩니다.
+
+```tsx
+interface ViewTransitionOptions {
+  types: Array<string>;
+}
+```
+
+## ViewTransitionOptions properties
+
+`ViewTransitionOptions` 타입은 다음 속성을 가진 객체를 허용합니다:
+
+### `types` property
+
+- 타입: `Array<string>`
+- 필수
+- `document.startViewTransition({update, types})` 호출에 전달될 타입 배열.
