@@ -1,40 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# TanStack Router 한글 문서 번역
+
+TanStack Router v1 공식 문서 한글 번역 프로젝트입니다.by [@leesb971204](https://github.com/leesb971204)  
+문서 스타일링은 [@Ubinquitous](https://github.com/Ubinquitous)님의 [react-query-ko](https://github.com/Ubinquitous/react-query-ko)를 참고했습니다.
+
+## CONTRIBUTING
+
+문서 번역을 진행하며 직역된 문장이 어색하거나 어순이 맞지 않다거나,  
+번역하지 않아야 하는 단어를 번역한 경우가 있을 수 있습니다.
+
+언제든지 더욱 깔끔한 문서를 만드는 데 기여하고 싶으시다면,  
+커밋 컨벤션 또는 PR 컨벤션에 얽매이지 않고 자유롭게 기여하실 수 있습니다.
+
+
+## Made By
+
+<br />
+<table>
+  <tbody>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/leesb971204">
+          <img
+            alt="이수빈"
+            src="https://avatars.githubusercontent.com/leesb971204"
+            width="100"
+          />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">이수빈</td>
+    </tr>
+  </tbody>
+</table>
 
 ## Getting Started
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+[문서 확인하기](/docs/getting-started/overview/)
