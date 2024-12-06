@@ -1,0 +1,55 @@
+---
+id: NotFoundRouteClass
+title: NotFoundRoute class
+---
+
+## NotFoundRoute class
+
+> [!CAUTION]
+> 이 클래스는 더 이상 사용되지 않으며, TanStack Router의 다음 주요 버전에서 제거될 예정입니다.
+> 라우트 구성 시 제공되는 `notFoundComponent` 옵션을 대신 사용하세요.
+> 자세한 내용은 [Not Found Errors guide](../../guide/not-found-errors.md)를 참조하세요.
+
+`NotFoundRoute` 클래스는 `Route` 클래스를 확장하며, "Not Found" 라우트 인스턴스를 생성하는 데 사용됩니다. 생성된 "Not Found" 라우트 인스턴스는 `routerOptions.notFoundRoute` 옵션에 전달되어 라우트 트리의 모든 분기에 대해 기본 "Not Found/404" 라우트를 구성하는 데 사용할 수 있습니다.
+
+## Constructor options
+
+`NotFoundRoute` 생성자는 객체를 유일한 인수로 받습니다.
+
+- 타입:
+
+```tsx
+Omit<
+  RouteOptions,
+  | "path"
+  | "id"
+  | "getParentRoute"
+  | "caseSensitive"
+  | "parseParams"
+  | "stringifyParams"
+>;
+```
+
+- [RouteOptions](./RouteOptionsType.md)
+- 필수
+- "Not Found" 라우트 인스턴스를 구성하는 데 사용될 옵션.
+
+## Examples
+
+```tsx
+import { NotFoundRoute, createRouter } from "@tanstack/react-router";
+import { Route as rootRoute } from "./routes/__root";
+import { routeTree } from "./routeTree.gen";
+
+const notFoundRoute = new NotFoundRoute({
+  getParentRoute: () => rootRoute,
+  component: () => <div>Not found!!!</div>,
+});
+
+const router = createRouter({
+  routeTree,
+  notFoundRoute,
+});
+
+// ... other code
+```
