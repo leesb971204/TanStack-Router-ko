@@ -178,5 +178,8 @@
   },
   "RouteMatchType": {
     "title": "RouteMatch"
+  },
+  "RouteOptionsType": {
+    "title": "RouteOptions"
   }
 }

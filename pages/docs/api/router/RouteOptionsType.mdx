@@ -1,0 +1,131 @@
+---
+id: RouteOptionsType
+title: RouteOptions type
+---
+
+## RouteOptions type
+
+`RouteOptions` 타입은 라우트를 생성할 때 사용할 수 있는 옵션을 설명합니다.
+
+## RouteOptions properties
+
+`RouteOptions` 타입은 다음 속성을 가진 객체를 허용합니다:
+
+### `getParentRoute` method
+
+- 타입: `() => TParentRoute`
+- 필수
+- 생성 중인 라우트의 부모 라우트를 반환하는 함수입니다. 이는 자식 라우트 설정에 대한 전체 타입 안전성을 제공하고, 라우트 트리를 올바르게 구축하기 위해 필요합니다.
+
+### `path` property
+
+- 타입: `string`
+- 필수(라우트를 레이아웃 라우트로 구성하려면 `id`를 제공해야 함)
+- 라우트를 매칭하는 데 사용되는 경로 세그먼트입니다.
+
+### `id` property
+
+- 타입: `string`
+- 선택 사항(레이아웃 라우트로 구성하려면 필수)
+- 라우트의 고유 식별자입니다. 제공된 경우, 라우트는 위치 경로명을 기준으로 매칭되지 않고, 매칭을 위해 상위 라우트에 병합됩니다.
+
+### `component` property
+
+- 타입: `RouteComponent` 또는 `LazyRouteComponent`
+- 선택 사항 - 기본값: `<Outlet />`
+- 라우트가 매칭될 때 렌더링될 콘텐츠입니다.
+
+### `errorComponent` property
+
+- 타입: `RouteComponent` 또는 `LazyRouteComponent`
+- 선택 사항 - 기본값: `routerOptions.defaultErrorComponent`
+- 라우트에서 오류가 발생했을 때 렌더링될 콘텐츠입니다.
+
+### `pendingComponent` property
+
+- 타입: `RouteComponent` 또는 `LazyRouteComponent`
+- 선택 사항 - 기본값: `routerOptions.defaultPendingComponent`
+- 라우트가 대기 중일 때 및 `pendingMs` 임계값에 도달했을 때 렌더링될 콘텐츠입니다.
+
+### `notFoundComponent` property
+
+- 타입: `NotFoundRouteComponent` 또는 `LazyRouteComponent`
+- 선택 사항 - 기본값: `routerOptions.defaultNotFoundComponent`
+- 라우트를 찾을 수 없을 때 렌더링될 콘텐츠입니다.
+
+### `validateSearch` method
+
+- 타입: `(rawSearchParams: unknown) => TSearchSchema`
+- 선택 사항
+- 이 함수는 라우트가 매칭될 때 호출되며, 현재 위치의 검색 매개변수를 받아 유효한 검색 매개변수를 반환합니다. 오류가 발생하면 라우트는 오류 상태에 들어가고, 렌더링 중에 오류가 던져집니다.
+
+### `search.middlewares` property
+
+- 타입: `(({search: TSearchSchema, next: (newSearch: TSearchSchema) => TSearchSchema}) => TSearchSchema)[]`
+- 선택 사항
+- 검색 미들웨어는 라우트 또는 자손에 대한 새로운 링크를 생성할 때 검색 매개변수를 변환하는 함수입니다.
+
+### `params.parse` method
+
+- 타입: `(rawParams: Record<string, string>) => TParams`
+- 선택 사항
+- 라우트가 매칭될 때 호출되며, 현재 위치에서 전달된 원시 매개변수를 받아 유효한 매개변수를 반환합니다.
+
+### `params.stringify` method
+
+- 타입: `(params: TParams) => Record<string, string>`
+- 라우트의 파싱된 매개변수를 사용하여 위치를 생성할 때 호출됩니다.
+
+### `beforeLoad` method
+
+- 타입: `beforeLoad(opts: RouteMatch & { ... }) => Promise<TRouteContext> | TRouteContext | void`
+- 선택 사항
+- 라우트가 로드되기 전에 호출됩니다. 오류가 발생하면 로더가 호출되지 않고 탐색이 취소됩니다.
+
+### `loader` method
+
+- 타입: `loader(opts: RouteMatch & { ... }) => Promise<TLoaderData> | TLoaderData | void`
+- 선택 사항
+- 라우트가 매칭될 때 호출되며, 라우트 매치 객체를 전달받습니다.
+
+### `staleTime` property
+
+- 타입: `number`
+- 선택 사항 - 기본값: `routerOptions.defaultStaleTime`
+- 라우트 매치의 로더 데이터가 신선하다고 간주되는 시간(밀리초)입니다.
+
+### `gcTime` property
+
+- 타입: `number`
+- 선택 사항 - 기본값: `routerOptions.defaultGcTime`
+- 로더 데이터가 메모리에 유지되는 시간(밀리초)입니다.
+
+### `caseSensitive` property
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 라우트를 대소문자를 구분하여 매칭합니다.
+
+### `wrapInSuspense` property
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 제공된 컴포넌트를 검사하여 발견된 이유와 상관없이 이 라우트를 서스펜스 경계로 감쌉니다.
+
+### `onError` property
+
+- 타입: `(error: any) => void`
+- 선택 사항
+- 탐색 또는 프리로드 이벤트 중에 오류가 발생했을 때 호출됩니다.
+
+### `onEnter` property
+
+- 타입: `(match: RouteMatch) => void`
+- 선택 사항
+- 이전 위치에서 매칭되지 않은 후 라우트가 매칭되고 로드될 때 호출됩니다.
+
+### `onLeave` property
+
+- 타입: `(match: RouteMatch) => void`
+- 선택 사항
+- 이전 위치에서 매칭되었으나 더 이상 매칭되지 않을 때 호출됩니다.
