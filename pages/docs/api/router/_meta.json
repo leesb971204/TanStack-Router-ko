@@ -208,5 +208,8 @@
   },
   "FileRouteClass": {
     "title": "FileRoute"
+  },
+  "RouteClass": {
+    "title": "Route"
   }
 }

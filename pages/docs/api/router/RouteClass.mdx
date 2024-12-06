@@ -1,0 +1,47 @@
+---
+id: RouteClass
+title: Route class
+---
+
+## Route class
+
+> [!CAUTION]
+> 이 클래스는 더 이상 사용되지 않으며, TanStack Router의 다음 주요 버전에서 제거될 예정입니다.
+> 대신 [`createRoute`](./createRouteFunction.md) 함수를 사용하세요.
+
+`Route` 클래스는 `RouteApi` 클래스를 구현하며, 라우트 인스턴스를 생성하는 데 사용됩니다. 생성된 라우트 인스턴스는 라우트 트리를 생성하는 데 사용할 수 있습니다.
+
+## `Route` constructor
+
+`Route` 생성자는 객체를 유일한 인수로 받습니다.
+
+### Constructor options
+
+- 타입: [`RouteOptions`](./RouteOptionsType.md)
+- 필수
+- 라우트 인스턴스를 구성하는 데 사용될 옵션.
+
+### Constructor returns
+
+- 새로운 [`Route`](./RouteType.md) 인스턴스.
+
+## Examples
+
+```tsx
+import { Route } from "@tanstack/react-router";
+import { rootRoute } from "./__root";
+
+const indexRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  loader: () => {
+    return "Hello World";
+  },
+  component: IndexComponent,
+});
+
+function IndexComponent() {
+  const data = indexRoute.useLoaderData();
+  return <div>{data}</div>;
+}
+```
