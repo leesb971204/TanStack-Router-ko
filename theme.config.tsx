@@ -19,6 +19,10 @@ const config: DocsThemeConfig = {
   head: (
     <>
       <link rel="icon" href="/favicon.ico" />
+      <meta
+        name="google-site-verification"
+        content="WkU3Bc8cJ2r1I3KlcqZ3N67K_r2PlG-JiEhUq7Rrddg"
+      />
     </>
   ),
   project: {
