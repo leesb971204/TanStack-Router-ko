@@ -187,5 +187,8 @@
   },
   "RouterEventsType": {
     "title": "RouterEvents"
+  },
+  "RouterOptionsType": {
+    "title": "RouterOptions"
   }
 }

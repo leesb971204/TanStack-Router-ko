@@ -1,0 +1,190 @@
+---
+id: RouterOptionsType
+title: RouterOptions Type
+---
+
+## RouterOptions Type
+
+`RouterOptions` 타입은 라우터 인스턴스를 구성할 때 사용할 수 있는 모든 옵션을 포함합니다.
+
+## RouterOptions properties
+
+`RouterOptions` 타입은 다음 속성과 메서드를 가진 객체를 허용합니다:
+
+### `routeTree` property
+
+- 타입: `AnyRoute`
+- 필수
+- 라우터 인스턴스를 구성하는 데 사용될 라우트 트리.
+
+### `history` property
+
+- 타입: `RouterHistory`
+- 선택 사항
+- 브라우저 히스토리를 관리하는 데 사용될 히스토리 객체입니다. 제공되지 않으면 새 `createBrowserHistory` 인스턴스가 생성되어 사용됩니다.
+
+### `stringifySearch` method
+
+- 타입: `(search: Record<string, any>) => string`
+- 선택 사항
+- 링크를 생성할 때 검색 매개변수를 문자열로 변환하는 데 사용되는 함수.
+- 기본값: `defaultStringifySearch`.
+
+### `parseSearch` method
+
+- 타입: `(search: string) => Record<string, any>`
+- 선택 사항
+- 현재 위치를 파싱할 때 검색 매개변수를 파싱하는 데 사용되는 함수.
+- 기본값: `defaultParseSearch`.
+
+### `search.strict` property
+
+- 타입: `boolean`
+- 선택 사항
+- 기본값: `false`
+- 알려지지 않은 검색 매개변수를 처리하는 방식을 구성합니다.
+
+### `defaultPreload` property
+
+- 타입: `undefined | false | 'intent' | 'viewport' | 'render'`
+- 선택 사항
+- 기본값: `false`
+- 라우트가 기본적으로 사전 로드되는 방식을 결정합니다.
+
+### `defaultComponent` property
+
+- 타입: `RouteComponent`
+- 선택 사항
+- 기본값: `Outlet`
+- 라우트가 사용할 기본 `component`.
+
+### `defaultErrorComponent` property
+
+- 타입: `RouteComponent`
+- 선택 사항
+- 기본값: `ErrorComponent`
+- 라우트가 사용할 기본 `errorComponent`.
+
+### `defaultNotFoundComponent` property
+
+- 타입: `NotFoundRouteComponent`
+- 선택 사항
+- 기본값: `NotFound`
+- 라우트가 사용할 기본 `notFoundComponent`.
+
+### `defaultPendingComponent` property
+
+- 타입: `RouteComponent`
+- 선택 사항
+- 라우트가 사용할 기본 `pendingComponent`.
+
+### `defaultPendingMs` property
+
+- 타입: `number`
+- 선택 사항
+- 기본값: `1000`
+- 라우트의 대기 임계값(밀리초).
+
+### `defaultStaleTime` property
+
+- 타입: `number`
+- 선택 사항
+- 기본값: `0`
+- 로더 데이터가 신선하다고 간주되는 기본 시간(밀리초).
+
+### `defaultGcTime` property
+
+- 타입: `number`
+- 선택 사항
+- 기본값: 30분
+- 로더 데이터가 메모리에 유지되는 기본 시간(밀리초).
+
+### `caseSensitive` property
+
+- 타입: `boolean`
+- 선택 사항
+- 기본값: `false`
+- `true`인 경우, 모든 라우트를 대소문자를 구분하여 매칭합니다.
+
+### `basepath` property
+
+- 타입: `string`
+- 선택 사항
+- 기본값: `/`
+- 라우터의 기본 경로.
+
+### `context` property
+
+- 타입: `any`
+- 선택 사항
+- 라우트 트리의 모든 라우트에 제공될 루트 컨텍스트.
+
+### `routeMasks` property
+
+- 타입: `RouteMask[]`
+- 선택 사항
+- 라우트 트리의 라우트를 마스킹하는 데 사용되는 라우트 마스크 배열.
+
+### `trailingSlash` property
+
+- 타입: `'always' | 'never' | 'preserve'`
+- 선택 사항
+- 기본값: `never`
+- 후행 슬래시를 처리하는 방식을 구성합니다.
+
+### `pathParamsAllowedCharacters` property
+
+- 타입: `Array<';' | ':' | '@' | '&' | '=' | '+' | '$' | ','>`
+- 선택 사항
+- 경로 매개변수에 허용되는 URI 문자.
+
+### `Wrap` property
+
+- 타입: `React.Component`
+- 선택 사항
+- 라우터 전체를 래핑하는 데 사용되는 컴포넌트입니다.
+
+### `InnerWrap` property
+
+- 타입: `React.Component`
+- 선택 사항
+- 라우터의 내부 내용을 래핑하는 데 사용되는 컴포넌트입니다.
+
+**Example**
+
+```tsx
+import { createRouter } from '@tanstack/react-router'
+
+const router = createRouter({
+  routeTree,
+  Wrap: ({ children }) => (
+    <MyContext.Provider value={myContext}>{children}</MyContext>
+  ),
+})
+```
+
+### `notFoundMode` property
+
+- 타입: `'root' | 'fuzzy'`
+- 선택 사항
+- 기본값: `'fuzzy'`
+- 라우터가 현재 위치에 맞는 라우트를 찾지 못할 때의 동작을 제어합니다.
+
+### `errorSerializer` property
+
+- 타입: `RouterErrorSerializer`
+- 선택 사항
+- 오류를 직렬화하고 역직렬화하는 방식을 결정합니다.
+
+### `transformer` property
+
+- 타입: `RouterTransformer`
+- 선택 사항
+- 서버와 클라이언트 간에 데이터를 전송할 때 사용되는 변환기입니다.
+
+### `defaultStructuralSharing` property
+
+- 타입: `boolean`
+- 선택 사항
+- 기본값: `false`
+- 세밀한 선택기에 대해 구조적 공유를 활성화할지 여부를 구성합니다.
