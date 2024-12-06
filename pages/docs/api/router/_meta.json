@@ -121,5 +121,8 @@
   },
   "useRouteContextHook": {
     "title": "useRouteContext"
+  },
+  "useRouterHook": {
+    "title": "useRouter"
   }
 }
