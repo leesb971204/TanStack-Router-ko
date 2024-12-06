@@ -175,5 +175,8 @@
   },
   "RouteMaskType": {
     "title": "RouteMask"
+  },
+  "RouteMatchType": {
+    "title": "RouteMatch"
   }
 }

@@ -1,0 +1,31 @@
+---
+id: RouteMatchType
+title: RouteMatch type
+---
+
+## RouteMatch type
+
+`RouteMatch` 타입은 TanStack Router에서 라우트 매치를 나타냅니다.
+
+```tsx
+interface RouteMatch {
+  id: string;
+  routeId: string;
+  pathname: string;
+  params: Route["allParams"];
+  status: "pending" | "success" | "error";
+  isFetching: boolean;
+  showPending: boolean;
+  error: unknown;
+  paramsError: unknown;
+  searchError: unknown;
+  updatedAt: number;
+  loadPromise?: Promise<void>;
+  loaderData?: Route["loaderData"];
+  context: Route["allContext"];
+  search: Route["fullSearchSchema"];
+  fetchedAt: number;
+  abortController: AbortController;
+  cause: "enter" | "stay";
+}
+```
