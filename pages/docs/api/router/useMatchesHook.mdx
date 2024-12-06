@@ -1,0 +1,45 @@
+---
+id: useMatchesHook
+title: useMatches hook
+---
+
+## useMatches hook
+
+`useMatches` hook은 **React 컴포넌트 트리에서 호출자의 위치와 관계없이** 라우터의 모든 [`RouteMatch`](./RouteMatchType.md) 객체를 반환합니다.
+
+> [!TIP]
+> 부모 또는 자식 매치만 필요하다면, 필요에 따라 [`useParentMatches`](./useParentMatchesHook.md) 또는 [`useChildMatches`](./useChildMatchesHook.md)를 사용할 수 있습니다.
+
+## useMatches options
+
+`useMatches` hook은 단일 _선택적_ 인수인 `options` 객체를 허용합니다.
+
+### `opts.select` option
+
+- 선택 사항
+- `(matches: RouteMatch[]) => TSelected`
+- 제공될 경우, 이 함수는 라우트 매치를 사용하여 호출되며, 반환 값은 `useMatches`에서 반환됩니다. 이 값은 얕은 비교를 사용하여 hook이 부모 컴포넌트를 다시 렌더링할지 여부를 결정하는 데에도 사용됩니다.
+
+### `opts.structuralSharing` option
+
+- 타입: `boolean`
+- 선택 사항
+- `select`에 의해 반환된 값에 대한 구조적 공유를 활성화할지 구성합니다.
+- 자세한 내용은 [렌더링 최적화 가이드](../../guide/render-optimizations.md)를 참조하세요.
+
+## useMatches returns
+
+- `select` 함수가 제공된 경우, `select` 함수의 반환 값.
+- `select` 함수가 제공되지 않은 경우, [`RouteMatch`](./RouteMatchType.md) 객체 배열.
+
+## Examples
+
+```tsx
+import { useMatches } from "@tanstack/react-router";
+
+function Component() {
+  const matches = useMatches();
+  //     ^? [RouteMatch, RouteMatch, ...]
+  // ...
+}
+```
