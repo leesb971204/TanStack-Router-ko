@@ -1,0 +1,118 @@
+---
+id: useMatchRouteHook
+title: useMatchRoute hook
+---
+
+## useMatchRoute hook
+
+`useMatchRoute` hook은 현재 또는 대기 중인 위치에 대해 라우트를 매칭할 수 있는 `matchRoute` 함수를 반환하는 hook입니다.
+
+## useMatchRoute returns
+
+- 현재 또는 대기 중인 위치에 대해 라우트를 매칭할 수 있는 `matchRoute` 함수.
+
+## matchRoute function
+
+`matchRoute` 함수는 현재 또는 대기 중인 위치에 대해 라우트를 매칭할 수 있는 함수입니다.
+
+### matchRoute function options
+
+`matchRoute` 함수는 단일 인수인 `options` 객체를 허용합니다.
+
+- 타입: [`UseMatchRouteOptions`](./UseMatchRouteOptionsType.md)
+
+### matchRoute function returns
+
+- 매칭된 라우트의 params 또는 매칭된 라우트가 없을 경우 `false`.
+
+## Examples
+
+```tsx
+import { useMatchRoute } from "@tanstack/react-router";
+
+// Current location: /posts/123
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({ to: "/posts/$postId" });
+  //    ^ { postId: '123' }
+}
+
+// Current location: /posts/123
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({ to: "/posts" });
+  //    ^ false
+}
+
+// Current location: /posts/123
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({ to: "/posts", fuzzy: true });
+  //    ^ {}
+}
+
+// Current location: /posts
+// Pending location: /posts/123
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({ to: "/posts/$postId", pending: true });
+  //    ^ { postId: '123' }
+}
+
+// Current location: /posts/123/foo/456
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({ to: "/posts/$postId/foo/$fooId" });
+  //    ^ { postId: '123', fooId: '456' }
+}
+
+// Current location: /posts/123/foo/456
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({
+    to: "/posts/$postId/foo/$fooId",
+    params: { postId: "123" },
+  });
+  //    ^ { postId: '123', fooId: '456' }
+}
+
+// Current location: /posts/123/foo/456
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({
+    to: "/posts/$postId/foo/$fooId",
+    params: { postId: "789" },
+  });
+  //    ^ false
+}
+
+// Current location: /posts/123/foo/456
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({
+    to: "/posts/$postId/foo/$fooId",
+    params: { fooId: "456" },
+  });
+  //    ^ { postId: '123', fooId: '456' }
+}
+
+// Current location: /posts/123/foo/456
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({
+    to: "/posts/$postId/foo/$fooId",
+    params: { postId: "123", fooId: "456" },
+  });
+  //    ^ { postId: '123', fooId: '456' }
+}
+
+// Current location: /posts/123/foo/456
+function Component() {
+  const matchRoute = useMatchRoute();
+  const params = matchRoute({
+    to: "/posts/$postId/foo/$fooId",
+    params: { postId: "789", fooId: "456" },
+  });
+  //    ^ false
+}
+```

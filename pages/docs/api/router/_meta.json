@@ -103,5 +103,8 @@
   },
   "useMatchHook": {
     "title": "useMatch"
+  },
+  "useMatchRouteHook": {
+    "title": "useMatchRoute"
   }
 }
