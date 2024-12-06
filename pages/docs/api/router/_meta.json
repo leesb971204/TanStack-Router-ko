@@ -169,5 +169,8 @@
   },
   "RouteType": {
     "title": "Route"
+  },
+  "RouteApiType": {
+    "title": "RouteApi"
   }
 }
