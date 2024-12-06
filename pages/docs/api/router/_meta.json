@@ -109,5 +109,8 @@
   },
   "useMatchesHook": {
     "title": "useMatches"
+  },
+  "useNavigateHook": {
+    "title": "useNavigate"
   }
 }
