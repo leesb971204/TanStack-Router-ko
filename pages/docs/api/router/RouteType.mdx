@@ -1,0 +1,32 @@
+---
+id: RouteType
+title: Route type
+---
+
+## Route type
+
+`Route` 타입은 라우트 인스턴스를 설명하는 데 사용됩니다.
+
+## `Route` properties and methods
+
+`Route` 인스턴스는 다음 속성과 메서드를 제공합니다:
+
+### `.addChildren` method
+
+- 타입: `(children: Route[]) => this`
+- 라우트 인스턴스에 자식 라우트를 추가하고, 추가된 자식을 반영하여 업데이트된 타입과 함께 라우트 인스턴스를 반환합니다.
+
+### `.update` method
+
+- 타입: `(options: Partial<UpdatableRouteOptions>) => this`
+- 새로운 옵션으로 라우트 인스턴스를 업데이트하고, 업데이트된 옵션을 반영하여 타입과 함께 라우트 인스턴스를 반환합니다.
+- 특정 상황에서는 순환 타입 참조를 피하기 위해 라우트 인스턴스가 생성된 후 옵션을 업데이트하는 것이 유용할 수 있습니다.
+
+### `.lazy` method
+
+- 타입: `(lazyImporter: () => Promise<Partial<UpdatableRouteOptions>>) => this`
+- 라우트를 로드할 때 지연(lazy)적으로 해석될 새로운 lazy importer로 라우트 인스턴스를 업데이트합니다. 이는 코드 분할에 유용할 수 있습니다.
+
+### ...`RouteApi` methods
+
+- [`RouteApi`](./RouteApiType.md)의 모든 메서드를 사용할 수 있습니다.

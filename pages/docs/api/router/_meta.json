@@ -166,5 +166,8 @@
   },
   "RegisterType": {
     "title": "Register"
+  },
+  "RouteType": {
+    "title": "Route"
   }
 }
