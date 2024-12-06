@@ -1,0 +1,65 @@
+---
+id: FileRouteClass
+title: FileRoute class
+---
+
+## FileRoute class
+
+> [!CAUTION]
+> 이 클래스는 더 이상 사용되지 않으며, TanStack Router의 다음 주요 버전에서 제거될 예정입니다.
+> 대신 [`createFileRoute`](./createFileRouteFunction.md) 함수를 사용하세요.
+
+`FileRoute` 클래스는 파일 기반 라우트 인스턴스를 생성하는 데 사용되는 팩토리입니다. 생성된 라우트 인스턴스는 `tsr generate` 및 `tsr watch` 명령어를 사용하여 자동으로 라우트 트리를 생성하는 데 사용할 수 있습니다.
+
+## `FileRoute` constructor
+
+`FileRoute` 생성자는 라우트가 생성될 파일의 `path`를 인수로 받습니다.
+
+### Constructor options
+
+- 타입: `string` 리터럴
+- 필수, 하지만 **`tsr generate` 및 `tsr watch` 명령어에 의해 자동으로 삽입되고 업데이트됩니다.**
+- 라우트가 생성될 파일의 전체 경로.
+
+### Constructor returns
+
+- 라우트를 생성하는 데 사용할 수 있는 `FileRoute` 클래스의 인스턴스.
+
+## `FileRoute` methods
+
+`FileRoute` 클래스는 다음 메서드를 구현합니다:
+
+### `.createRoute` method
+
+`createRoute` 메서드는 파일 라우트 인스턴스를 구성하는 데 사용됩니다. 이 메서드는 `options`를 인수로 받으며, 파일 라우트 인스턴스를 구성하는 데 사용됩니다.
+
+#### .createRoute options
+
+- 타입: `Omit<RouteOptions, 'getParentRoute' | 'path' | 'id'>`
+- [`RouteOptions`](./RouteOptionsType.md)
+- 선택 사항
+- `Route` 클래스에서 사용할 수 있는 동일한 옵션을 허용하지만, 파일 기반 라우팅에서는 `getParentRoute`, `path`, 및 `id` 옵션이 필요하지 않으므로 생략됩니다.
+
+#### .createRoute returns
+
+- 라우트 트리에 삽입할 라우트를 구성하는 데 사용할 수 있는 [`Route`](./RouteType.md) 인스턴스.
+
+> ⚠️ 참고: `tsr generate` 및 `tsr watch`가 올바르게 작동하려면, 파일 라우트 인스턴스는 `Route` 식별자를 사용하여 파일에서 내보내야 합니다.
+
+### Examples
+
+```tsx
+import { FileRoute } from "@tanstack/react-router";
+
+export const Route = new FileRoute("/").createRoute({
+  loader: () => {
+    return "Hello World";
+  },
+  component: IndexComponent,
+});
+
+function IndexComponent() {
+  const data = Route.useLoaderData();
+  return <div>{data}</div>;
+}
+```

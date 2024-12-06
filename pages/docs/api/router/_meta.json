@@ -205,5 +205,8 @@
   },
   "ViewTransitionOptionsType": {
     "title": "ViewTransitionOptions"
+  },
+  "FileRouteClass": {
+    "title": "FileRoute"
   }
 }
