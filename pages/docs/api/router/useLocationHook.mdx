@@ -1,0 +1,42 @@
+---
+id: useLocationHook
+title: useLocation hook
+---
+
+## useLocation hook
+
+`useLocation` 메서드는 현재 [`location`](./ParsedLocationType.md) 객체를 반환하는 hook입니다. 이 hook은 현재 위치가 변경될 때마다 부수 효과를 수행하고자 할 때 유용합니다.
+
+## useLocation options
+
+`useLocation` hook은 선택적인 `options` 객체를 허용합니다.
+
+### `opts.select` option
+
+- 타입: `(state: ParsedLocationType) => TSelected`
+- 선택 사항
+- 제공될 경우, 이 함수는 [`location`](./ParsedLocationType.md) 객체를 사용하여 호출되며, 반환 값은 `useLocation`에서 반환됩니다.
+
+## useLocation returns
+
+- 현재 [`location`](./ParsedLocationType.md) 객체 또는 `select` 함수가 제공된 경우 `TSelected`.
+
+## Examples
+
+```tsx
+import { useLocation } from "@tanstack/react-router";
+
+function Component() {
+  const location = useLocation();
+  //    ^ ParsedLocation
+
+  // OR
+
+  const pathname = useLocation({
+    select: (location) => location.pathname,
+  });
+  //    ^ string
+
+  // ...
+}
+```
