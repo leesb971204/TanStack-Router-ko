@@ -130,5 +130,8 @@
   },
   "useSearchHook": {
     "title": "useSearch"
+  },
+  "ActiveLinkOptionsType": {
+    "title": "ActiveLinkOptions"
   }
 }

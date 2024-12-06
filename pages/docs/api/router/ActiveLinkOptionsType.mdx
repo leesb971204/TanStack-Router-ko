@@ -1,0 +1,35 @@
+---
+id: ActiveLinkOptionsType
+title: ActiveLinkOptions type
+---
+
+## ActiveLinkOptions type
+
+`ActiveLinkOptions` 타입은 [`LinkOptions`](./LinkOptionsType.md) 타입을 확장하며, 링크가 활성 상태일 때 스타일링을 어떻게 처리할지 설명하는 데 사용되는 추가 옵션을 포함합니다.
+
+```tsx
+type ActiveLinkOptions = LinkOptions & {
+  activeProps?:
+    | React.AnchorHTMLAttributes<HTMLAnchorElement>
+    | (() => React.AnchorHTMLAttributes<HTMLAnchorElement>);
+  inactiveProps?:
+    | React.AnchorHTMLAttributes<HTMLAnchorElement>
+    | (() => React.AnchorHTMLAttributes<HTMLAnchorElement>);
+};
+```
+
+## ActiveLinkOptions properties
+
+`ActiveLinkOptions` 객체는 다음 속성을 포함하거나 허용합니다:
+
+### `activeProps`
+
+- 타입: `React.AnchorHTMLAttributes<HTMLAnchorElement>`
+- 선택 사항
+- 링크가 활성 상태일 때 앵커 요소에 적용될 속성입니다.
+
+### `inactiveProps`
+
+- 타입: `React.AnchorHTMLAttributes<HTMLAnchorElement>`
+- 선택 사항
+- 링크가 비활성 상태일 때 앵커 요소에 적용될 속성입니다.
