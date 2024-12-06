@@ -1,0 +1,77 @@
+{
+  "ActiveLinkOptionsType": {
+    "title": "ActiveLinkOptions"
+  },
+  "AsyncRouteComponentType": {
+    "title": "AsyncRouteComponent"
+  },
+  "DeferredPromiseType": {
+    "title": "DeferredPromise"
+  },
+  "historyStateInterface": {
+    "title": "HistoryState"
+  },
+  "LinkOptionsType": {
+    "title": "LinkOptions"
+  },
+  "LinkPropsType": {
+    "title": "LinkProps"
+  },
+  "MatchRouteOptionsType": {
+    "title": "MatchRouteOptions"
+  },
+  "NavigateOptionsType": {
+    "title": "NavigateOptions"
+  },
+  "NotFoundErrorType": {
+    "title": "NotFoundError"
+  },
+  "ParsedLocationType": {
+    "title": "ParsedLocation"
+  },
+  "RedirectType": {
+    "title": "Redirect"
+  },
+  "RegisterType": {
+    "title": "Register"
+  },
+  "RouteType": {
+    "title": "Route"
+  },
+  "RouteApiType": {
+    "title": "RouteApi"
+  },
+  "RouteMaskType": {
+    "title": "RouteMask"
+  },
+  "RouteMatchType": {
+    "title": "RouteMatch"
+  },
+  "RouteOptionsType": {
+    "title": "RouteOptions"
+  },
+  "RouterType": {
+    "title": "Router"
+  },
+  "RouterEventsType": {
+    "title": "RouterEvents"
+  },
+  "RouterOptionsType": {
+    "title": "RouterOptions"
+  },
+  "RouterStateType": {
+    "title": "RouterState"
+  },
+  "ToMaskOptionsType": {
+    "title": "ToMaskOptions"
+  },
+  "ToOptionsType": {
+    "title": "ToOptions"
+  },
+  "UseMatchRouteOptionsType": {
+    "title": "UseMatchRouteOptions"
+  },
+  "ViewTransitionOptionsType": {
+    "title": "ViewTransitionOptions"
+  }
+}

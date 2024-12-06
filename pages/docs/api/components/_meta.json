@@ -1,0 +1,29 @@
+{
+  "awaitComponent": {
+    "title": "awaitComponent"
+  },
+  "catchBoundaryComponent": {
+    "title": "catchBoundaryComponent"
+  },
+  "catchNotFoundComponent": {
+    "title": "catchNotFoundComponent"
+  },
+  "defaultGlobalNotFoundComponent": {
+    "title": "defaultGlobalNotFoundComponent"
+  },
+  "errorComponentComponent": {
+    "title": "errorComponent"
+  },
+  "linkComponent": {
+    "title": "Link"
+  },
+  "matchRouteComponent": {
+    "title": "matchRoute"
+  },
+  "navigateComponent": {
+    "title": "navigate"
+  },
+  "outletComponent": {
+    "title": "Outlet"
+  }
+}

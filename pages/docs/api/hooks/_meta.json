@@ -1,0 +1,53 @@
+{
+  "useAwaitedHook": {
+    "title": "useAwaited"
+  },
+  "useBlockerHook": {
+    "title": "useBlocker"
+  },
+  "useChildMatchesHook": {
+    "title": "useChildMatches"
+  },
+  "useLinkPropsHook": {
+    "title": "useLinkProps"
+  },
+  "useLoaderDataHook": {
+    "title": "useLoaderData"
+  },
+  "useLoaderDepsHook": {
+    "title": "useLoaderDeps"
+  },
+  "useLocationHook": {
+    "title": "useLocation"
+  },
+  "useMatchHook": {
+    "title": "useMatch"
+  },
+  "useMatchRouteHook": {
+    "title": "useMatchRoute"
+  },
+  "useMatchesHook": {
+    "title": "useMatches"
+  },
+  "useNavigateHook": {
+    "title": "useNavigate"
+  },
+  "useParentMatchesHook": {
+    "title": "useParentMatches"
+  },
+  "useParamsHook": {
+    "title": "useParams"
+  },
+  "useRouteContextHook": {
+    "title": "useRouteContext"
+  },
+  "useRouterHook": {
+    "title": "useRouter"
+  },
+  "useRouterStateHook": {
+    "title": "useRouterState"
+  },
+  "useSearchHook": {
+    "title": "useSearch"
+  }
+}

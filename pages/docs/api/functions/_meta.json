@@ -1,0 +1,56 @@
+{
+  "createFileRouteFunction": {
+    "title": "createFileRoute"
+  },
+  "createLazyFileRouteFunction": {
+    "title": "createLazyFileRoute"
+  },
+  "createRootRouteFunction": {
+    "title": "createRootRoute"
+  },
+  "createRootRouteWithContextFunction": {
+    "title": "createRootRouteWithContext"
+  },
+  "createRouteFunction": {
+    "title": "createRoute"
+  },
+  "createLazyRouteFunction": {
+    "title": "createLazyRoute"
+  },
+  "createRouteMaskFunction": {
+    "title": "createRouteMask"
+  },
+  "createRouterFunction": {
+    "title": "createRouter"
+  },
+  "deferFunction": {
+    "title": "defer"
+  },
+  "getRouteApiFunction": {
+    "title": "getRouteApi"
+  },
+  "isNotFoundFunction": {
+    "title": "isNotFound"
+  },
+  "isRedirectFunction": {
+    "title": "isRedirect"
+  },
+  "lazyRouteComponentFunction": {
+    "title": "lazyRouteComponent"
+  },
+  "linkOptions": {
+    "title": "LinkOptions"
+  },
+  "notFoundFunction": {
+    "title": "notFound"
+  },
+  "redirectFunction": {
+    "title": "redirect"
+  },
+  "retainSearchParams": {
+    "title": "retainSearchParams"
+  },
+  "stripSearchParams": {
+    "title": "stripSearchParams"
+  }
+}

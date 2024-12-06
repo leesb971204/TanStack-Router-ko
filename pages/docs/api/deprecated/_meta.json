@@ -1,0 +1,23 @@
+{
+  "FileRouteClass": {
+    "title": "FileRoute"
+  },
+  "RouteClass": {
+    "title": "Route"
+  },
+  "RouterClass": {
+    "title": "Router"
+  },
+  "RouteApiClass": {
+    "title": "RouteApi"
+  },
+  "RootRouteClass": {
+    "title": "RootRoute"
+  },
+  "NotFoundRouteClass": {
+    "title": "NotFoundRoute"
+  },
+  "rootRouteWithContextFunction": {
+    "title": "rootRouteWithContext"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "router": {
+    "title": "Router"
+  },
+  "functions": {
+    "title": "Functions"
+  },
+  "components": {
+    "title": "Components"
+  },
+  "hooks": {
+    "title": "Hooks"
+  },
+  "types": {
+    "title": "Types"
+  },
+  "deprecated": {
+    "title": "Deprecated"
+  }
+}
