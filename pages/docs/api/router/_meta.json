@@ -151,5 +151,8 @@
   },
   "MatchRouteOptionsType": {
     "title": "MatchRouteOptions"
+  },
+  "NavigateOptionsType": {
+    "title": "NavigateOptions"
   }
 }

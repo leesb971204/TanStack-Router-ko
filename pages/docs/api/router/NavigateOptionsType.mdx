@@ -1,0 +1,38 @@
+---
+id: NavigateOptionsType
+title: NavigateOptions type
+---
+
+## NavigateOptions type
+
+`NavigateOptions` 타입은 TanStack Router에서 탐색 동작을 설명할 때 사용할 수 있는 옵션을 정의합니다.
+
+```tsx
+type NavigateOptions = ToOptions & {
+  replace?: boolean;
+  resetScroll?: boolean;
+  ignoreBlocker?: boolean;
+};
+```
+
+- [`ToOptions`](./ToOptionsType.md)
+
+## NavigateOptions properties
+
+### `replace`
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 탐색 시 현재 히스토리 항목을 대체합니다.
+
+### `resetScroll`
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 탐색 후 스크롤 위치를 맨 위로 재설정합니다.
+
+### `ignoreBlocker`
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 탐색 차단기를 무시하고 탐색을 강제로 수행합니다.
