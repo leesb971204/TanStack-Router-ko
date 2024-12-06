@@ -1,0 +1,91 @@
+---
+id: RouterEventsType
+title: RouterEvents type
+---
+
+## RouterEvents type
+
+`RouterEvents` 타입은 라우터가 발생시킬 수 있는 모든 이벤트를 포함합니다. 이 타입의 각 최상위 키는 라우터가 발생시킬 수 있는 이벤트의 이름을 나타냅니다. 키의 값은 이벤트의 페이로드입니다.
+
+```tsx
+type RouterEvents = {
+  onBeforeNavigate: {
+    type: "onBeforeNavigate";
+    fromLocation: ParsedLocation;
+    toLocation: ParsedLocation;
+    pathChanged: boolean;
+    hrefChanged: boolean;
+  };
+  onBeforeLoad: {
+    type: "onBeforeLoad";
+    fromLocation: ParsedLocation;
+    toLocation: ParsedLocation;
+    pathChanged: boolean;
+    hrefChanged: boolean;
+  };
+  onLoad: {
+    type: "onLoad";
+    fromLocation: ParsedLocation;
+    toLocation: ParsedLocation;
+    pathChanged: boolean;
+    hrefChanged: boolean;
+  };
+  onResolved: {
+    type: "onResolved";
+    fromLocation: ParsedLocation;
+    toLocation: ParsedLocation;
+    pathChanged: boolean;
+    hrefChanged: boolean;
+  };
+  onBeforeRouteMount: {
+    type: "onBeforeRouteMount";
+    fromLocation: ParsedLocation;
+    toLocation: ParsedLocation;
+    pathChanged: boolean;
+    hrefChanged: boolean;
+  };
+};
+```
+
+## RouterEvents properties
+
+이벤트가 발생하면 이벤트 페이로드에 다음 속성이 포함됩니다:
+
+### `type` property
+
+- 타입: `onBeforeNavigate | onBeforeLoad | onLoad | onBeforeRouteMount | onResolved`
+- 이벤트의 유형입니다.
+- 리스너 함수에서 이벤트를 구별하는 데 유용합니다.
+
+### `fromLocation` property
+
+- 타입: [`ParsedLocation`](./ParsedLocationType.md)
+- 라우터가 이동하기 전의 위치입니다.
+
+### `toLocation` property
+
+- 타입: [`ParsedLocation`](./ParsedLocationType.md)
+- 라우터가 이동하려는 위치입니다.
+
+### `pathChanged` property
+
+- 타입: `boolean`
+- `fromLocation`과 `toLocation` 간에 경로가 변경된 경우 `true`.
+
+### `hrefChanged` property
+
+- 타입: `boolean`
+- `fromLocation`과 `toLocation` 간에 href가 변경된 경우 `true`.
+
+## Example
+
+```tsx
+import { createRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+
+const router = createRouter({ routeTree });
+
+const unsub = router.subscribe("onResolved", (evt) => {
+  // ...
+});
+```

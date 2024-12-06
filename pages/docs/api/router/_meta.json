@@ -184,5 +184,8 @@
   },
   "RouterType": {
     "title": "Router"
+  },
+  "RouterEventsType": {
+    "title": "RouterEvents"
   }
 }
