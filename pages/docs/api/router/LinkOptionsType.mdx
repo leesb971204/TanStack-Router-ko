@@ -1,0 +1,57 @@
+---
+id: LinkOptionsType
+title: LinkOptions type
+---
+
+## LinkOptions type
+
+`LinkOptions` 타입은 [`NavigateOptions`](./NavigateOptionsType.md) 타입을 확장하며, TanStack Router가 실제 앵커 요소 속성을 처리할 때 사용할 수 있는 추가 옵션을 포함합니다.
+
+```tsx
+type LinkOptions = NavigateOptions & {
+  target?: HTMLAnchorElement["target"];
+  activeOptions?: ActiveOptions;
+  preload?: false | "intent";
+  preloadDelay?: number;
+  disabled?: boolean;
+};
+```
+
+## LinkOptions properties
+
+`LinkOptions` 객체는 다음 속성을 포함하거나 허용합니다:
+
+### `target`
+
+- 타입: `HTMLAnchorElement['target']`
+- 선택 사항
+- 표준 앵커 태그의 `target` 속성.
+
+### `activeOptions`
+
+- 타입: `ActiveOptions`
+- 선택 사항
+- 링크가 활성 상태인지 결정하는 데 사용될 옵션.
+
+### `preload`
+
+- 타입: `false | 'intent' | 'viewport' | 'render'`
+- 선택 사항
+- 설정된 경우, 링크의 사전 로드 전략이 해당 값으로 설정됩니다.
+- 자세한 내용은 [Preloading 가이드](../../guide/preloading.md)를 참조하세요.
+
+### `preloadDelay`
+
+- 타입: `number`
+- 선택 사항
+- 사전 로드 의도를 이 시간(밀리초)만큼 지연합니다. 지연 시간이 끝나기 전에 의도가 종료되면 사전 로드가 취소됩니다.
+
+### `disabled`
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 링크를 `href` 속성 없이 렌더링합니다.
+
+```
+
+```

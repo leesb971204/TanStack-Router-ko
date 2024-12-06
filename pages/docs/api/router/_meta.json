@@ -142,5 +142,8 @@
   },
   "historyStateInterface": {
     "title": "HistoryState"
+  },
+  "LinkOptionsType": {
+    "title": "LinkOptions"
   }
 }
