@@ -133,5 +133,8 @@
   },
   "ActiveLinkOptionsType": {
     "title": "ActiveLinkOptions"
+  },
+  "AsyncRouteComponentType": {
+    "title": "AsyncRouteComponent"
   }
 }

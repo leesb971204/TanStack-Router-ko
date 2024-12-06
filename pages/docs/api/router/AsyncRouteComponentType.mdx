@@ -1,0 +1,14 @@
+---
+id: AsyncRouteComponentType
+title: AsyncRouteComponent type
+---
+
+## AsyncRouteComponent type
+
+`AsyncRouteComponent` 타입은 `component.preload()` 메서드를 사용하여 사전 로드할 수 있는 코드 분할 라우트 컴포넌트를 설명하는 데 사용됩니다.
+
+```tsx
+type AsyncRouteComponent<TProps> = SyncRouteComponent<TProps> & {
+  preload?: () => Promise<void>;
+};
+```
