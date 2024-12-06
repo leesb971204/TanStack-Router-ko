@@ -1,0 +1,45 @@
+---
+id: MatchRouteOptionsType
+title: MatchRouteOptions type
+---
+
+## MatchRouteOptions type
+
+`MatchRouteOptions` 타입은 라우트를 매칭할 때 사용할 수 있는 옵션을 설명합니다.
+
+```tsx
+interface MatchRouteOptions {
+  pending?: boolean;
+  caseSensitive?: boolean;
+  includeSearch?: boolean;
+  fuzzy?: boolean;
+}
+```
+
+## MatchRouteOptions properties
+
+`MatchRouteOptions` 타입은 다음 속성을 가집니다:
+
+### `pending` property
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 현재 위치 대신 대기 중인 위치를 기준으로 매칭합니다.
+
+### `caseSensitive` property
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 현재 위치를 대소문자 구분하여 매칭합니다.
+
+### `includeSearch` property
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 현재 위치의 검색 매개변수를 깊은 포함 검사(deep inclusive check)를 사용하여 매칭합니다. 예: `{ a: 1 }`는 현재 위치가 `{ a: 1, b: 2 }`일 때 매칭됩니다.
+
+### `fuzzy` property
+
+- 타입: `boolean`
+- 선택 사항
+- `true`인 경우, 현재 위치를 퍼지 매칭(fuzzy match)으로 매칭합니다. 예: `/posts`는 현재 위치가 `/posts/123`일 때 매칭됩니다.

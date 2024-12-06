@@ -148,5 +148,8 @@
   },
   "LinkPropsType": {
     "title": "LinkProps"
+  },
+  "MatchRouteOptionsType": {
+    "title": "MatchRouteOptions"
   }
 }
