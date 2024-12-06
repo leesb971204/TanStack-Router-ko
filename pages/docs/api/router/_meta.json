@@ -145,5 +145,8 @@
   },
   "LinkOptionsType": {
     "title": "LinkOptions"
+  },
+  "LinkPropsType": {
+    "title": "LinkProps"
   }
 }
