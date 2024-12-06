@@ -1,0 +1,23 @@
+---
+id: useLinkPropsHook
+title: useLinkProps hook
+---
+
+## useLinkProps hook
+
+`useLinkProps` hook은 객체를 인수로 받아 `React.AnchorHTMLAttributes<HTMLAnchorElement>` 속성 객체를 반환합니다. 이 속성은 앵커 요소에 안전하게 적용되어 경로명, 검색 매개변수, 해시, 위치 상태의 변경을 포함한 새 위치로 탐색할 수 있는 링크를 생성합니다.
+
+## useLinkProps options
+
+```tsx
+type UseLinkPropsOptions = ActiveLinkOptions &
+  React.AnchorHTMLAttributes<HTMLAnchorElement>;
+```
+
+- [`ActiveLinkOptions`](./ActiveLinkOptionsType.md)
+- `useLinkProps` 옵션은 [`LinkProps`](./LinkPropsType.md) 객체를 생성하는 데 사용됩니다.
+- 또한 `React.AnchorHTMLAttributes<HTMLAnchorElement>` 타입을 확장하므로, `useLinkProps` hook에 전달된 추가 속성은 [`LinkProps`](./LinkPropsType.md) 객체와 병합됩니다.
+
+## useLinkProps returns
+
+- 새 위치로 탐색할 수 있는 링크를 생성하기 위해 앵커 요소에 적용할 수 있는 `React.AnchorHTMLAttributes<HTMLAnchorElement>` 객체.

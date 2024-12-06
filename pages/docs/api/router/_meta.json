@@ -88,5 +88,8 @@
   },
   "useChildMatchesHook": {
     "title": "useChildMatches"
+  },
+  "useLinkPropsHook": {
+    "title": "useLinkProps"
   }
 }
