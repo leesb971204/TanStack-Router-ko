@@ -196,5 +196,8 @@
   },
   "ToMaskOptionsType": {
     "title": "ToMaskOptions"
+  },
+  "ToOptionsType": {
+    "title": "ToOptions"
   }
 }

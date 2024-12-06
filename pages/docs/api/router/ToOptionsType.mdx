@@ -1,0 +1,26 @@
+---
+id: ToOptionsType
+title: ToOptions type
+---
+
+## ToOptions type
+
+`ToOptions` 타입은 라우터 목적지를 설명하는 데 사용할 수 있는 여러 속성을 포함합니다.
+
+```tsx
+type ToOptions = {
+  from?: ValidRoutePath | string;
+  to?: ValidRoutePath | string;
+  hash?: true | string | ((prev?: string) => string);
+  state?: true | HistoryState | ((prev: HistoryState) => HistoryState);
+} & SearchParamOptions &
+  PathParamOptions;
+
+type SearchParamOptions = {
+  search?: true | TToSearch | ((prev: TFromSearch) => TToSearch);
+};
+
+type PathParamOptions = {
+  path?: true | Record<string, TPathParam> | ((prev: TFromParams) => TToParams);
+};
+```
