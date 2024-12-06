@@ -211,5 +211,8 @@
   },
   "RouteClass": {
     "title": "Route"
+  },
+  "RouterClass": {
+    "title": "Router"
   }
 }

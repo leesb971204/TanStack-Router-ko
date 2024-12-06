@@ -1,0 +1,42 @@
+---
+id: RouterClass
+title: Router Class
+---
+
+## Router Class
+
+> [!CAUTION]
+> 이 클래스는 더 이상 사용되지 않으며, TanStack Router의 다음 주요 버전에서 제거될 예정입니다.
+> 대신 [`createRouter`](./createRouterFunction.md) 함수를 사용하세요.
+
+`Router` 클래스는 새로운 라우터 인스턴스를 생성하는 데 사용됩니다.
+
+## `Router` constructor
+
+`Router` 생성자는 라우터 인스턴스를 구성하는 데 사용할 `options`를 인수로 받습니다.
+
+### Constructor options
+
+- 타입: [`RouterOptions`](./RouterOptionsType.md)
+- 필수
+- 라우터 인스턴스를 구성하는 데 사용될 옵션.
+
+### Constructor returns
+
+- 새로운 [`Router`](./RouterType.md) 인스턴스.
+
+## Examples
+
+```tsx
+import { Router, RouterProvider } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+
+const router = new Router({
+  routeTree,
+  defaultPreload: "intent",
+});
+
+export default function App() {
+  return <RouterProvider router={router} />;
+}
+```
