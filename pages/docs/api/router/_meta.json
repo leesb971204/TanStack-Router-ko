@@ -223,5 +223,8 @@
   },
   "NotFoundRouteClass": {
     "title": "NotFoundRoute"
+  },
+  "rootRouteWithContextFunction": {
+    "title": "rootRouteWithContext"
   }
 }
