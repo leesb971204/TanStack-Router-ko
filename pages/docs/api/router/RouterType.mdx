@@ -1,0 +1,108 @@
+---
+id: RouterType
+title: Router type
+---
+
+## Router type
+
+`Router` 타입은 라우터 인스턴스를 설명하는 데 사용됩니다.
+
+## `Router` properties and methods
+
+`Router` 인스턴스는 다음 속성과 메서드를 제공합니다:
+
+### `.update` method
+
+- 타입: `(newOptions: RouterOptions) => void`
+- 새로운 옵션으로 라우터 인스턴스를 업데이트합니다.
+
+### `state` property
+
+- 타입: [`RouterState`](./RouterStateType.md)
+- 라우터의 현재 상태.
+- ⚠️ **`router.state`는 항상 최신 상태를 유지하지만 반응형(REACTIVE)은 아닙니다. 컴포넌트에서 반응형 상태를 사용하려면 [`useRouterState`](./useRouterStateHook.md)를 사용하세요.**
+
+### `.subscribe` method
+
+- 타입: `(eventType: TType, fn: ListenerFn<RouterEvents[TType]>) => (event: RouterEvent) => void`
+- [`RouterEvent`](./RouterEventsType.md)에 구독합니다.
+- 이벤트 구독을 취소하는 데 사용할 수 있는 함수를 반환합니다.
+
+### `.matchRoutes` method
+
+- 타입: `(pathname: string, locationSearch: Record<string, any>, opts?: { throwOnError?: boolean; }) => RouteMatch[]`
+- 경로명과 검색 매개변수를 라우터의 라우트 트리와 매칭하여 라우트 매치 배열을 반환합니다.
+
+### `.cancelMatch` method
+
+- 타입: `(matchId: string) => void`
+- 현재 대기 중인 라우트 매치를 취소합니다.
+
+### `.cancelMatches` method
+
+- 타입: `() => void`
+- 현재 대기 중인 모든 라우트 매치를 취소합니다.
+
+### `.buildLocation` method
+
+- 새로운 파싱된 위치 객체를 생성합니다.
+- 타입: `(opts: BuildNextOptions) => ParsedLocation`
+
+### `.commitLocation` method
+
+- 브라우저 히스토리에 새로운 위치 객체를 커밋합니다.
+- 타입:
+  ```tsx
+  type commitLocation = (
+    location: ParsedLocation & {
+      replace?: boolean;
+      resetScroll?: boolean;
+      ignoreBlocker?: boolean;
+    }
+  ) => Promise<void>;
+  ```
+
+```
+
+### `.navigate` method
+
+- 새로운 위치로 탐색합니다.
+- 타입: `(options: NavigateOptions) => Promise<void>`
+
+### `.invalidate` method
+
+- 라우트 매치를 무효화하여 `beforeLoad` 및 `load` 함수를 다시 호출합니다.
+- 타입: `(opts?: {filter?: (d: MakeRouteMatchUnion<TRouter>) => boolean}) => Promise<void>`
+
+### `.clearCache` method
+
+- 캐시된 라우트 매치를 제거합니다.
+- 타입: `(opts?: {filter?: (d: MakeRouteMatchUnion<TRouter>) => boolean}) => void`
+
+### `.load` method
+
+- 현재 매칭된 모든 라우트 매치를 로드하고, 준비되면 해결됩니다.
+- 타입: `() => Promise<void>`
+
+### `.preloadRoute` method
+
+- 제공된 `NavigateOptions`에 매칭된 모든 라우트를 미리 로드합니다.
+- 타입: `(opts?: NavigateOptions) => Promise<RouteMatch[]>`
+
+### `.matchRoute` method
+
+- 경로명과 검색 매개변수를 라우트 트리와 매칭하고, 매치된 라우트의 매개변수를 반환하거나 매치되지 않으면 `false`를 반환합니다.
+- 타입: `(dest: ToOptions, matchOpts?: MatchRouteOptions) => RouteMatch | false`
+
+### `.dehydrate` method
+
+- 라우터의 주요 상태를 직렬화 가능한 객체로 탈수(dehydrate)합니다.
+- 타입: `() => DehydratedRouter`
+
+### `.hydrate` method
+
+- 서버에서 보낸 직렬화된 객체로 라우터의 주요 상태를 복구(hydrate)합니다.
+- 타입: `(dehydrated: DehydratedRouter) => void`
+
+
+```
