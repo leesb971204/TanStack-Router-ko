@@ -1,0 +1,99 @@
+---
+id: useMatchHook
+title: useMatch hook
+---
+
+## useMatch hook
+
+`useMatch` hook은 컴포넌트 트리에서 [`RouteMatch`](./RouteMatchType.md)를 반환합니다. 이 원시 라우트 매치는 라우터에서 라우트 매치에 대한 모든 정보를 포함하며, `useParams`, `useLoaderData`, `useRouteContext`, `useSearch`와 같은 여러 다른 hook의 기반 역할을 합니다.
+
+## useMatch options
+
+`useMatch` hook은 단일 인수인 `options` 객체를 허용합니다.
+
+### `opts.from` option
+
+- 타입: `string`
+- 매치의 라우트 ID
+- 선택 사항이지만, 완전한 타입 안전성을 위해 권장됩니다.
+- `opts.strict`가 `true`인 경우, `from`은 필수이며 이 옵션이 제공되지 않으면 TypeScript가 경고를 표시합니다.
+- `opts.strict`가 `false`인 경우, `from`은 설정할 수 없으며 반환된 [`RouteMatch`](./RouteMatchType.md)의 타입이 느슨해집니다.
+
+### `opts.strict` option
+
+- 타입: `boolean`
+- 선택 사항
+- `default: true`
+- `false`인 경우, `opts.from`은 설정할 수 없으며 모든 매치의 공유 타입을 반영하기 위해 `Partial<RouteMatch>`로 타입이 느슨해집니다.
+
+### `opts.select` option
+
+- 선택 사항
+- `(match: RouteMatch) => TSelected`
+- 제공될 경우, 이 함수는 라우트 매치와 함께 호출되며, 반환 값은 `useMatch`에서 반환됩니다. 이 값은 얕은 비교를 사용하여 hook이 부모 컴포넌트를 다시 렌더링해야 하는지 결정하는 데에도 사용됩니다.
+
+### `opts.structuralSharing` option
+
+- 타입: `boolean`
+- 선택 사항
+- `select`에 의해 반환된 값에 대한 구조적 공유를 활성화할지 구성합니다.
+- 자세한 내용은 [렌더링 최적화 가이드](../../guide/render-optimizations.md)를 참조하세요.
+
+### `opts.shouldThrow` option
+
+- 타입: `boolean`
+- 선택 사항
+- `default: true`
+- `false`인 경우, 현재 렌더링된 매치에서 매치를 찾을 수 없을 때 `useMatch`는 예외를 발생시키지 않고 대신 `undefined`를 반환합니다.
+
+## useMatch returns
+
+- `select` 함수가 제공된 경우, `select` 함수의 반환 값.
+- `select` 함수가 제공되지 않은 경우, [`RouteMatch`](./RouteMatchType.md) 객체 또는 `opts.strict`가 `false`인 경우 `RouteMatch` 객체의 느슨한 버전.
+
+## Examples
+
+### Accessing a route match
+
+```tsx
+import { useMatch } from "@tanstack/react-router";
+
+function Component() {
+  const match = useMatch({ from: "/posts/$postId" });
+  //     ^? strict match for RouteMatch
+  // ...
+}
+```
+
+````
+
+### Accessing the root route's match
+
+```tsx
+import {
+  useMatch,
+  rootRouteId, // <<<< use this token!
+} from "@tanstack/react-router";
+
+function Component() {
+  const match = useMatch({ from: rootRouteId });
+  //     ^? strict match for RouteMatch
+  // ...
+}
+```
+
+### Checking if a specific route is currently rendered
+
+```tsx
+import { useMatch } from "@tanstack/react-router";
+
+function Component() {
+  const match = useMatch({ from: "/posts", shouldThrow: false });
+  //     ^? RouteMatch | undefined
+  if (match !== undefined) {
+    // ...
+  }
+}
+```
+
+````

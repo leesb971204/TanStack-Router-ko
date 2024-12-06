@@ -100,5 +100,8 @@
   },
   "useLocationHook": {
     "title": "useLocation"
+  },
+  "useMatchHook": {
+    "title": "useMatch"
   }
 }
