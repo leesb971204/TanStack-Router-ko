@@ -91,5 +91,8 @@
   },
   "useLinkPropsHook": {
     "title": "useLinkProps"
+  },
+  "useLoaderDataHook": {
+    "title": "useLoaderData"
   }
 }

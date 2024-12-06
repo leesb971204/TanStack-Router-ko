@@ -1,0 +1,56 @@
+---
+id: useLoaderDataHook
+title: useLoaderData hook
+---
+
+## useLoaderData hook
+
+`useLoaderData` hook은 컴포넌트 트리에서 가장 가까운 [`RouteMatch`](./RouteMatchType.md)의 로더 데이터를 반환합니다.
+
+## useLoaderData options
+
+`useLoaderData` hook은 `options` 객체를 허용합니다.
+
+### `opts.from` option
+
+- 타입: `string`
+- 가장 가까운 부모 매치의 라우트 ID
+- 선택 사항이지만, 완전한 타입 안전성을 위해 권장됩니다.
+- `opts.strict`가 `true`인 경우, 이 옵션이 제공되지 않으면 TypeScript가 경고를 표시합니다.
+- `opts.strict`가 `false`인 경우, TypeScript는 반환된 로더 데이터에 대해 느슨한 타입을 제공합니다.
+
+### `opts.strict` option
+
+- 타입: `boolean`
+- 선택 사항 - `default: true`
+- `false`인 경우, `opts.from` 옵션은 무시되며 반환된 로더 데이터의 타입이 모든 가능한 로더 데이터의 공유 타입을 반영하도록 느슨해집니다.
+
+### `opts.select` option
+
+- 선택 사항
+- `(loaderData: TLoaderData) => TSelected`
+- 제공될 경우, 이 함수는 로더 데이터를 사용하여 호출되며, 반환 값은 `useLoaderData`에서 반환됩니다. 이 값은 얕은 비교를 사용하여 hook이 부모 컴포넌트를 다시 렌더링할지 여부를 결정하는 데에도 사용됩니다.
+
+### `opts.structuralSharing` option
+
+- 타입: `boolean`
+- 선택 사항
+- `select`에 의해 반환된 값에 대한 구조적 공유를 활성화할지 구성합니다.
+- 자세한 내용은 [렌더링 최적화 가이드](../../guide/render-optimizations.md)를 참조하세요.
+
+## useLoaderData returns
+
+- `select` 함수가 제공된 경우, `select` 함수의 반환 값.
+- `select` 함수가 제공되지 않은 경우, 로더 데이터 또는 `opts.strict`가 `false`인 경우 로더 데이터의 느슨한 버전.
+
+## Examples
+
+```tsx
+import { useLoaderData } from "@tanstack/react-router";
+
+function Component() {
+  const loaderData = useLoaderData({ from: "/posts/$postId" });
+  //     ^? { postId: string, body: string, ... }
+  // ...
+}
+```
