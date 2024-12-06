@@ -127,5 +127,8 @@
   },
   "useRouterStateHook": {
     "title": "useRouterState"
+  },
+  "useSearchHook": {
+    "title": "useSearch"
   }
 }

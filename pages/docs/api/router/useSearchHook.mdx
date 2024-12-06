@@ -1,0 +1,68 @@
+---
+id: useSearchHook
+title: useSearch hook
+---
+
+## useSearch hook
+
+`useSearch` 메서드는 현재 위치의 검색 쿼리 매개변수를 객체로 반환하는 hook입니다. 이 hook은 컴포넌트에서 현재 검색 문자열 및 쿼리 매개변수에 접근할 때 유용합니다.
+
+## useSearch options
+
+`useSearch` hook은 `options` 객체를 허용합니다.
+
+### `opts.from` option
+
+- 타입: `string`
+- 필수
+- 검색 쿼리 매개변수를 매칭할 RouteID.
+
+### `opts.select` option
+
+- 타입: `(search: SelectedSearchSchema) => TSelected`
+- 선택 사항
+- 제공될 경우, 이 함수는 검색 객체를 사용하여 호출되며, 반환 값은 `useSearch`에서 반환됩니다.
+
+### `opts.structuralSharing` option
+
+- 타입: `boolean`
+- 선택 사항
+- `select`에 의해 반환된 값에 대한 구조적 공유를 활성화할지 구성합니다.
+- 자세한 내용은 [렌더링 최적화 가이드](../../guide/render-optimizations.md)를 참조하세요.
+
+### `opts.strict` option
+
+- 타입: `boolean`
+- 선택 사항 - `default: true`
+- `false`인 경우, `opts.from` 옵션은 무시되며 모든 검색 쿼리 매개변수의 공유 타입을 반영하기 위해 타입이 `Partial<FullSearchSchema>`로 느슨해집니다.
+
+## useSearch returns
+
+- `opts.from`이 제공된 경우, 현재 위치의 검색 쿼리 매개변수 객체 또는 `select` 함수가 제공된 경우 `TSelected`.
+- `opts.strict`이 `false`인 경우, 현재 위치의 검색 쿼리 매개변수 객체 또는 `select` 함수가 제공된 경우 `TSelected`.
+
+## Examples
+
+```tsx
+import { useSearch } from "@tanstack/react-router";
+
+function Component() {
+  const search = useSearch({ from: "/posts/$postId" });
+  //    ^ FullSearchSchema
+
+  // OR
+
+  const selected = useSearch({
+    from: "/posts/$postId",
+    select: (search) => search.postView,
+  });
+  //    ^ string
+
+  // OR
+
+  const looseSearch = useSearch({ strict: false });
+  //    ^ Partial<FullSearchSchema>
+
+  // ...
+}
+```
