@@ -1,0 +1,52 @@
+---
+id: useRouterStateHook
+title: useRouterState hook
+---
+
+## useRouterState hook
+
+`useRouterState` 메서드는 라우터의 현재 내부 상태를 반환하는 hook입니다. 이 hook은 컴포넌트에서 라우터의 현재 상태에 접근할 때 유용합니다.
+
+> [!TIP]
+> 현재 위치나 현재 매치를 확인하려면 [`useLocation`](./useLocationHook.md)과 [`useMatches`](./useMatchesHook.md) hook을 먼저 시도해 보세요. 이러한 hook은 라우터 상태에 직접 접근하는 것보다 더 간단하고 사용하기 쉽도록 설계되었습니다.
+
+## useRouterState options
+
+`useRouterState` hook은 선택적인 `options` 객체를 허용합니다.
+
+### `opts.select` option
+
+- 타입: `(state: RouterState) => TSelected`
+- 선택 사항
+- 제공될 경우, 이 함수는 [`RouterState`](./RouterStateType.md) 객체를 사용하여 호출되며, 반환 값은 `useRouterState`에서 반환됩니다.
+
+### `opts.structuralSharing` option
+
+- 타입: `boolean`
+- 선택 사항
+- `select`에 의해 반환된 값에 대한 구조적 공유를 활성화할지 구성합니다.
+- 자세한 내용은 [렌더링 최적화 가이드](../../guide/render-optimizations.md)를 참조하세요.
+
+## useRouterState returns
+
+- 현재 [`RouterState`](./RouterStateType.md) 객체 또는 `select` 함수가 제공된 경우 `TSelected`.
+
+## Examples
+
+```tsx
+import { useRouterState } from "@tanstack/react-router";
+
+function Component() {
+  const state = useRouterState();
+  //    ^ RouterState
+
+  // OR
+
+  const selected = useRouterState({
+    select: (state) => state.location,
+  });
+  //    ^ ParsedLocation
+
+  // ...
+}
+```
