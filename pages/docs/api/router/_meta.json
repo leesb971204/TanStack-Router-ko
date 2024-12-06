@@ -154,5 +154,8 @@
   },
   "NavigateOptionsType": {
     "title": "NavigateOptions"
+  },
+  "NotFoundErrorType": {
+    "title": "NotFoundError"
   }
 }
