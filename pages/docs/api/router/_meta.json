@@ -115,5 +115,8 @@
   },
   "useParentMatchesHook": {
     "title": "useParentMatches"
+  },
+  "useParamsHook": {
+    "title": "useParams"
   }
 }

@@ -1,0 +1,64 @@
+---
+id: useParamsHook
+title: useParams hook
+---
+
+## useParams hook
+
+`useParams` 메서드는 가장 가까운 매치와 모든 부모 매치에 대해 파싱된 경로 매개변수를 반환합니다.
+
+## useParams options
+
+`useParams` hook은 선택적인 `options` 객체를 허용합니다.
+
+### `opts.strict` option
+
+- 타입: `boolean`
+- 선택 사항 - `default: true`
+- `false`인 경우, `opts.from` 옵션은 무시되며 모든 매개변수의 공유 타입을 반영하기 위해 타입이 `Partial<AllParams>`로 느슨해집니다.
+
+### `opts.select` option
+
+- 선택 사항
+- `(params: AllParams) => TSelected`
+- 제공될 경우, 이 함수는 매개변수 객체를 사용하여 호출되며, 반환 값은 `useParams`에서 반환됩니다. 이 값은 얕은 비교를 사용하여 hook이 부모 컴포넌트를 다시 렌더링할지 여부를 결정하는 데에도 사용됩니다.
+
+### `opts.structuralSharing` option
+
+- 타입: `boolean`
+- 선택 사항
+- `select`에 의해 반환된 값에 대한 구조적 공유를 활성화할지 구성합니다.
+- 자세한 내용은 [렌더링 최적화 가이드](../../guide/render-optimizations.md)를 참조하세요.
+
+## useParams returns
+
+- 매치와 부모 매치의 경로 매개변수 객체 또는 `select` 함수가 제공된 경우 `TSelected`.
+
+## Examples
+
+```tsx
+import { useParams } from "@tanstack/react-router";
+
+const routeApi = getRouteApi("/posts/$postId");
+
+function Component() {
+  const params = useParams({ from: "/posts/$postId" });
+
+  // OR
+
+  const routeParams = routeApi.useParams();
+
+  // OR
+
+  const postId = useParams({
+    from: "/posts/$postId",
+    select: (params) => params.postId,
+  });
+
+  // OR
+
+  const looseParams = useParams({ strict: false });
+
+  // ...
+}
+```
