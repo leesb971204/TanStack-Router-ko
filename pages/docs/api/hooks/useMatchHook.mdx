@@ -5,7 +5,7 @@ title: useMatch hook
 
 ## useMatch hook
 
-`useMatch` hook은 컴포넌트 트리에서 [`RouteMatch`](./RouteMatchType.md)를 반환합니다. 이 원시 라우트 매치는 라우터에서 라우트 매치에 대한 모든 정보를 포함하며, `useParams`, `useLoaderData`, `useRouteContext`, `useSearch`와 같은 여러 다른 hook의 기반 역할을 합니다.
+`useMatch` hook은 컴포넌트 트리에서 [`RouteMatch`](../types/RouteMatchType.md)를 반환합니다. 이 원시 라우트 매치는 라우터에서 라우트 매치에 대한 모든 정보를 포함하며, `useParams`, `useLoaderData`, `useRouteContext`, `useSearch`와 같은 여러 다른 hook의 기반 역할을 합니다.
 
 ## useMatch options
 
@@ -17,7 +17,7 @@ title: useMatch hook
 - 매치의 라우트 ID
 - 선택 사항이지만, 완전한 타입 안전성을 위해 권장됩니다.
 - `opts.strict`가 `true`인 경우, `from`은 필수이며 이 옵션이 제공되지 않으면 TypeScript가 경고를 표시합니다.
-- `opts.strict`가 `false`인 경우, `from`은 설정할 수 없으며 반환된 [`RouteMatch`](./RouteMatchType.md)의 타입이 느슨해집니다.
+- `opts.strict`가 `false`인 경우, `from`은 설정할 수 없으며 반환된 [`RouteMatch`](../types/RouteMatchType.md)의 타입이 느슨해집니다.
 
 ### `opts.strict` option
 
@@ -49,7 +49,7 @@ title: useMatch hook
 ## useMatch returns
 
 - `select` 함수가 제공된 경우, `select` 함수의 반환 값.
-- `select` 함수가 제공되지 않은 경우, [`RouteMatch`](./RouteMatchType.md) 객체 또는 `opts.strict`가 `false`인 경우 `RouteMatch` 객체의 느슨한 버전.
+- `select` 함수가 제공되지 않은 경우, [`RouteMatch`](../types/RouteMatchType.md) 객체 또는 `opts.strict`가 `false`인 경우 `RouteMatch` 객체의 느슨한 버전.
 
 ## Examples
 
@@ -64,8 +64,6 @@ function Component() {
   // ...
 }
 ```
-
-````
 
 ### Accessing the root route's match
 
@@ -95,5 +93,3 @@ function Component() {
   }
 }
 ```
-
-````

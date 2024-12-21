@@ -5,7 +5,7 @@ title: defer function
 
 ## defer function
 
-`defer` 함수는 프라미스를 지연 상태 객체로 래핑하여 해당 프라미스의 상태를 검사할 수 있게 합니다. 이 지연된 프라미스는 [`useAwaited`](./useAwaitedHook.md) 훅 또는 [`<Await>`](./awaitComponent.md) 컴포넌트에 전달되어 프라미스가 해결되거나 거부될 때까지 대기할 수 있습니다.
+`defer` 함수는 프라미스를 지연 상태 객체로 래핑하여 해당 프라미스의 상태를 검사할 수 있게 합니다. 이 지연된 프라미스는 [`useAwaited`](../hooks/useAwaitedHook.md) 훅 또는 [`<Await>`](../components/awaitComponent.md) 컴포넌트에 전달되어 프라미스가 해결되거나 거부될 때까지 대기할 수 있습니다.
 
 `defer` 함수는 지연 상태 객체로 래핑할 `promise`를 단일 인수로 받습니다.
 
@@ -17,7 +17,7 @@ title: defer function
 
 ## defer returns
 
-- [`DeferredPromise<T>`](./DeferredPromiseType.md)를 반환하며, 이는 [`useAwaited`](./useAwaitedHook.md) 훅 또는 [`<Await>`](./awaitComponent.md) 컴포넌트에 전달될 수 있습니다.
+- [`DeferredPromise<T>`](../types/DeferredPromiseType.md)를 반환하며, 이는 [`useAwaited`](../hooks/useAwaitedHook.md) 훅 또는 [`<Await>`](../components/awaitComponent.md) 컴포넌트에 전달될 수 있습니다.
 
 ## Examples
 
