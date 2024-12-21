@@ -62,8 +62,8 @@
   "route-masking": {
     "title": "Route Masking"
   },
-  "navigation-masking": {
-    "title": "Navigation Masking"
+  "navigation-blocking": {
+    "title": "Navigation Blocking"
   },
   "custom-search-param-serialization": {
     "title": "Custom Search Param Serialization"
